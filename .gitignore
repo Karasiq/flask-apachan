@@ -1,0 +1,10 @@
+alembic/
+.idea/
+captcha/
+Borda.iml
+alembic.ini
+files/
+rsfiles/
+*.pyc
+config.py
+blocklist.txt
