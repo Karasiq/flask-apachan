@@ -1,0 +1,46 @@
+﻿{% block postform %}
+<table width='850' align='center'>
+	<tr><td>
+		<table width=700 align=center style='font-family:Tahoma;font-size:12px'>
+			<form name="form1" id="form1" method="post" action="{{ url_for('post') }}" enctype="multipart/form-data">
+				{{form.hidden_tag()}}
+				<tr valign=top>
+				<tr><td width='140px'>Заголовок:<br><span style='font-size:8px'>(опционально)</span></td><td>
+				{{ form.title(size='40', maxlength='100') }}
+				{#<input name="title" type="text" id='title' size='40' maxlength=79> #}
+				{% if mainpost %}
+				{{ form.sage }}Не поднимать
+				{% endif %}
+				{{ form.commit(value='Запостить', onclick='form1.commit.disabled=true;form1.submit();') }}
+				{#<input id="commit" type="submit" value="Запостить" name="commit" onclick='form1.commit.disabled=true;'>  #}</td></tr>
+
+				{{ form.parent }}
+				{{ form.answer_to }}
+				{{ form.section }}
+				<tr><td width='140px'>Сообщение:<br>
+				</td>
+					<td>
+						{{ form.msg(cols='60', rows='8', onfocus='form1.commit.disabled=false;') }}
+						{# <textarea name="msg" id="datafield" cols="60" rows="8" onfocus='form1.commit.disabled=false;'></textarea> #}
+					</td></tr>
+				<td width='140px'>
+					Изображение:<br>
+					Не больше 2х мегабайт.
+				</td>
+				<td>{{ form.img }} <!--<input type='button' value='Random' onclick='javascript:insert_random();'>!-->
+					{# <select form="form1" NAME='ins_random' onchange='javascript:document.form1.img_url.disabled=(this.value>0);form1.img.disabled=(this.value>0);'>
+						<option selected value='0'>Random
+					</SELECT> #}
+					{{ form.ins_random(onchange='javascript:document.form1.img_url.disabled=(this.value>0);form1.img.disabled=(this.value>0);') }}
+					<br>
+					<b><u>Разрешенные типы файлов: JPG,JPEG,GIF,PNG,BMP,TIFF</u></b>
+					<br>Или URL картинки сюда: {{ form.img_url(size='50') }}
+					{# <input type='text' name='img_url' value='' size='50'> #}
+					<br></td></tr>
+			</form>
+		</table>
+	</td></tr>
+</table>
+<hr width="90%" size=1>
+<br>
+{% endblock %}
