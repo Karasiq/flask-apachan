@@ -18,6 +18,7 @@ SECRET_KEY = 'changemechangemechangemechangeme'
 ADMIN_PASS_MD5 = '4cb9c8a8048fd02294477fcb1a41191a' #'changeme'
 BASE_RANDOMPIC_DIR = 'randompic_files'
 DEBUG_ENABLED = False
+SITE_NAME = 'site name'
 RANDOM_SETS = [
 	{
 		'name' : u'Random'

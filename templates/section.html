@@ -23,9 +23,9 @@
 {% elif mainpost and mainpost.message %}
     {% set title = mainpost.message[:40] %}
 {% elif SecName %}
-    {% set title = SecName + ' - ОП хуй' %}
+    {% set title = SecName + ' - ' + config.SITE_NAME %}
 {% else %}
-    {% set title = 'ОП хуй' %}
+    {% set title = config.SITE_NAME %}
 {% endif %}
     <center><h2>{{ title }}</h2></center>
     <title>{{ title }}</title>
