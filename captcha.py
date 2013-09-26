@@ -4,44 +4,7 @@ from flask import Blueprint, render_template, abort, session, redirect, request,
 captcha = Blueprint('captcha', __name__,
                         template_folder='templates')
 
-captcha_files = [
-    {
-        'name' : u'Ракодил',
-        'file' : 'image033.jpg'
-    },
-    {
-        'name' : u'Газ-кун',
-        'file' : 'gazovik.jpg'
-    },
-    {
-        'name' : u'Апацхе',
-        'file' : 'apazhe-be-be-be.jpg'
-    },
-    {
-        'name' : u'Хохол',
-        'file' : 'pig3.jpg'
-    },
-    {
-        'name' : u'Распальцовка',
-        'file' : '283px-Sign_apachan.jpg'
-    },
-    {
-        'name' : u'ТНН',
-        'file' : 'Tnn.jpg'
-    },
-    {
-        'name' : u'1000 WMR',
-        'file' : '800px-Kop_anus.jpg'
-    },
-    {
-        'name' : u'От спички норм будет',
-        'file' : '267px-Gasapachan.jpg'
-    },
-    {
-        'name' : u'Принцип-компани',
-        'file' : 'vqgfls5k2220.jpg'
-    },
-]
+from config import CAPTCHA_FILES
 
 @captcha.route('/get-captcha')
 def get_captcha_img():
@@ -74,8 +37,8 @@ def show_captcha():
         return redirect('/index')
 
     names = list()
-    for c in captcha_files:
+    for c in CAPTCHA_FILES:
         names.append(c['name'])
     shuffle(names)
-    session['valid'] = choice(captcha_files)
+    session['valid'] = choice(CAPTCHA_FILES)
     return render_template('captcha.html', names = names)

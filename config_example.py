@@ -37,3 +37,14 @@ TRASH = 'trash'
 SECTIONS = { 'b' : u'Бред',
              'a' : u'Анус',
 			 'trash' : u'Помойка'}
+			 
+CAPTCHA_FILES = [ # in /captcha
+    {
+        'name' : u'Капча №1',
+        'file' : 'captcha1.jpg'
+    },
+    {
+        'name' : u'Капча №2',
+        'file' : 'captcha2.jpg'
+    }
+]
