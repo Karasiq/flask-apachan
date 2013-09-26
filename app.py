@@ -4,7 +4,7 @@ from werkzeug import secure_filename
 from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
 from datetime import datetime, timedelta
-import torcheck, captcha
+import ipcheck, captcha
 import os, sys
 sys.path.append(os.getcwd())
 sys.path.append(os.path.join(os.getcwd(), 'db'))
@@ -231,18 +231,14 @@ def user_check():
     if not request.endpoint or request.endpoint.split('.')[0] not in ['captcha', 'register', 'static', 'set_uid', 'set_fp']:
         if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
             return redirect(url_for('human_test'))
-            #return False, redirect(url_for('human_test'))
         elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
             return redirect(url_for('captcha.show_captcha'))
     if request.headers.get('Host').split(':')[0] not in app.config['ALLOWED_HOSTS']:
         return redirect('http://google.com/')
-        #return False, redirect('http://google.com/')
     if not session.get('uid') and session.get('fingerprint') and (not request.endpoint or request.endpoint not in ['register', 'static', 'set_uid', 'set_fp']):
         return redirect(url_for('register'))
-        #return False, redirect(url_for('register'))
-    if torcheck.CheckIP(request.remote_addr):
-        return render_template('error.html', errortitle=u'Засунь свой TOR себе в жопу')
-        #return False, render_template('error.html', errortitle=u'Засунь свой TOR себе в жопу')
+    if app.config['IP_BLOCKLIST'].InList(request.remote_addr):
+        return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
 
     #return True, ''
 
@@ -688,7 +684,10 @@ if __name__ == '__main__':
     from os import listdir
     from os.path import isfile, join
     from config import RANDOM_SETS, DEBUG_ENABLED, BASE_RANDOMPIC_DIR
-    torcheck.LoadList('torlist.txt')
+
+    app.config['IP_BLOCKLIST'] = ipcheck.IpList()
+    app.config['IP_BLOCKLIST'].Load('blocklist.txt')
+
     for r in RANDOM_SETS:
         if r.has_key('dir'):
             onlyfiles = [ f for f in listdir(os.path.join(BASE_RANDOMPIC_DIR, r['dir'])) if isfile(join(os.path.join(BASE_RANDOMPIC_DIR, r['dir']), f)) ]
