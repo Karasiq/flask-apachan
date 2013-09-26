@@ -1,0 +1,8 @@
+.idea/
+alembic/
+*.pyc
+captcha/
+files/
+rsfiles/
+config.py
+alembic.ini

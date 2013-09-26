@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block content %}
+{% include 'menu.html' %}
+{% if session.admin %}
+<script type="text/javascript" src="{{ url_for('static', filename='admin.js') }}"></script>
+{% endif %}
+    <script>var highlighted = 0;
+    var ec = 0;</script>
+{#{% if not session.uid %}
+    <script>
+        var ec = new evercookie();
+        ec.get("uid", function(value) {
+            $.getJSON($SCRIPT_ROOT + '/_set_id', {
+                uid: value
+            }, function(result) {
+                location.reload();
+            });
+        });
+    </script>
+{% endif %}#}
+{% if mainpost and mainpost.title %}
+    {% set title = mainpost.title %}
+{% elif mainpost and mainpost.message %}
+    {% set title = mainpost.message[:40] %}
+{% elif SecName %}
+    {% set title = SecName + ' - ОП хуй' %}
+{% else %}
+    {% set title = 'ОП хуй' %}
+{% endif %}
+    <center><h2>{{ title }}</h2></center>
+    <title>{{ title }}</title>
+
+    <center><h3>{% if form and form.parent.data != '0' %}
+<a href="{{ url_for('section', SectionName = form.section.data) }}">В корень раздела</a>
+{% if mainpost.parent != 0 %}
+&nbsp; <a href="{{ url_for('viewpost', postid = mainpost.id) }}">В корень треда</a>
+{% endif %}
+{% else %}
+<a href="{{ url_for('index') }}">На главную</a>
+{% endif %} </h3>
+</center>
+{# <form action="/post" method="post" name="post" enctype="multipart/form-data">
+    {{form.hidden_tag()}}
+    <center><table border="0">
+        <tr><td>Заголовок:</td><td>{{form.title}}</td></tr>
+        <tr><td>Сообщение:</td><td>{{form.msg}}</td></tr>
+        <tr><td>Изображение:</td><td>{{form.img}}</td></tr>
+        {{ form.parent }}
+        {{ form.section }}
+    </table>
+    <input id="commit" type="submit" value="Отправить" name="commit"></center>
+</form>
+    <hr> #}
+    <hr width="90%" size=1>
+    {% if not session.fingerprint or not session.uid %}
+        <center><h3>Включите javascript для возможности отправлять сообщения</h3></center>
+    {% elif form %}
+        {% include 'postform.html' %}
+    {% endif %}
+
+{% if mainpost %}
+    {% set p = mainpost %}
+    {% include 'post.html' %}
+{% endif %}
+{% for p in posts if not session.hidden or p.id not in session.hidden %}
+    {% include 'post.html' %}
+{% endfor %}
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br><center><h2>
+{% if est and est > 0 %}
+<a href="{{ baseurl }}{{ page + 1 }}">След. страница</a>&nbsp;
+{% endif %}
+{% if page and page > 0 %}
+<a href="{{ baseurl }}{{ page - 1 }}">Пред. страница</a>
+{% endif %}
+</h2></center>
+{% endblock %}
