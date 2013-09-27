@@ -1,5 +1,7 @@
 # coding=utf-8
 from flask import Flask, render_template, request, redirect, make_response, session, send_from_directory, jsonify, url_for, flash
+from flask.ext.assets import Environment, Bundle
+from flask.ext.cache import Cache
 from werkzeug import secure_filename
 from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
@@ -12,6 +14,8 @@ sys.path.append(os.path.join(os.getcwd(), 'db'))
 app = Flask(__name__)
 app.config.from_object('config')
 app.register_blueprint(captcha.captcha)
+cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : 'cache'})
+assets = Environment(app)
 import models, database
 from database import db_session
 
@@ -124,12 +128,15 @@ def set_uid(uid = 0):
     session.permanent = True
     return response
 
+@cache.memoize()
 def get_safe_url(url):
     import base64
     if url.split(':')[0] not in app.config['ALLOWED_HOSTS']:
         return url_for('external_redirect', url=base64.b64encode(url))
     else:
         return url
+
+@cache.memoize(timeout=50)
 @app.template_filter('ext_urls')
 def escape_ext_urls(txt):
     import re
@@ -139,6 +146,7 @@ def escape_ext_urls(txt):
         result = result.replace(m.group(0), 'href=\"%s\"' % get_safe_url(m.group(1)))
     return result
 
+@cache.memoize(timeout=50)
 @app.template_filter('message')
 def render_message(msg):
     #from jinja2 import Markup
@@ -245,6 +253,7 @@ def user_check():
 
     #return True, ''
 
+@cache.cached()
 @app.route('/index')
 @app.route('/')
 def index():
@@ -253,11 +262,9 @@ def index():
     return render_template("index.html", sections = sections)
 
 def get_page_number(post):
-    if post.position:
-        return post.position / 20
-    else:
-        return 0
+    return post.position / 20 if post.position else 0
 
+@cache.memoize()
 @app.route('/viewpost/<postid>') # Посмотреть пост в треде
 def viewpost(postid):
     #result, response = user_check()
@@ -268,7 +275,7 @@ def viewpost(postid):
             return redirect(url_for('view', postid = postid))
         else:
             return redirect(url_for('view', postid=post.parent, page=get_page_number(post)) + '#t' + str(postid))
-
+@cache.memoize()
 def id_list(posts):
     il = list()
     for p in posts:
@@ -690,6 +697,8 @@ if __name__ == '__main__':
 
     app.config['IP_BLOCKLIST'] = ipcheck.IpList()
     app.config['IP_BLOCKLIST'].Load('blocklist.txt')
+    js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'jsfunctions.js', 'evercookie.js', filters='jsmin', output='gen/packed.js')
+    assets.register('js_all', js)
 
     for r in RANDOM_SETS:
         if r.has_key('dir'):

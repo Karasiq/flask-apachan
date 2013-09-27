@@ -5,11 +5,14 @@
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
 	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"/>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'jquery-2.0.3.min.js') }}"></script>
+    {% assets "js_all" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {# <script type="text/javascript" src="{{ url_for('static', filename = 'jquery-2.0.3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'swfobject-2.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'evercookie.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'fingerprint.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jsfunctions.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jsfunctions.js') }}"></script> #}
     <script type="text/javascript">
         function body_onload()
         {
