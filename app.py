@@ -1,5 +1,7 @@
 # coding=utf-8
 from flask import Flask, render_template, request, redirect, make_response, session, send_from_directory, jsonify, url_for, flash
+from flask.ext.assets import Environment, Bundle
+from flask.ext.cache import Cache
 from werkzeug import secure_filename
 from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
@@ -12,6 +14,8 @@ sys.path.append(os.path.join(os.getcwd(), 'db'))
 app = Flask(__name__)
 app.config.from_object('config')
 app.register_blueprint(captcha.captcha)
+cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : 'cache'})
+assets = Environment(app)
 import models, database
 from database import db_session
 
@@ -96,7 +100,7 @@ def set_uid(uid = 0):
             user.rating = 0 # Сброс
             db_session.add(user)
             db_session.commit()
-        elif user.rating < -20:
+        elif user.rating < (app.config['RATING_BAN_VOTE'] * -1):
             user.banned = True
             user.banexpiration = datetime.now() + timedelta(days = 10)
             user.banreason = u'Бан по сумме голосов (вероятно за идиотизм)'
@@ -106,7 +110,7 @@ def set_uid(uid = 0):
         if user.first_post and user.last_post and user.rating:
             session['canvote'] = (datetime.now() - user.first_post) >= timedelta(days=14) \
                                  and (datetime.now() - user.last_post) <= timedelta(days=3) \
-                                 and user.rating >= 20 and not session['banned']
+                                 and user.rating >= app.config['RATING_BAN_VOTE'] and not session['banned']
 
         if request.cookies.get('admin'):
             import hashlib
@@ -124,12 +128,15 @@ def set_uid(uid = 0):
     session.permanent = True
     return response
 
+@cache.memoize()
 def get_safe_url(url):
     import base64
     if url.split(':')[0] not in app.config['ALLOWED_HOSTS']:
         return url_for('external_redirect', url=base64.b64encode(url))
     else:
         return url
+
+@cache.memoize(timeout=50)
 @app.template_filter('ext_urls')
 def escape_ext_urls(txt):
     import re
@@ -139,6 +146,7 @@ def escape_ext_urls(txt):
         result = result.replace(m.group(0), 'href=\"%s\"' % get_safe_url(m.group(1)))
     return result
 
+@cache.memoize(timeout=50)
 @app.template_filter('message')
 def render_message(msg):
     #from jinja2 import Markup
@@ -245,6 +253,7 @@ def user_check():
 
     #return True, ''
 
+@cache.cached()
 @app.route('/index')
 @app.route('/')
 def index():
@@ -253,11 +262,9 @@ def index():
     return render_template("index.html", sections = sections)
 
 def get_page_number(post):
-    if post.position:
-        return post.position / 20
-    else:
-        return 0
+    return post.position / app.config['MAX_POSTS_ON_PAGE'] if post.position else 0
 
+@cache.memoize()
 @app.route('/viewpost/<postid>') # Посмотреть пост в треде
 def viewpost(postid):
     #result, response = user_check()
@@ -268,7 +275,7 @@ def viewpost(postid):
             return redirect(url_for('view', postid = postid))
         else:
             return redirect(url_for('view', postid=post.parent, page=get_page_number(post)) + '#t' + str(postid))
-
+@cache.memoize()
 def id_list(posts):
     il = list()
     for p in posts:
@@ -284,8 +291,8 @@ def semeno_detector(postid, page=0):
     if post:
         parent_id = post.parent if post.parent != 0 else post.id
         posts = db_session.query(models.Post).filter(models.Post.user_id == post.user_id, models.Post.parent == parent_id, models.Post.id != postid).order_by(models.Post.id.asc())
-        est = posts.count() - 20
-        posts = posts.limit(20)
+        est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
+        posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
         form = PostForm()
         form.answer_to.data = postid
         if int(post.parent) == 0:
@@ -365,9 +372,9 @@ def view(postid, page=0):
     #result, response = user_check()
     #if not result: return response
     post = db_session.query(models.Post).filter_by(id = postid).first()
-    answers = db_session.query(models.Post).filter(or_(models.Post.parent == postid, models.Post.answer_to == postid)).order_by(models.Post.id.asc()).offset(int(page) * 20)
-    est = answers.count() - 20
-    answers = answers.limit(20)
+    answers = db_session.query(models.Post).filter(or_(models.Post.parent == postid, models.Post.answer_to == postid)).order_by(models.Post.id.asc()).offset(int(page) * app.config['MAX_POSTS_ON_PAGE'])
+    est = answers.count() - app.config['MAX_POSTS_ON_PAGE']
+    answers = answers.limit(app.config['MAX_POSTS_ON_PAGE'])
 
     if post is None:
         return render_template("error.html", errortitle = u"Пост не найден")
@@ -656,9 +663,9 @@ def post():
 def allsections(Page=0):
     #result, response = user_check()
     #if not result: return response
-    posts = db_session.query(models.Post).filter_by(parent = 0).order_by(models.Post.last_answer.desc()).offset(int(Page) * 20)
-    est = posts.count() - 20
-    posts = posts.limit(20)
+    posts = db_session.query(models.Post).filter_by(parent = 0).order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
+    est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
+    posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.parent.data = '0'
     form.section.data = 'b'
@@ -674,9 +681,9 @@ def section(SectionName, Page=0):
     #if not result: return response
     if sections.get(SectionName) is None:
         return render_template("error.html", errortitle = u"Раздел не найден")
-    posts = db_session.query(models.Post).filter_by(parent = 0, section = SectionName).order_by(models.Post.last_answer.desc()).offset(int(Page) * 20)
-    est = posts.count() - 20
-    posts = posts.limit(20)
+    posts = db_session.query(models.Post).filter_by(parent = 0, section = SectionName).order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
+    est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
+    posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.section.data = SectionName
     return render_template("section.html", SecName = sections[SectionName], posts = posts, form = form, 
@@ -690,6 +697,8 @@ if __name__ == '__main__':
 
     app.config['IP_BLOCKLIST'] = ipcheck.IpList()
     app.config['IP_BLOCKLIST'].Load('blocklist.txt')
+    js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'jsfunctions.js', 'evercookie.js', filters='jsmin', output='gen/packed.js')
+    assets.register('js_all', js)
 
     for r in RANDOM_SETS:
         if r.has_key('dir'):

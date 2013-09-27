@@ -8,3 +8,4 @@ rsfiles/
 *.pyc
 config.py
 blocklist.txt
+cache/

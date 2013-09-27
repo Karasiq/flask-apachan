@@ -19,6 +19,8 @@ ADMIN_PASS_MD5 = '4cb9c8a8048fd02294477fcb1a41191a' #'changeme'
 BASE_RANDOMPIC_DIR = 'randompic_files'
 DEBUG_ENABLED = False
 SITE_NAME = 'site name'
+MAX_POSTS_ON_PAGE = 30
+RATING_BAN_VOTE = 20
 RANDOM_SETS = [
 	{
 		'name' : u'Random'
