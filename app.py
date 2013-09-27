@@ -404,6 +404,7 @@ def human_test():
     else:
         return render_template('recaptcha.html', form = HumanTestForm())
 
+@cache.memoize()
 @app.route('/img/<randid>/<filename>', methods=['GET'])
 def getimage(randid, filename):
     import urlparse

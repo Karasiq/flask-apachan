@@ -9,3 +9,5 @@ rsfiles/
 config.py
 blocklist.txt
 cache/
+static/.webassets-cache/
+static/gen/

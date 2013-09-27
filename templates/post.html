@@ -1,4 +1,10 @@
-﻿<br><br><a name="t{{ p.id }}"></a><table oncontextmenu="copy_selection();" id="tbl{{ p.id }}" align='center' width='780' id="p{{ p.id }}" style='font-size:13px;background-color:#E6E6E6;border: 1px solid gray;'><tr><td colspan='2'><div id="cd{{ p.id }}" style='width:780px;overflow:hidden;'>
+﻿{% if mainpost and mainpost.id == p.id %}
+{% set post_bg_color = 'CCEECC' %}
+{% else %}
+{% set post_bg_color = 'E6E6E6' %}
+{% endif %}
+
+<br><br><a name="t{{ p.id }}"></a><table oncontextmenu="copy_selection();" id="tbl{{ p.id }}" align='center' width='780' id="p{{ p.id }}" style='font-size:13px;background-color:#{{ post_bg_color }};border: 1px solid gray;'><tr><td colspan='2'><div id="cd{{ p.id }}" style='width:780px;overflow:hidden;'>
     {% if p.title %}
         <b>{{ p.title|title|escape }}</b><br>
     {% endif %}
