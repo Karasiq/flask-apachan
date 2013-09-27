@@ -48,8 +48,11 @@ def refresh_user(user):
 @app.route('/redirect')
 def external_redirect():
     import base64
+    from jinja2 import Markup
     try:
-        url = base64.b64decode(request.args.get('url'))
+        url = Markup.escape(base64.b64decode(request.args.get('url')))
+        if url[:4] != 'http':
+            return render_template("error.html", errortitle=u'Не надо так делать')
         return redirect(url)
     except:
         return redirect(redirect_url())
