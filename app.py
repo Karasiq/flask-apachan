@@ -664,6 +664,16 @@ def post():
         for error in form.errors:
                 flash(error)
         return render_template("error.html", errortitle=u'Ошибка отправки')
+
+@cache.memoize(timeout=100)
+@app.route('/gallery')
+@app.route('/gallery/<Page>')
+def gallery(Page=0):
+    posts = db_session.query(models.Post).filter(models.Post.randid == 0, models.Post.image != '').order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
+    est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
+    posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
+    return render_template("gallery.html", posts = posts, page = Page, pages = int(est / app.config['MAX_POSTS_ON_PAGE']))
+
 @app.route('/all')
 @app.route('/all/<Page>')
 def allsections(Page=0):

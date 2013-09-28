@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block content %}
+    {% for i in range(1, pages) %}
+        {% if i != page %}<a href="{{ url_for('gallery', Page=i) }}">#{{ i }}</a>
+        {% else %} <b>#{{ i }}</b>{% endif %} &nbsp;
+    {% endfor %}
+    <table align='center' width='800'>
+    <tr>
+        {% for p in posts %}
+        <td><img src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" max-width=200 max-height=200></td>
+        {% endfor %}
+    </tr>
+    </table>
+{% endblock %}
