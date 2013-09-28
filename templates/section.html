@@ -1,23 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
-{% include 'menu.html' %}
-{% if session.admin %}
-<script type="text/javascript" src="{{ url_for('static', filename='admin.js') }}"></script>
-{% endif %}
-    <script>var highlighted = 0;
-    var ec = 0;</script>
-{#{% if not session.uid %}
-    <script>
-        var ec = new evercookie();
-        ec.get("uid", function(value) {
-            $.getJSON($SCRIPT_ROOT + '/_set_id', {
-                uid: value
-            }, function(result) {
-                location.reload();
-            });
-        });
-    </script>
-{% endif %}#}
 {% if mainpost and mainpost.title %}
     {% set title = mainpost.title %}
 {% elif mainpost and mainpost.message %}

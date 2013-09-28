@@ -45,9 +45,13 @@
     </ul>
     {% endif %}
     {% endwith %}
+    {% set sections = config.SECTIONS %}
 	<div id="content" style="">
-	<!-- <div id="in_the_middle_of_page"> -->
-    {% block content %}{% endblock %}
+        {% include 'menu.html' %}
+        {% if session.admin %}
+            <script type="text/javascript" src="{{ url_for('static', filename='admin.js') }}"></script>
+        {% endif %}
+        {% block content %}{% endblock %}
 	</div>
   </body>
 </html>

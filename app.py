@@ -233,7 +233,7 @@ def register():
         if rec and rec.id:
             set_uid(rec.id)
         response = make_response(redirect(redirect_url()))
-        #response = make_response(render_template("index.html", sections = sections, setid = auth_token(rec.id)))
+        #response = make_response(render_template("index.html", setid = auth_token(rec.id)))
         response.set_cookie('uid', auth_token(rec.id) if rec and rec.id else '', max_age=app.config['COOKIES_MAX_AGE'])
         return response
     return redirect(redirect_url())
@@ -302,7 +302,7 @@ def semeno_detector(postid, page=0):
             form.parent.data = post.parent
         form.section.data = post.section
         return render_template("section.html", SecName = u'Семенодетектор (#%s)' % int(postid), posts = posts, form = form, mainpost = post, 
-                               randoms = app.config['RANDOM_SETS'], sections = sections, est = est, page = int(page), baseurl = '/semenodetector/' + postid + '/', 
+                               randoms = app.config['RANDOM_SETS'], est = est, page = int(page), baseurl = '/semenodetector/' + postid + '/', 
                                page_posts = id_list(posts))
 
 @app.route('/add-to-favorites')
@@ -336,7 +336,7 @@ def mythreads():
     #if not result: return response
     posts = db_session.query(models.Post).filter(models.Post.user_id == session.get('uid'), models.Post.parent == 0).order_by(models.Post.last_answer.desc())
     return render_template("section.html", SecName = u'Мои треды', posts = posts, 
-                           randoms = app.config['RANDOM_SETS'], sections = sections, baseurl = '/mythreads/', 
+                           randoms = app.config['RANDOM_SETS'], baseurl = '/mythreads/', 
                            page_posts = id_list(posts))
 
 @app.route('/answers')
@@ -350,7 +350,7 @@ def answers():
         ids.append(p.id)
     answers = db_session.query(models.Post).filter(models.Post.answer_to.in_(ids)).order_by(models.Post.time.desc())
     return render_template("section.html", SecName = u'Ответы', posts = answers, 
-                           randoms = app.config['RANDOM_SETS'], sections = sections, baseurl = '/answers/', 
+                           randoms = app.config['RANDOM_SETS'], baseurl = '/answers/', 
                            page_posts = id_list(answers), show_answer_to = True)
 
 @app.route('/favorites')
@@ -361,7 +361,7 @@ def favorites():
     if session.get('favorites'):
         posts = db_session.query(models.Post).filter(models.Post.id.in_(session['favorites'])).order_by(models.Post.id.asc())
         return render_template("section.html", SecName = u'Избранное', posts = posts, 
-                               randoms = app.config['RANDOM_SETS'], sections = sections, baseurl = '/favorites/', 
+                               randoms = app.config['RANDOM_SETS'], baseurl = '/favorites/', 
                                page_posts = id_list(posts))
     else:
         return render_template('error.html', errortitle=u'В избранном ничего нет')
@@ -388,7 +388,7 @@ def view(postid, page=0):
     form.section.data = post.section
 
     return render_template("section.html", SecName = sections[post.section], posts = answers, form = form, mainpost = post, 
-                           randoms = app.config['RANDOM_SETS'], sections = sections, est = est, page = int(page), baseurl = '/view/' + postid + '/', 
+                           randoms = app.config['RANDOM_SETS'], est = est, page = int(page), baseurl = '/view/' + postid + '/', 
                            page_posts = id_list(answers))
 
 def unique_id():
@@ -686,7 +686,7 @@ def allsections(Page=0):
     form.parent.data = '0'
     form.section.data = 'b'
     return render_template("section.html", SecName = u'Поток', posts = posts, form = form, 
-                           randoms = app.config['RANDOM_SETS'], show_section = True, sections = sections, est = est, page = int(Page),
+                           randoms = app.config['RANDOM_SETS'], show_section = True, est = est, page = int(Page),
                            baseurl = '/all/', )
 
 
@@ -703,7 +703,7 @@ def section(SectionName, Page=0):
     form = PostForm()
     form.section.data = SectionName
     return render_template("section.html", SecName = sections[SectionName], posts = posts, form = form, 
-                           randoms = app.config['RANDOM_SETS'], sections = sections, page = int(Page), est = est, baseurl = '/boards/' + SectionName + '/',
+                           randoms = app.config['RANDOM_SETS'], page = int(Page), est = est, baseurl = '/boards/' + SectionName + '/',
                            )
 
 if __name__ == '__main__':
