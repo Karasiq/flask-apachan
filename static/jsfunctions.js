@@ -1,3 +1,5 @@
+var highlighted = 0;
+var ec = new evercookie();
 function submit_vote(id,v)
 {
 	$.getJSON($SCRIPT_ROOT + '/_vote', {
@@ -30,7 +32,6 @@ function set_fp()
 }
 function get_ec()
 {
-	if(!ec) var ec = new evercookie();
 	ec.get("uid", function(value) {
 		$.getJSON($SCRIPT_ROOT + '/set_id', {
 			uid: value
@@ -39,7 +40,6 @@ function get_ec()
 }
 function set_ec(newid)
 {
-	if(!ec) var ec = new evercookie();
     ec.set("uid", newid);
 }
 function add_to_favorites(id)

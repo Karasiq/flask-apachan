@@ -131,12 +131,12 @@ def set_uid(uid = 0):
 @cache.memoize()
 def get_safe_url(url):
     import base64
-    if url.split(':')[0] not in app.config['ALLOWED_HOSTS']:
+    if get_netloc(url) != app.config['SERVER_NAME']:
         return url_for('external_redirect', url=base64.b64encode(url))
     else:
         return url
 
-@cache.memoize(timeout=50)
+@cache.memoize(timeout=500)
 @app.template_filter('ext_urls')
 def escape_ext_urls(txt):
     import re
@@ -146,7 +146,7 @@ def escape_ext_urls(txt):
         result = result.replace(m.group(0), 'href=\"%s\"' % get_safe_url(m.group(1)))
     return result
 
-@cache.memoize(timeout=50)
+@cache.memoize(timeout=500)
 @app.template_filter('message')
 def render_message(msg):
     #from jinja2 import Markup
@@ -161,6 +161,7 @@ def render_message(msg):
     r = re.sub(r'\[url](?!javascript:)([^\r\n]*)\[/url\]', '<a href=\"\\1\">\\1</a>', r)
     r = re.sub(r'\[url="?(?!javascript:)([^\r\n]*)"?\](?!javascript:)(.*)\[/url]', '<a href=\"\\1\">\\2</a>', r)
     r = re.sub(r'https?://(?:www\.)youtube\.com/watch\?[\w\-&%=]*\bv=([\w-]*)', render_template("youtube.html"), r)
+    r = re.sub(r'(?<!")(?<!">)\bhttps?://' + app.config['SERVER_NAME'] + r'/([^"\s<>]*)', '<a href=\"/\\1\">/\\1</a>', r) # relative
     r = re.sub(r'(?<!")(?<!">)\b(https?://[^"\s<>]*)', '<a href=\"\\1\">\\1</a>', r)
     return r.replace('\r\n', '<br>')
 
@@ -244,7 +245,7 @@ def user_check():
             return redirect(url_for('human_test'))
         elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
             return redirect(url_for('captcha.show_captcha'))
-    if request.headers.get('Host').split(':')[0] not in app.config['ALLOWED_HOSTS']:
+    if request.headers.get('Host') != app.config['SERVER_NAME']:
         return redirect('http://google.com/')
     if not session.get('uid') and session.get('fingerprint') and (not request.endpoint or request.endpoint not in ['register', 'static', 'set_uid', 'set_fp']):
         return redirect(url_for('register'))
@@ -405,10 +406,14 @@ def human_test():
         return render_template('recaptcha.html', form = HumanTestForm())
 
 @cache.memoize()
+def get_netloc(url):
+    import urlparse
+    return urlparse.urlparse(url).netloc
+
+@cache.memoize()
 @app.route('/img/<randid>/<filename>', methods=['GET'])
 def getimage(randid, filename):
-    import urlparse
-    #if not request.headers.get('Referer') or urlparse.urlparse(request.headers.get('Referer')).netloc.split(':')[0] not in app.config['ALLOWED_HOSTS']:
+    #if not request.headers.get('Referer') or get_netloc(request.headers.get('Referer')).split(':')[0] not in app.config['ALLOWED_HOSTS']:
     #    return send_from_directory('static', 'hotlink.png')
     if int(randid) == 0:
         return send_from_directory(app.config['IMG_FOLDER'], filename)
@@ -698,7 +703,7 @@ if __name__ == '__main__':
 
     app.config['IP_BLOCKLIST'] = ipcheck.IpList()
     app.config['IP_BLOCKLIST'].Load('blocklist.txt')
-    js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'jsfunctions.js', 'evercookie.js', filters='jsmin', output='gen/packed.js')
+    js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
     assets.register('js_all', js)
 
     for r in RANDOM_SETS:

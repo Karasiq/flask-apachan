@@ -9,8 +9,9 @@
         <b>{{ p.title|title|escape }}</b><br>
     {% endif %}
     {% if p.image != '' %}
-        <a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}">
-            <img src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" max-width="200" max-height="200" style='float:left' HSPACE='5'></a>
+        {# <a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}"> #}
+            <img src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" {% if p.randid == 0 %} onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" {% endif %} max-width="200" max-height="200" style='float:left' HSPACE='5'>
+        {# </a> #}
     {% endif %}
     <!--<div class="quote">как нибудь у тебя кончатся деньги и тебе никто не прийдет на помощ</div><br>-->
     {{ p.message|message|ext_urls|safe }}</div></td></tr><tr><td height='10px'></td></tr>

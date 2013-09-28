@@ -35,7 +35,7 @@ RANDOM_SETS = [
 	}
 ]
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yoursite.com']
+SERVER_NAME = 'localhost:5000' if DEBUG_ENABLED else 'host.com'
 TRASH = 'trash'
 SECTIONS = { 'b' : u'Бред',
              'a' : u'Анус',
