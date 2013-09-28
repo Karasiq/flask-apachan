@@ -283,6 +283,7 @@ def id_list(posts):
         il.append(p.id)
     return il
 
+#@cache.memoize(timeout=20)
 @app.route('/semenodetector/<postid>')
 @app.route('/semenodetector/<postid>/<page>')
 def semeno_detector(postid, page=0):
@@ -330,6 +331,7 @@ def hide_thread():
     session['hidden'].append(thid)
     return jsonify(result=True)
 
+#@cache.memoize(timeout=10)
 @app.route('/mythreads')
 def mythreads():
     #result, response = user_check()
@@ -338,7 +340,7 @@ def mythreads():
     return render_template("section.html", SecName = u'Мои треды', posts = posts, 
                            randoms = app.config['RANDOM_SETS'], baseurl = '/mythreads/', 
                            page_posts = id_list(posts))
-
+#@cache.memoize(timeout=10)
 @app.route('/answers')
 def answers():
     #result, response = user_check()
@@ -366,6 +368,7 @@ def favorites():
     else:
         return render_template('error.html', errortitle=u'В избранном ничего нет')
 
+#@cache.memoize(timeout=20)
 @app.route('/view/<postid>')
 @app.route('/view/<postid>/<page>')
 def view(postid, page=0):
@@ -674,6 +677,7 @@ def gallery(Page=0):
     posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
     return render_template("gallery.html", posts = posts, page = Page, pages = int(est / app.config['MAX_POSTS_ON_PAGE']))
 
+#@cache.memoize(timeout=10)
 @app.route('/all')
 @app.route('/all/<Page>')
 def allsections(Page=0):
@@ -690,6 +694,7 @@ def allsections(Page=0):
                            baseurl = '/all/', )
 
 
+#@cache.memoize(timeout=10)
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<Page>')
 def section(SectionName, Page=0):
