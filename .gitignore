@@ -1,8 +1,6 @@
-alembic/
 .idea/
 captcha/
 Borda.iml
-alembic.ini
 files/
 rsfiles/
 *.pyc
