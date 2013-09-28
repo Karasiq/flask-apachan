@@ -53,7 +53,7 @@
     <a id="vt1_{{ p.id }}" href="javascript:submit_vote({{ p.id }}, 1);" style='text-decoration:none'>[+]</a> <a id="vt2_{{ p.id }}" href="javascript:submit_vote({{ p.id }},-1);" style='text-decoration:none'>[-]</a>
     {% endif %}
     {% if show_section %}
-        &nbsp; {{ sections[p.section] }}
+        &nbsp; {{ config.SECTIONS[p.section] }}
     {% endif %}
     {% if session.admin %}
         <a href="javascript:ban({{ p.user_id }})">[бан]</a>
