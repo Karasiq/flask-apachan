@@ -6,21 +6,7 @@
 {% endfor %}
 <hr>
 <h3><a href="{{ url_for('allsections') }}">Поток</a></h3>
-{#<h3><a title="c повышенным содержанием рака" href='/b.html'>Бред</a></h3>
-<h3><a title="с нормальным содержанием рака" href='/c.html'>Общий</a></h3>
-<h3><a title="повышенные запросы" href='/r.html'>Request</a></h3>
-<h3><a title="книги, кинофильмы, музыка, игры" href='/med.html'>Медиа</a></h3>
-<h3><a title="красноглазики" href='/prg.html'>Программирование</a></h3>
-<h3><a title="пикейные жилеты" href='/new.html'>Новости</a></h3>
-<h3><a title="патриоты-интернационалисты" href='/i.html'>Политота</a></h3>
-<h3><a title="социоблядки" href='/vk.html'>Вконтакте</a></h3>
-<h3><a title="страдальцы" href='/eot.html'>Есть Одна Тян</a></h3>
-<h3><a title="хентайщики-мазохисты" href='/a.html'>Ня Ня</a></h3>
-<h3><a title="пять процентов человеческой расы" href='/gay.html'>Гей-гетто</a></h3>
-<hr>
-<h3><a title="в реальном времени" href='/apachat'>Апачат</a></h3>
-<h3><a title="весь Апачан в одном месте" href="/all.html">Суровый поток</a></h3>
-<h3><a title="весёлые картинки" href='/images.php'>Галерея</a></h3>#}
+<h3><a href="{{ url_for('gallery') }}">Галерея</a></h3>
 <hr>
 {#<h3><a href='/inbox'>Мои инбоксы</a></h3>#}
 <h3><a href="{{ url_for('mythreads') }}">Мои последние треды</a></h3>
@@ -32,10 +18,5 @@
 <hr>
 <h4><a href='{{ url_for('unhide_threads') }}'>Показать скрытые треды ({{ session.hidden|length }})</a></h4>
 {% endif %}
-
-{#  <form method="get" action="http://google.ru/search" target='_blank'>
-<input type="text" name="q" size="20" maxlength="255" value="">
-<input type="hidden"  name="sitesearch" value="apachan.net" value='1' />
-<input type="submit" value="Искать на Сайте" /></form>#}
 </div>
 </div>
