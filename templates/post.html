@@ -13,10 +13,8 @@
             <img src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" {% if p.randid == 0 %} onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" {% endif %} max-width="200" max-height="200" style='float:left' HSPACE='5'>
         {# </a> #}
     {% endif %}
-    <!--<div class="quote">как нибудь у тебя кончатся деньги и тебе никто не прийдет на помощ</div><br>-->
     {{ p.message|message|ext_urls|safe }}</div></td></tr><tr><td height='10px'></td></tr>
     <tr><td style='font-size:11px;background-color:white;'>[<a href="/view/{{ p.id }}">#{{ p.id }}</a>] {{ p.time }}
-    <!--{#% if p.author == p.author %#}-->
     {% if form and form.parent.data != '0' %}
         {% if p.user_id == mainpost.user_id %}
         <a href="{{ url_for('semeno_detector', postid=p.id) }}" rel='nofollow'><b>ОП</b></a>
