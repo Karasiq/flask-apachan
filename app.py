@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # coding=utf-8
 from flask import Flask, render_template, request, redirect, make_response, session, send_from_directory, jsonify, url_for, flash
 from flask.ext.assets import Environment, Bundle
@@ -546,7 +547,7 @@ def report():
 
 @app.route('/post', methods=['POST'])
 def post():
-    import imghdr, hashlib, tempfile, curl, pycurl, StringIO
+    import imghdr, hashlib, tempfile, pycurl, StringIO
     from PIL import Image
     import images2gif
 
@@ -609,13 +610,21 @@ def post():
             imgfile = None
             imgdir = app.config['IMG_FOLDER']
             if len(form.img_url.data) > 0: # from url
-                c = curl.Curl()
+                from urlparse import urlparse
+                c = pycurl.Curl()
                 buf = StringIO.StringIO()
-                c.set_option(pycurl.WRITEFUNCTION, buf.write)
-                c.get(form.img_url.data.encode('windows-1251'))
-                imgfile = tempfile.TemporaryFile()
-                imgfile.write(buf.getvalue())
-                imgfile.seek(0, 0)
+                try:
+                    _url = urlparse(form.img_url.data)
+                    c.setopt(pycurl.URL, (_url.scheme + '://' + _url.netloc.encode('idna') + _url.path).encode('utf-8'))
+                    c.setopt(pycurl.WRITEFUNCTION, buf.write)
+                    c.setopt(pycurl.FOLLOWLOCATION, 1)
+                    c.perform()
+                    imgfile = tempfile.TemporaryFile()
+                    imgfile.write(buf.getvalue())
+                    imgfile.seek(0, 0)
+                except:
+                    return render_template("error.html", errortitle=u'Ошибка загрузки изображения')
+
             elif 'img' in request.files: # from file
                 imgfile = request.files.get('img')
 
