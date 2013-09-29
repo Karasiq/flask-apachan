@@ -220,11 +220,12 @@ def set_fp():
 
 @app.route('/reg')
 def register():
+    from sqlalchemy import or_
     if not session.get('fingerprint'):
         return redirect(redirect_url())
 
     if not session.get('uid'):
-        rec = db_session.query(models.User).filter(models.User.fingerprint == session.get('fingerprint')).first()
+        rec = db_session.query(models.User).filter(or_(models.User.fingerprint == session.get('fingerprint'), models.User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else db_session.query(models.User).filter(models.User.fingerprint == session.get('fingerprint')).first()
         if rec is None:
             rec = models.User(last_ip = request.remote_addr, last_useragent = request.headers.get('User-Agent'), fingerprint = session.get('fingerprint'))
             db_session.add(rec)
