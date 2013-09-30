@@ -8,10 +8,10 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
 from datetime import datetime, timedelta
 import ipcheck, captcha
-import os, sys
+import os, sys, tempfile
 
 app = Flask(__name__)
-cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : 'cache'})
+cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : os.path.join(tempfile.gettempdir(), 'flask-apachan-cache')})
 assets = Environment(app)
 import models
 from database import db_session
