@@ -9,15 +9,13 @@ from forms import PostForm
 from datetime import datetime, timedelta
 import ipcheck, captcha
 import os, sys
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(), 'db'))
 
 app = Flask(__name__)
 app.config.from_object('config')
 app.register_blueprint(captcha.captcha)
 cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : 'cache'})
 assets = Environment(app)
-import models, database
+import models
 from database import db_session
 
 sections = app.config['SECTIONS']
