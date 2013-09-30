@@ -732,6 +732,6 @@ if __name__ == '__main__':
             onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
             RANDOM_IMAGES.append(onlyfiles)
     if app.config['DEBUG_ENABLED']:
-        app.run(debug = True)
+        app.run(debug=True, port=app.config['DEBUG_PORT'])
     else:
-        app.run(debug=False, threaded=True, port=80, host='0.0.0.0')
+        app.run(debug=False, threaded=True, port=app.config['PORT'], host='0.0.0.0')

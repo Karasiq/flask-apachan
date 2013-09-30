@@ -37,6 +37,8 @@ RANDOM_SETS = [
 ]
 
 SERVER_NAME = 'localhost:5000' if DEBUG_ENABLED else 'host.com'
+DEBUG_PORT = 5000
+PORT = 80
 TRASH = 'trash'
 SECTIONS = { 'b' : u'Бред',
              'a' : u'Анус',
