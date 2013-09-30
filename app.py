@@ -738,4 +738,4 @@ if __name__ == '__main__':
     if DEBUG_ENABLED:
         app.run(debug = True)
     else:
-        app.run(debug=False, port=80, host='0.0.0.0')
+        app.run(debug=False, threaded=True, port=80, host='0.0.0.0')
