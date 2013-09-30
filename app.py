@@ -16,8 +16,6 @@ assets = Environment(app)
 import models
 from database import db_session
 
-sections = app.config['SECTIONS']
-
 def dispatch_token(encrypted):
     from Crypto import Random
     from Crypto.Cipher import AES
@@ -258,7 +256,7 @@ def user_check():
 def index():
     #result, response = user_check()
     #if not result: return response
-    return render_template("index.html", sections = sections)
+    return render_template("index.html", sections = app.config['SECTIONS'])
 
 def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] if post.position else 0
@@ -388,7 +386,7 @@ def view(postid, page=0):
         form.parent.data = post.parent
     form.section.data = post.section
 
-    return render_template("section.html", SecName = sections[post.section], posts = answers, form = form, mainpost = post, 
+    return render_template("section.html", SecName = app.config['SECTIONS'][post.section], posts = answers, form = form, mainpost = post, 
                            randoms = app.config['RANDOM_SETS'], est = est, page = int(page), baseurl = '/view/' + postid + '/', 
                            page_posts = id_list(answers))
 
@@ -713,7 +711,7 @@ def section(SectionName, Page=0):
     posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.section.data = SectionName
-    return render_template("section.html", SecName = sections[SectionName], posts = posts, form = form, 
+    return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, 
                            randoms = app.config['RANDOM_SETS'], page = int(Page), est = est, baseurl = '/boards/' + SectionName + '/',
                            )
 
