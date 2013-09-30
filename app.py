@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # coding=utf-8
 from flask import Flask, render_template, request, redirect, make_response, session, send_from_directory, jsonify, url_for, flash
 from flask.ext.assets import Environment, Bundle
@@ -715,7 +714,7 @@ def section(SectionName, Page=0):
                            randoms = app.config['RANDOM_SETS'], page = int(Page), est = est, baseurl = '/boards/' + SectionName + '/',
                            )
 
-if __name__ == '__main__':
+def load_config():
     from os import listdir
     from os.path import isfile, join
 
@@ -723,15 +722,13 @@ if __name__ == '__main__':
     app.register_blueprint(captcha.captcha)
 
     app.config['IP_BLOCKLIST'] = ipcheck.IpList()
-    app.config['IP_BLOCKLIST'].Load('blocklist.txt')
+    if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
+        app.config['IP_BLOCKLIST'].Load(app.config['IP_BLOCKLIST_FILE'])
+
     js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
     assets.register('js_all', js)
 
     for r in app.config['RANDOM_SETS']:
-        if r.has_key('dir'):
+        if r.has_key('dir') and os.path.exists(r.get('dir')):
             onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
             RANDOM_IMAGES.append(onlyfiles)
-    if app.config['DEBUG_ENABLED']:
-        app.run(debug=True, port=app.config['DEBUG_PORT'])
-    else:
-        app.run(debug=False, threaded=True, port=app.config['PORT'], host='0.0.0.0')
