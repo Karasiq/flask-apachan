@@ -240,8 +240,8 @@ def user_check():
             return redirect(url_for('human_test'))
         elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
             return redirect(url_for('captcha.show_captcha'))
-    if request.headers.get('Host') != app.config['SERVER_NAME']:
-        return redirect('http://google.com/')
+    #if request.headers.get('Host') != app.config['SERVER_NAME']:
+    #    return redirect('http://google.com/')
     if not session.get('uid') and session.get('fingerprint') and (not request.endpoint or request.endpoint not in ['register', 'static', 'set_uid', 'set_fp']):
         return redirect(url_for('register'))
     if app.config['IP_BLOCKLIST'].InList(request.remote_addr):

@@ -36,11 +36,13 @@ RANDOM_SETS = [
 	}
 ]
 
-SERVER_NAME = 'localhost:5000' if DEBUG_ENABLED else 'host.com'
 DEBUG_PORT = 5000
-PORT = 80
-DEBUG_HOST = '127.0.0.1'
-HOST = '0.0.0.0'
+RELEASE_PORT = 80
+DEBUG_HOST = 'localhost'
+RELEASE_HOST = '0.0.0.0'
+DEBUG_SERVER_NAME = None
+RELEASE_SERVER_NAME = 'somehost.com'
+
 IP_BLOCKLIST_FILE = 'blocklist.txt'
 TRASH = 'trash'
 SECTIONS = { 'b' : u'Бред',
