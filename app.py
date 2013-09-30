@@ -562,7 +562,7 @@ def post():
         form.title.data = form.title.data.strip()
         if not len(form.msg.data) and int(form.parent.data) == 0:
             return render_template("error.html", errortitle = u"Нельзя запостить пустой тред")
-        if sections.get(form.section.data) is None:
+        if app.config['SECTIONS'].get(form.section.data) is None:
             return render_template("error.html", errortitle = u"Раздел не найден")
 
         user = db_session.query(models.User).filter_by(id = session['uid']).first()
@@ -704,7 +704,7 @@ def allsections(Page=0):
 def section(SectionName, Page=0):
     #result, response = user_check()
     #if not result: return response
-    if sections.get(SectionName) is None:
+    if app.config['SECTIONS'].get(SectionName) is None:
         return render_template("error.html", errortitle = u"Раздел не найден")
     posts = db_session.query(models.Post).filter_by(parent = 0, section = SectionName).order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
     est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
