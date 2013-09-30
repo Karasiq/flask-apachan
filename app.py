@@ -11,8 +11,6 @@ import ipcheck, captcha
 import os, sys
 
 app = Flask(__name__)
-app.config.from_object('config')
-app.register_blueprint(captcha.captcha)
 cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : 'cache'})
 assets = Environment(app)
 import models
@@ -722,18 +720,20 @@ def section(SectionName, Page=0):
 if __name__ == '__main__':
     from os import listdir
     from os.path import isfile, join
-    from config import RANDOM_SETS, DEBUG_ENABLED, BASE_RANDOMPIC_DIR
+
+    app.config.from_object('config')
+    app.register_blueprint(captcha.captcha)
 
     app.config['IP_BLOCKLIST'] = ipcheck.IpList()
     app.config['IP_BLOCKLIST'].Load('blocklist.txt')
     js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
     assets.register('js_all', js)
 
-    for r in RANDOM_SETS:
+    for r in app.config['RANDOM_SETS']:
         if r.has_key('dir'):
-            onlyfiles = [ f for f in listdir(os.path.join(BASE_RANDOMPIC_DIR, r['dir'])) if isfile(join(os.path.join(BASE_RANDOMPIC_DIR, r['dir']), f)) ]
+            onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
             RANDOM_IMAGES.append(onlyfiles)
-    if DEBUG_ENABLED:
+    if app.config['DEBUG_ENABLED']:
         app.run(debug = True)
     else:
         app.run(debug=False, threaded=True, port=80, host='0.0.0.0')
