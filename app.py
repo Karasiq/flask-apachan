@@ -16,6 +16,9 @@ assets = Environment(app)
 import models
 from database import db_session
 
+def get_current_fingerprint():
+    return session['fingerprint']['system'] if app.config['SYSTEM_WIDE_FP'] else session['fingerprint']['system_browser']
+
 def dispatch_token(encrypted):
     from Crypto.Cipher import AES
     import base64
@@ -34,7 +37,7 @@ def auth_token(id):
 
 def refresh_user(user):
     if session.get('fingerprint'):
-        user.fingerprint = session['fingerprint']['system']
+        user.fingerprint = get_current_fingerprint()
     user.last_ip = request.remote_addr
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
@@ -175,11 +178,11 @@ def redirect_url(default='index'):
 def set_fp_callback(uid, fingerprint):
     from sqlalchemy import or_
     session['fingerprint'] = fingerprint
-    u = db_session.query(models.User).filter(id = int(dispatch_token(uid))).first() if uid else (db_session.query(models.User).filter(or_(models.User.fingerprint == session['fingerprint']['system'], models.User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else db_session.query(models.User).filter(models.User.fingerprint == session['fingerprint']['system']).first()) or models.User()
+    u = db_session.query(models.User).filter(id = int(dispatch_token(uid))).first() if uid else (db_session.query(models.User).filter(or_(models.User.fingerprint == get_current_fingerprint(), models.User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else db_session.query(models.User).filter(models.User.fingerprint == get_current_fingerprint()).first()) or models.User()
 
     u.last_useragent = request.headers.get('User-Agent')
     u.last_ip = request.remote_addr
-    u.fingerprint = session['fingerprint']['system']
+    u.fingerprint = get_current_fingerprint()
     db_session.add(u)
     db_session.commit()
 

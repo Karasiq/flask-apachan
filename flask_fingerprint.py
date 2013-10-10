@@ -25,6 +25,7 @@ def set_fingerprint():
     fp_hashes['system'] = hashlib.md5(str(request.json['timezone']) + request.json['os'] + request.json['screen']).hexdigest()
     #fp_hashes['navigator'] = request.json['navigator_hash']
     fp_hashes['browser_hdrs'] = hashlib.md5(request.headers['Accept'] + request.headers['Accept-Language'] + request.headers['Accept-Encoding']).hexdigest()
+    fp_hashes['system_browser'] = hashlib.md5(fp_hashes['system'] + fp_hashes['browser_hdrs']).hexdigest()
 
     return set_fp_callback(request.json['user_name'], fp_hashes)
 
