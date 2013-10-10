@@ -713,22 +713,21 @@ def section(SectionName, Page=0):
     return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, 
                            randoms = app.config['RANDOM_SETS'], page = int(Page), est = est, baseurl = '/boards/' + SectionName + '/',
                            )
+# on start
+from os import listdir
+from os.path import isfile, join
 
-def load_config():
-    from os import listdir
-    from os.path import isfile, join
+app.config.from_object('config')
+app.register_blueprint(captcha.captcha)
 
-    app.config.from_object('config')
-    app.register_blueprint(captcha.captcha)
+app.config['IP_BLOCKLIST'] = ipcheck.IpList()
+if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
+    app.config['IP_BLOCKLIST'].Load(app.config['IP_BLOCKLIST_FILE'])
 
-    app.config['IP_BLOCKLIST'] = ipcheck.IpList()
-    if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
-        app.config['IP_BLOCKLIST'].Load(app.config['IP_BLOCKLIST_FILE'])
+js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
+assets.register('js_all', js)
 
-    js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
-    assets.register('js_all', js)
-
-    for r in app.config['RANDOM_SETS']:
-        if r.has_key('dir') and os.path.exists(r.get('dir')):
-            onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
-            RANDOM_IMAGES.append(onlyfiles)
+for r in app.config['RANDOM_SETS']:
+    if r.has_key('dir') and os.path.exists(r.get('dir')):
+        onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
+        RANDOM_IMAGES.append(onlyfiles)

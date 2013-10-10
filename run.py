@@ -3,8 +3,7 @@
 
 if __name__ == '__main__':
     import sys
-    from app import app, load_config
-    load_config()
+    from app import app
     if '-debug' in sys.argv:
         app.config['SERVER_NAME'] = app.config['DEBUG_SERVER_NAME']
         app.run(debug=True, port=app.config['DEBUG_PORT'], host=app.config['DEBUG_HOST'])
