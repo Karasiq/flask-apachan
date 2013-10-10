@@ -531,7 +531,7 @@ def get_randompic(num):
     randoms = app.config['RANDOM_SETS']
     if num == 0 or num > len(randoms):
         return 0, '' # Ошибка
-    return num, choice(RANDOM_IMAGES[num - 1])
+    return num, choice(RANDOM_IMAGES)
 
 @app.route('/report')
 def report():
