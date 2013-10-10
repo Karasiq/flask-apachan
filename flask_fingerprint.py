@@ -7,7 +7,11 @@ fingerprint = Blueprint('fingerprint', __name__)
 
 @fingerprint.route('/get-uid')
 def get_uid():
-    return session.get('uid') or ''
+    if session.get('uid'):
+        from app import auth_token
+        return auth_token(session['uid'])
+    else:
+        return ''
     #import hashlib, uuid
     #return hashlib.md5(hex(uuid.uuid4().time)[2:-1]).hexdigest()
 
