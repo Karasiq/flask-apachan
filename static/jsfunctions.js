@@ -1,5 +1,4 @@
 var highlighted = 0;
-var ec = new evercookie();
 function submit_vote(id,v)
 {
 	$.getJSON($SCRIPT_ROOT + '/_vote', {

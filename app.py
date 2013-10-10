@@ -1,6 +1,7 @@
 # coding=utf-8
 from flask import Flask, render_template, request, redirect, make_response, session, send_from_directory, jsonify, url_for, flash
 from flask.ext.assets import Environment, Bundle
+from flask_util_js import FlaskUtilJs
 from flask.ext.cache import Cache
 from werkzeug import secure_filename
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -37,7 +38,7 @@ def auth_token(id):
 
 def refresh_user(user):
     if session.get('fingerprint'):
-        user.fingerprint = session.get('fingerprint')
+        user.fingerprint = session['fingerprint']['system']
     user.last_ip = request.remote_addr
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
@@ -55,24 +56,9 @@ def external_redirect():
     except:
         return redirect(redirect_url())
 
-@app.route('/set_id')
-def set_uid(uid = 0):
-    if session.get('uid') == uid:
-        return '1'
-
-    if uid == 0 and (session.get('uid') or not session.get('fingerprint')):
-        return '0'
-
-    if uid == 0:
-        try:
-            session['uid'] = dispatch_token(request.args.get('uid', 0, type=int))
-        except:
-            session['uid'] = None
-            return register()
-    else:
-        session['uid'] = uid # from register()
-
-    user = db_session.query(models.User).filter_by(id = session['uid']).first()
+def set_uid(uid):
+    session['uid'] = uid
+    user = db_session.query(models.User).filter_by(id = uid).first()
     if user:
         session['banned'] = user.banned and datetime.now() < user.banexpiration
 
@@ -112,15 +98,10 @@ def set_uid(uid = 0):
                 session['admin'] = (hashlib.md5(dispatch_token(request.cookies.get('admin'))) == app.config['ADMIN_PASS_MD5'])
             except:
                 session['admin'] = False
-    else: # Новый юзер
-        return redirect(url_for('register'))
-        #session['canvote'] = False
-        #session['banned'] = False
     refresh_user(user)
-    response = make_response(u'1')
-    response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
-    session.permanent = True
-    return response
+    resp = make_response('OK')
+    resp.set_cookie('user_name', auth_token(uid))
+    return resp
 
 @cache.memoize()
 def get_safe_url(url):
@@ -195,56 +176,27 @@ def redirect_url(default='index'):
            url_for(default)
 
 
-@app.route('/set-fp', methods=['GET', 'POST'])
-def set_fp():
-    if not session.get('fingerprint'):
-        session['fingerprint'] = request.args.get('fp')
-        u = db_session.query(models.User).filter_by(fingerprint = session['fingerprint']).first()
-        if not u:
-            if session.get('uid'):
-                u = db_session.query(models.User).filter_by(id = session.get('uid')).first()
-            if not u:
-                return redirect(url_for('register'))
-        set_uid(u.id)
-        u.last_useragent = request.headers.get('User-Agent')
-        u.last_ip = request.remote_addr
-        u.fingerprint = session['fingerprint']
-        db_session.add(u)
-        db_session.commit()
-    return '1'
-
-@app.route('/reg')
-def register():
+def set_fp_callback(uid, fingerprint):
     from sqlalchemy import or_
-    if not session.get('fingerprint'):
-        return redirect(redirect_url())
+    session['fingerprint'] = fingerprint
+    u = db_session.query(models.User).filter(id = int(dispatch_token(uid))).first() if uid else (db_session.query(models.User).filter(or_(models.User.fingerprint == session['fingerprint']['system'], models.User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else db_session.query(models.User).filter(models.User.fingerprint == session['fingerprint']['system']).first()) or models.User()
 
-    if not session.get('uid'):
-        rec = db_session.query(models.User).filter(or_(models.User.fingerprint == session.get('fingerprint'), models.User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else db_session.query(models.User).filter(models.User.fingerprint == session.get('fingerprint')).first()
-        if rec is None:
-            rec = models.User(last_ip = request.remote_addr, last_useragent = request.headers.get('User-Agent'), fingerprint = session.get('fingerprint'))
-            db_session.add(rec)
-            db_session.commit()
-        #session['uid'] = rec.id
-        if rec and rec.id:
-            set_uid(rec.id)
-        response = make_response(redirect(redirect_url()))
-        #response = make_response(render_template("index.html", setid = auth_token(rec.id)))
-        response.set_cookie('uid', auth_token(rec.id) if rec and rec.id else '', max_age=app.config['COOKIES_MAX_AGE'])
-        return response
-    return redirect(redirect_url())
+    u.last_useragent = request.headers.get('User-Agent')
+    u.last_ip = request.remote_addr
+    u.fingerprint = session['fingerprint']['system']
+    db_session.add(u)
+    db_session.commit()
+
+    return set_uid(u.id)
 
 @app.before_request
 def user_check():
-    if not request.endpoint or request.endpoint.split('.')[0] not in ['captcha', 'register', 'static', 'set_uid', 'set_fp']:
+    if not request.blueprint and request.endpoint not in ['flask_util_js', 'static']:
         if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
             return redirect(url_for('human_test'))
         elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
             return redirect(url_for('captcha.show_captcha'))
-    #if request.headers.get('Host') != app.config['SERVER_NAME']:
-    #    return redirect('http://google.com/')
-    if not session.get('uid') and session.get('fingerprint') and (not request.endpoint or request.endpoint not in ['register', 'static', 'set_uid', 'set_fp']):
-        return redirect(url_for('register'))
+
     if app.config['IP_BLOCKLIST'].InList(request.remote_addr):
         return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
 
@@ -720,15 +672,22 @@ from os.path import isfile, join
 
 app.config.from_object('config')
 app.register_blueprint(captcha.captcha)
+import flask_fingerprint
+app.register_blueprint(flask_fingerprint.fingerprint)
 
 app.config['IP_BLOCKLIST'] = ipcheck.IpList()
 if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
     app.config['IP_BLOCKLIST'].Load(app.config['IP_BLOCKLIST_FILE'])
 
-js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
-assets.register('js_all', js)
+js = Bundle('jquery-2.0.3.min.js', 'jsfunctions.js', 'images.js', filters=None if app.config['DEBUG_ENABLED'] else 'jsmin', output='gen/packed.js')
+assets.register('js_main', js)
 
 for r in app.config['RANDOM_SETS']:
     if r.has_key('dir') and os.path.exists(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r.get('dir'))):
         onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
         RANDOM_IMAGES.append(onlyfiles)
+
+fujs = FlaskUtilJs(app)
+@app.context_processor
+def inject_fujs():
+    return dict(fujs=fujs)

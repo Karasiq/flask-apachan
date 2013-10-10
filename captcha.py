@@ -1,8 +1,7 @@
 # coding=utf-8
 from flask import Blueprint, render_template, abort, session, redirect, request, send_from_directory
 
-captcha = Blueprint('captcha', __name__,
-                        template_folder='templates')
+captcha = Blueprint('captcha', __name__)
 
 from config import CAPTCHA_FILES
 
