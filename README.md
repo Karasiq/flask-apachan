@@ -8,4 +8,4 @@ flask-apachan
 * pillow
 * pycurl
 * pycrypto
-* jsmin
+* yuicompressor
