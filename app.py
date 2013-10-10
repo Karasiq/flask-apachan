@@ -125,7 +125,7 @@ def set_uid(uid = 0):
 @cache.memoize()
 def get_safe_url(url):
     import base64
-    if get_netloc(url) != app.config['SERVER_NAME']:
+    if not app.config.get('SERVER_NAME') or get_netloc(url) != app.config['SERVER_NAME']:
         return url_for('external_redirect', url=base64.b64encode(url))
     else:
         return url
@@ -155,7 +155,8 @@ def render_message(msg):
     r = re.sub(r'\[url](?!javascript:)([^\r\n]*)\[/url\]', '<a href=\"\\1\">\\1</a>', r)
     r = re.sub(r'\[url="?(?!javascript:)([^\r\n]*)"?\](?!javascript:)(.*)\[/url]', '<a href=\"\\1\">\\2</a>', r)
     r = re.sub(r'https?://(?:www\.)youtube\.com/watch\?[\w\-&%=]*\bv=([\w-]*)', render_template("youtube.html"), r)
-    r = re.sub(r'(?<!")(?<!">)\bhttps?://' + app.config['SERVER_NAME'] + r'/([^"\s<>]*)', '<a href=\"/\\1\">/\\1</a>', r) # relative
+    if app.config.get('SERVER_NAME'):
+        r = re.sub(r'(?<!")(?<!">)\bhttps?://' + app.config['SERVER_NAME'] + r'/([^"\s<>]*)', '<a href=\"/\\1\">/\\1</a>', r) # relative
     r = re.sub(r'(?<!")(?<!">)\b(https?://[^"\s<>]*)', '<a href=\"\\1\">\\1</a>', r)
     return r.replace('\r\n', '<br>')
 
@@ -728,6 +729,6 @@ js = Bundle('fingerprint.js', 'jquery-2.0.3.min.js', 'evercookie.js', 'jsfunctio
 assets.register('js_all', js)
 
 for r in app.config['RANDOM_SETS']:
-    if r.has_key('dir') and os.path.exists(r.get('dir')):
+    if r.has_key('dir') and os.path.exists(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r.get('dir'))):
         onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
         RANDOM_IMAGES.append(onlyfiles)
