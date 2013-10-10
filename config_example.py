@@ -43,6 +43,9 @@ RELEASE_HOST = '0.0.0.0'
 DEBUG_SERVER_NAME = None
 RELEASE_SERVER_NAME = 'somehost.com'
 
+from Crypto import Random
+CRYPTO_IV = Random.new().read(16)
+
 IP_BLOCKLIST_FILE = 'blocklist.txt'
 TRASH = 'trash'
 SECTIONS = { 'b' : u'Бред',

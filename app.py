@@ -16,22 +16,18 @@ import models
 from database import db_session
 
 def dispatch_token(encrypted):
-    from Crypto import Random
     from Crypto.Cipher import AES
     import base64
 
-    BLOCK_SIZE = 16
-    IV = Random.new().read(BLOCK_SIZE)
+    IV = app.config['CRYPTO_IV']
     aes = AES.new(app.config['SECRET_KEY'], AES.MODE_CFB, IV)
     return aes.decrypt(base64.b64decode(encrypted))
 
 def auth_token(id):
-    from Crypto import Random
     from Crypto.Cipher import AES
     import base64
 
-    BLOCK_SIZE = 16
-    IV = Random.new().read(BLOCK_SIZE)
+    IV = app.config['CRYPTO_IV']
     aes = AES.new(app.config['SECRET_KEY'], AES.MODE_CFB, IV)
     return base64.b64encode(aes.encrypt(str(id)))
 
