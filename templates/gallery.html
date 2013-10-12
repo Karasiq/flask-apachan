@@ -1,12 +1,21 @@
 {% extends 'layout.html' %}
 {% block content %}
-    {% for i in range(1, pages) %}
-        {% if i != page %}<a href="{{ url_for('gallery', Page=i) }}">#{{ i }}</a>
-        {% else %} <b>#{{ i }}</b>{% endif %} &nbsp;
-    {% endfor %}
+    {% if posts.has_next or posts.has_prev %}
+        {% for page in posts.iter_pages(left_edge = 15, right_edge = 15) %}
+            {% if page %}
+                {% if page != posts.page %}
+                    <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
+                {% else %}
+                    <strong>{{ page }}</strong>
+                {% endif %}
+            {% else %}
+                <span class=ellipsis>…</span>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
     <table align='center' width='800'>
     <tr>
-        {% for p in posts %}
+        {% for p in posts.items %}
         <td><img src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" max-width=200 max-height=200></td>
         {% endfor %}
     </tr>
