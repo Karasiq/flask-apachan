@@ -624,24 +624,28 @@ def post():
                 if not type:
                 #shutil.rmtree(imgdir)
                     return render_template("error.html", errortitle = u"Неверный файл изображения")
-                if not os.path.exists(imgdir):
-                    os.makedirs(imgdir)
+
                 imgfilename = hashlib.md5(blob).hexdigest() + '.' + type
                 aimgfilename = os.path.join(imgdir, imgfilename)
-                with open(aimgfilename, "wb") as imgf:
-                    imgf.write(blob)
-                    imgf.close()
                 thumbfilename, thumbext = os.path.splitext(imgfilename)
                 thumbfilename = thumbfilename + '_thumb' + thumbext
-                thumbsize = 200, 200
-                img = None
-                if type == 'gif':
-                    frames = images2gif.readGif(aimgfilename, False)
-                    img = frames[0]
-                else:
-                    img = Image.open(aimgfilename)
-                img.thumbnail(thumbsize)
-                img.save(os.path.join(imgdir, thumbfilename), "JPEG")
+
+                if not os.path.exists(aimgfilename):
+                    if not os.path.exists(imgdir):
+                        os.makedirs(imgdir)
+                    with open(aimgfilename, "wb") as imgf:
+                        imgf.write(blob)
+                        imgf.close()
+
+                    thumbsize = 200, 200
+                    img = None
+                    if type == 'gif':
+                        frames = images2gif.readGif(aimgfilename, False)
+                        img = frames[0]
+                    else:
+                        img = Image.open(aimgfilename)
+                    img.thumbnail(thumbsize)
+                    img.save(os.path.join(imgdir, thumbfilename), "JPEG")
                 entry.thumb = thumbfilename
                 entry.image = imgfilename
 
