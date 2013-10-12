@@ -433,6 +433,10 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
     childs = db_session.query(models.Post).filter(or_(models.Post.answer_to == post.id, models.Post.parent == post.id))
     for c in childs:
         del_post(c, False)
+    votes = db_session.query(models.Vote).filter_by(post_id = post.id)
+    for v in votes:
+        db_session.delete(v)
+
     db_session.delete(post)
     if commit:
         db_session.commit()
