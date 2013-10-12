@@ -54,12 +54,16 @@
 <br>
 <br>
 <br><center><h2>
-{% if posts.page %}
-{% for page in posts.iter_pages() %}
-    {% if page != posts.page %}
-        <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
+{% if posts.has_next or posts.has_prev %}
+{% for page in posts.iter_pages(left_edge = 15, right_edge = 15) %}
+    {% if page %}
+        {% if page != posts.page %}
+            <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
+        {% else %}
+            <strong>{{ page }}</strong>
+        {% endif %}
     {% else %}
-        <strong>{{ page }}</strong>
+        <span class=ellipsis>…</span>
     {% endif %}
 {% endfor %}
 {% endif %}
