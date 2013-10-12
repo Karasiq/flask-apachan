@@ -630,7 +630,7 @@ def post():
                 thumbfilename, thumbext = os.path.splitext(imgfilename)
                 thumbfilename = thumbfilename + '_thumb' + thumbext
 
-                if not os.path.exists(aimgfilename):
+                if not os.path.exists(aimgfilename) or not os.path.exists(thumbfilename):
                     if not os.path.exists(imgdir):
                         os.makedirs(imgdir)
                     with open(aimgfilename, "wb") as imgf:
@@ -659,9 +659,8 @@ def post():
         db_session.add(entry)
 
         db_session.commit()
-        candelete = session.get('can_delete') if session.has_key('can_delete') else list()
-        candelete.append(entry.id)
-        session['can_delete'] = candelete
+        session['can_delete'] = session.get('can_delete') or list()
+        session['can_delete'].append(entry.id)
         if entry.parent == 0:
             return redirect(url_for('view', postid=entry.id))
         else:
