@@ -23,10 +23,11 @@ flask-apachan
 * Run the app: `python run.py`
 
 # Issues
-* Access error when generating assets  
+* Access error when generating assets/saving pictures
     Fix:  
 <pre>
 chmod +w ./static
 chmod +w ./static/gen
 chmod +w ./static/.webassets-cache
+chmod +w [IMG_FOLDER from config.py]
 </pre>
