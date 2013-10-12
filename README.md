@@ -13,9 +13,6 @@ flask-apachan
 * yuicompressor
 * alembic
 
-# Author
-Created by [Bidon Pomoev]<yoba123@yandex.ru>
-
 # How to install
 * Database:
     * Change sqlalchemy.url in alembic.ini
