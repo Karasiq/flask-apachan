@@ -21,3 +21,12 @@ flask-apachan
     * Rename config_example.py to config.py
     * Change settings in config.py
 * Run the app: `python run.py`
+
+# Issues
+* Access error when generating assets  
+    Fix:  
+<pre>
+chmod +w ./static
+chmod +w ./static/gen
+chmod +w ./static/.webassets-cache
+</pre>
