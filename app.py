@@ -102,14 +102,13 @@ def set_uid(uid = 0):
             import hashlib
             try:
                 session['admin'] = (hashlib.md5(dispatch_token(request.cookies.get('admin'))) == app.config['ADMIN_PASS_MD5'])
-                session['canvote'] = session['canvote'] or session['admin']
             except:
                 session['admin'] = False
 
-        session['canvote'] = session.get('admin') or (user.first_post and user.last_post and user.rating) and \
+        session['canvote'] = (user.first_post and user.last_post and user.rating) and \
                              (datetime.now() - user.first_post >= timedelta(days=14)
                               and (datetime.now() - user.last_post) <= timedelta(days=3)
-                              and user.rating >= app.config['RATING_BAN_VOTE'] and not session['banned'])
+                              and user.rating >= app.config['RATING_BAN_VOTE']) and not session['banned']
     else: # Новый юзер
         return redirect(url_for('register'))
         #session['canvote'] = False
@@ -166,7 +165,7 @@ def vote():
     if not val or not pid:
         return render_template("error.html", errortitle=u"Ошибка голосования")
     post = db_session.query(models.Post).filter_by(id = pid).first()
-    if session.get('canvote'):
+    if session.get('canvote') or session.get('admin'):
         user = db_session.query(models.User).filter_by(id = session['uid']).first()
         vote = db_session.query(models.Vote).filter_by(user_id = user.id, post_id = post.id).first()
         if user and post and user.id != post.user_id and not vote and not (val > 1 or val < -1):
@@ -186,7 +185,7 @@ def vote():
             db_session.add(vote)
             db_session.commit()
 
-    return str(post.rating)
+    return jsonify(post_rating = post.rating)
 
 def redirect_url(default='index'):
     return request.args.get('next') or \
@@ -521,7 +520,7 @@ def admin_delall():
 def admin_login():
     import hashlib
     if (hashlib.md5(request.args.get('p')).hexdigest() == app.config.get('ADMIN_PASS_MD5')) or request.remote_addr == '127.0.0.1':
-        session['canvote'] = session['admin'] = True
+        session['admin'] = True
     r = make_response(redirect(redirect_url()))
     #r.set_cookie('admin', auth_token(request.args.get('p')), max_age=app.config['COOKIES_MAX_AGE'])
     return r
