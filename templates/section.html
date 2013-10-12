@@ -44,7 +44,7 @@
     {% set p = mainpost %}
     {% include 'post.html' %}
 {% endif %}
-{% for p in posts if not session.hidden or p.id not in session.hidden %}
+{% for p in posts.items if not session.hidden or p.id not in session.hidden %}
     {% include 'post.html' %}
 {% endfor %}
 <br>
@@ -54,11 +54,14 @@
 <br>
 <br>
 <br><center><h2>
-{% if est and est > 0 %}
-<a href="{{ baseurl }}{{ page + 1 }}">След. страница</a>&nbsp;
-{% endif %}
-{% if page and page > 0 %}
-<a href="{{ baseurl }}{{ page - 1 }}">Пред. страница</a>
+{% if posts.page %}
+{% for page in posts.iter_pages() %}
+    {% if page != posts.page %}
+        <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
+    {% else %}
+        <strong>{{ page }}</strong>
+    {% endif %}
+{% endfor %}
 {% endif %}
 </h2></center>
 {% endblock %}

@@ -12,8 +12,8 @@ import os, sys, tempfile
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : os.path.join(tempfile.gettempdir(), 'flask-apachan-cache')})
 assets = Environment(app)
-import models
 from database import db_session
+from models import Vote, User, Post
 
 def dispatch_token(encrypted):
     from Crypto.Cipher import AES
@@ -68,11 +68,11 @@ def set_uid(uid = 0):
     else:
         session['uid'] = uid # from register()
 
-    user = db_session.query(models.User).filter_by(id = session['uid']).first()
+    user = User.query.filter_by(id = session['uid']).first()
     if user:
         session['banned'] = user.banned and datetime.now() < user.banexpiration
 
-        ipbans = db_session.query(models.User).filter_by(last_ip = request.remote_addr, banned = True)
+        ipbans = User.query.filter_by(last_ip = request.remote_addr, banned = True)
         for ipban in ipbans:
             if datetime.now() < ipban.banexpiration:
                 user.banned = True
@@ -164,20 +164,20 @@ def vote():
     pid = request.args.get('postid', 0, type=int)
     if not val or not pid:
         return render_template("error.html", errortitle=u"Ошибка голосования")
-    post = db_session.query(models.Post).filter_by(id = pid).first()
+    post = Post.query.filter_by(id = pid).first()
     if session.get('canvote') or session.get('admin'):
-        user = db_session.query(models.User).filter_by(id = session['uid']).first()
-        vote = db_session.query(models.Vote).filter_by(user_id = user.id, post_id = post.id).first()
+        user = User.query.filter_by(id = session['uid']).first()
+        vote = Vote.query.filter_by(user_id = user.id, post_id = post.id).first()
         if user and post and user.id != post.user_id and not vote and not (val > 1 or val < -1):
-            vote = models.Vote(post_id = post.id, user_id = user.id, value = val)
+            vote = Vote(post_id = post.id, user_id = user.id, value = val)
             post.rating += val
             if post.rating <= -5:
                 post.section = app.config['TRASH'] # Перенос в помойку
-                answers = db_session.query(models.Post).filter_by(parent = post.id)
+                answers = Post.query.filter_by(parent = post.id)
                 for a in answers:
                     a.section = app.config['TRASH']
                     db_session.add(a)
-            author = db_session.query(models.User).filter_by(id = post.user_id).first()
+            author = User.query.filter_by(id = post.user_id).first()
             if author:
                 author.rating += val
                 db_session.add(author)
@@ -197,10 +197,10 @@ def redirect_url(default='index'):
 def set_fp():
     if not session.get('fingerprint'):
         session['fingerprint'] = request.args.get('fp')
-        u = db_session.query(models.User).filter_by(fingerprint = session['fingerprint']).first()
+        u = User.query.filter_by(fingerprint = session['fingerprint']).first()
         if not u:
             if session.get('uid'):
-                u = db_session.query(models.User).filter_by(id = session.get('uid')).first()
+                u = User.query.filter_by(id = session.get('uid')).first()
             if not u:
                 return redirect(url_for('register'))
         set_uid(u.id)
@@ -218,9 +218,9 @@ def register():
         return redirect(redirect_url())
 
     if not session.get('uid'):
-        rec = db_session.query(models.User).filter(or_(models.User.fingerprint == session.get('fingerprint'), models.User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else db_session.query(models.User).filter(models.User.fingerprint == session.get('fingerprint')).first()
+        rec = User.query.filter(or_(User.fingerprint == session.get('fingerprint'), User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == session.get('fingerprint')).first()
         if rec is None:
-            rec = models.User(last_ip = request.remote_addr, last_useragent = request.headers.get('User-Agent'), fingerprint = session.get('fingerprint'))
+            rec = User(last_ip = request.remote_addr, last_useragent = request.headers.get('User-Agent'), fingerprint = session.get('fingerprint'))
             db_session.add(rec)
             db_session.commit()
         #session['uid'] = rec.id
@@ -259,14 +259,14 @@ def index():
     return render_template("index.html", sections = app.config['SECTIONS'])
 
 def get_page_number(post):
-    return post.position / app.config['MAX_POSTS_ON_PAGE'] if post.position else 0
+    return post.position / app.config['MAX_POSTS_ON_PAGE'] + 1 if post.position else 1
 
 #@cache.memoize()
 @app.route('/viewpost/<postid>') # Посмотреть пост в треде
 def viewpost(postid):
     #result, response = user_check()
     #if not result: return response
-    post = db_session.query(models.Post).filter_by(id = postid).first()
+    post = Post.query.filter_by(id = postid).first()
     if post:
         if post.parent == 0:
             return redirect(url_for('view', postid = postid))
@@ -282,15 +282,13 @@ def id_list(posts):
 #@cache.memoize(timeout=20)
 @app.route('/semenodetector/<postid>')
 @app.route('/semenodetector/<postid>/<page>')
-def semeno_detector(postid, page=0):
+def semeno_detector(postid, page=1):
     #result, response = user_check()
     #if not result: return response
-    post = db_session.query(models.Post).filter_by(id = postid).first()
+    post = Post.query.filter_by(id = postid).first()
     if post:
         parent_id = post.parent if post.parent != 0 else post.id
-        posts = db_session.query(models.Post).filter(models.Post.user_id == post.user_id, models.Post.parent == parent_id, models.Post.id != postid).order_by(models.Post.id.asc())
-        est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
-        posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
+        posts = Post.query.filter(Post.user_id == post.user_id, Post.parent == parent_id, Post.id != postid).order_by(Post.id.asc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
         form = PostForm()
         form.answer_to.data = postid
         if int(post.parent) == 0:
@@ -298,9 +296,9 @@ def semeno_detector(postid, page=0):
         else:
             form.parent.data = post.parent
         form.section.data = post.section
-        return render_template("section.html", SecName = u'Семенодетектор (#%s)' % int(postid), posts = posts, form = form, mainpost = post, 
-                               randoms = app.config['RANDOM_SETS'], est = est, page = int(page), baseurl = '/semenodetector/' + postid + '/', 
-                               page_posts = id_list(posts))
+        return render_template("section.html", SecName = u'Семенодетектор (#%s)' % int(postid), posts = posts, form = form, mainpost = post,
+                               randoms = app.config['RANDOM_SETS'], baseurl = '/semenodetector/' + postid + '/',
+                               page_posts = id_list(posts.items))
 
 @app.route('/add-to-favorites')
 def add_to_favorites():
@@ -332,9 +330,9 @@ def hide_thread():
 def mythreads():
     #result, response = user_check()
     #if not result: return response
-    posts = db_session.query(models.Post).filter(models.Post.user_id == session.get('uid'), models.Post.parent == 0).order_by(models.Post.last_answer.desc())
-    return render_template("section.html", SecName = u'Мои треды', posts = posts, 
-                           randoms = app.config['RANDOM_SETS'], baseurl = '/mythreads/', 
+    posts = Post.query.filter(Post.user_id == session.get('uid'), Post.parent == 0).order_by(Post.last_answer.desc())
+    return render_template("section.html", SecName = u'Мои треды', posts = posts,
+                           randoms = app.config['RANDOM_SETS'], baseurl = '/mythreads/',
                            page_posts = id_list(posts))
 #@cache.memoize(timeout=10)
 @app.route('/answers')
@@ -342,13 +340,13 @@ def answers():
     #result, response = user_check()
     #if not result: return response
 
-    posts = db_session.query(models.Post).filter_by(user_id = session.get('uid')).order_by(models.Post.time.desc())
+    posts = Post.query.filter_by(user_id = session.get('uid')).order_by(Post.time.desc())
     ids = list()
     for p in posts:
         ids.append(p.id)
-    answers = db_session.query(models.Post).filter(models.Post.answer_to.in_(ids)).order_by(models.Post.time.desc())
-    return render_template("section.html", SecName = u'Ответы', posts = answers, 
-                           randoms = app.config['RANDOM_SETS'], baseurl = '/answers/', 
+    answers = Post.query.filter(Post.answer_to.in_(ids)).order_by(Post.time.desc())
+    return render_template("section.html", SecName = u'Ответы', posts = answers,
+                           randoms = app.config['RANDOM_SETS'], baseurl = '/answers/',
                            page_posts = id_list(answers), show_answer_to = True)
 
 @app.route('/favorites')
@@ -357,24 +355,19 @@ def favorites():
     #if not result: return response
 
     if session.get('favorites'):
-        posts = db_session.query(models.Post).filter(models.Post.id.in_(session['favorites'])).order_by(models.Post.id.asc())
-        return render_template("section.html", SecName = u'Избранное', posts = posts, 
-                               randoms = app.config['RANDOM_SETS'], baseurl = '/favorites/', 
+        posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc())
+        return render_template("section.html", SecName = u'Избранное', posts = posts,
+                               randoms = app.config['RANDOM_SETS'], baseurl = '/favorites/',
                                page_posts = id_list(posts))
     else:
         return render_template('error.html', errortitle=u'В избранном ничего нет')
 
-#@cache.memoize(timeout=20)
 @app.route('/view/<postid>')
 @app.route('/view/<postid>/<page>')
-def view(postid, page=0):
+def view(postid, page=1):
     from sqlalchemy import or_
-    #result, response = user_check()
-    #if not result: return response
-    post = db_session.query(models.Post).filter_by(id = postid).first()
-    answers = db_session.query(models.Post).filter(or_(models.Post.parent == postid, models.Post.answer_to == postid)).order_by(models.Post.id.asc()).offset(int(page) * app.config['MAX_POSTS_ON_PAGE'])
-    est = answers.count() - app.config['MAX_POSTS_ON_PAGE']
-    answers = answers.limit(app.config['MAX_POSTS_ON_PAGE'])
+    post = Post.query.filter_by(id = postid).first()
+    answers = Post.query.filter(or_(Post.parent == postid, Post.answer_to == postid)).order_by(Post.id.asc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
 
     if post is None:
         return render_template("error.html", errortitle = u"Пост не найден")
@@ -386,9 +379,7 @@ def view(postid, page=0):
         form.parent.data = post.parent
     form.section.data = post.section
 
-    return render_template("section.html", SecName = app.config['SECTIONS'][post.section], posts = answers, form = form, mainpost = post, 
-                           randoms = app.config['RANDOM_SETS'], est = est, page = int(page), baseurl = '/view/' + postid + '/', 
-                           page_posts = id_list(answers))
+    return render_template("section.html", SecName = app.config['SECTIONS'][post.section], posts = answers, form = form, mainpost = post, randoms = app.config['RANDOM_SETS'], baseurl = '/view/' + postid + '/', page_posts = id_list(answers.items))
 
 def unique_id():
     import hashlib, uuid
@@ -422,18 +413,18 @@ def getimage(randid, filename):
 def del_post(post, commit = True): # Рекурсивное удаление поста
     from sqlalchemy import or_
     if post.parent != 0:
-        parent = db_session.query(models.Post).filter_by(id = post.parent).first()
+        parent = Post.query.filter_by(id = post.parent).first()
         if parent.last_answer == post.time:
-            last_post = db_session.query(models.Post).filter(models.Post.parent == parent.id, models.Post.id != post.id).order_by(
-                        models.Post.time.desc()).first()
+            last_post = Post.query.filter(Post.parent == parent.id, Post.id != post.id).order_by(
+                        Post.time.desc()).first()
             if last_post:
                 parent.last_answer = last_post.time
         parent.answers -= 1
         db_session.add(parent)
-    childs = db_session.query(models.Post).filter(or_(models.Post.answer_to == post.id, models.Post.parent == post.id))
+    childs = Post.query.filter(or_(Post.answer_to == post.id, Post.parent == post.id))
     for c in childs:
         del_post(c, False)
-    votes = db_session.query(models.Vote).filter_by(post_id = post.id)
+    votes = Vote.query.filter_by(post_id = post.id)
     for v in votes:
         db_session.delete(v)
     db_session.commit()
@@ -445,7 +436,7 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
 @app.route('/delpost')
 def postdel():
     postid = int(request.args.get('postid'))
-    post = db_session.query(models.Post).filter_by(id = postid).first()
+    post = Post.query.filter_by(id = postid).first()
     if not session.get('admin') and (not postid in session.get('can_delete') or not post or post.user_id != int(session.get('uid'))):
         return render_template("error.html", errortitle=u'Ошибка удаления поста')
 
@@ -457,12 +448,12 @@ def postdel():
 
 def thread_transfer(thid, new_section):
     from sqlalchemy import or_
-    post = db_session.query(models.Post).filter_by(id = thid).first()
+    post = Post.query.filter_by(id = thid).first()
 
     if post and post.parent == 0:
         post.section = new_section
         db_session.add(post)
-        childs = db_session.query(models.Post).filter_by(parent = thid)
+        childs = Post.query.filter_by(parent = thid)
         for c in childs:
             c.section = new_section
             db_session.add(c)
@@ -481,10 +472,10 @@ def admin_delip():
     if not session.get('admin'):
         return redirect(url_for('index'))
     ip = request.args.get('ipaddr')
-    posts = db_session.query(models.Post).filter_by(from_ip = ip)
+    posts = Post.query.filter_by(from_ip = ip)
     for p in posts:
         del_post(p, False)
-    users = db_session.query(models.User).filter_by(last_ip = ip)
+    users = User.query.filter_by(last_ip = ip)
     for u in users:
         u.banned = True
         u.banexpiration = datetime.now() + timedelta(days = 30)
@@ -500,7 +491,7 @@ def admin_ban(userid = 0):
         userid = int(request.args.get('userid'))
     if not session.get('admin'):
         return redirect(url_for('index'))
-    user = db_session.query(models.User).filter_by(id = userid).first()
+    user = User.query.filter_by(id = userid).first()
     if user:
         user.banned = True
         user.banexpiration = datetime.now() + timedelta(days = 30)
@@ -514,7 +505,7 @@ def admin_delall():
     if not session.get('admin'):
         return redirect(url_for('index'))
     userid = request.args.get('userid')
-    posts = db_session.query(models.Post).filter_by(user_id = userid)
+    posts = Post.query.filter_by(user_id = userid)
     for p in posts:
         del_post(p, False)
     db_session.commit()
@@ -553,7 +544,7 @@ def post():
     #if not result: return response
 
     if session.get('banned'):
-        user = db_session.query(models.User).filter_by(id = session.get('uid')).first()
+        user = User.query.filter_by(id = session.get('uid')).first()
         if user and user.banreason:
             return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут.\r\nПричина: %s" \
                                 % user.banreason)
@@ -569,7 +560,7 @@ def post():
         if app.config['SECTIONS'].get(form.section.data) is None:
             return render_template("error.html", errortitle = u"Раздел не найден")
 
-        user = db_session.query(models.User).filter_by(id = session['uid']).first()
+        user = User.query.filter_by(id = session['uid']).first()
         if user is None:
             return redirect('/reg')
         if user.banned and (datetime.now() < user.banexpiration):
@@ -582,14 +573,14 @@ def post():
             return render_template("error.html", errortitle = u"Треды можно создавать не чаще, чем раз в 3 минуты")
 
         from jinja2 import Markup
-        entry = models.Post(title = form.title.data, message = unicode(Markup.escape(form.msg.data)), time = datetime.now(), parent = int(form.parent.data),
+        entry = Post(title = form.title.data, message = unicode(Markup.escape(form.msg.data)), time = datetime.now(), parent = int(form.parent.data),
                             answer_to = int(form.answer_to.data), section = form.section.data,
                             from_ip = request.remote_addr, user_id = user.id, thumb = '', image = '', last_answer = datetime.now())
 
         if entry.parent != 0:
-            parent = db_session.query(models.Post).filter_by(id = entry.parent).first()
+            parent = Post.query.filter_by(id = entry.parent).first()
             if entry.answer_to != entry.parent:
-                answer = db_session.query(models.Post).filter_by(id = entry.answer_to).first()
+                answer = Post.query.filter_by(id = entry.answer_to).first()
                 if not answer or answer.parent != entry.parent:
                     return render_template("error.html", errortitle = u"Неверные данные")
             if parent:
@@ -681,46 +672,39 @@ def post():
 
 @cache.memoize(timeout=100)
 @app.route('/gallery')
-@app.route('/gallery/<Page>')
-def gallery(Page=0):
-    posts = db_session.query(models.Post).filter(models.Post.randid == 0, models.Post.image != '').order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
-    est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
-    posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
-    return render_template("gallery.html", posts = posts, page = Page, pages = int(est / app.config['MAX_POSTS_ON_PAGE']))
+@app.route('/gallery/<page>')
+def gallery(page=1):
+    posts = Post.query.filter(Post.randid == 0, Post.image != '').order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    return render_template("gallery.html", posts = posts)
 
 #@cache.memoize(timeout=10)
 @app.route('/all')
-@app.route('/all/<Page>')
-def allsections(Page=0):
+@app.route('/all/<page>')
+def allsections(page=1):
     #result, response = user_check()
     #if not result: return response
-    posts = db_session.query(models.Post).filter_by(parent = 0).order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
-    est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
-    posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
+    posts = Post.query.filter_by(parent = 0).order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.parent.data = '0'
     form.section.data = 'b'
-    return render_template("section.html", SecName = u'Поток', posts = posts, form = form, 
-                           randoms = app.config['RANDOM_SETS'], show_section = True, est = est, page = int(Page),
+    return render_template("section.html", SecName = u'Поток', posts = posts, form = form,
+                           randoms = app.config['RANDOM_SETS'], show_section = True,
                            baseurl = '/all/', )
 
 
 #@cache.memoize(timeout=10)
 @app.route('/boards/<SectionName>')
-@app.route('/boards/<SectionName>/<Page>')
-def section(SectionName, Page=0):
+@app.route('/boards/<SectionName>/<page>')
+def section(SectionName, page=1):
     #result, response = user_check()
     #if not result: return response
     if app.config['SECTIONS'].get(SectionName) is None:
         return render_template("error.html", errortitle = u"Раздел не найден")
-    posts = db_session.query(models.Post).filter_by(parent = 0, section = SectionName).order_by(models.Post.last_answer.desc()).offset(int(Page) * app.config['MAX_POSTS_ON_PAGE'])
-    est = posts.count() - app.config['MAX_POSTS_ON_PAGE']
-    posts = posts.limit(app.config['MAX_POSTS_ON_PAGE'])
+    posts = Post.query.filter_by(parent = 0, section = SectionName).order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.section.data = SectionName
-    return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, 
-                           randoms = app.config['RANDOM_SETS'], page = int(Page), est = est, baseurl = '/boards/' + SectionName + '/',
-                           )
+    return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, randoms = app.config['RANDOM_SETS'], baseurl = '/boards/' + SectionName + '/')
+
 # on start
 from os import listdir
 from os.path import isfile, join
