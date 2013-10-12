@@ -117,7 +117,8 @@ def set_uid(uid = 0):
     refresh_user(user)
     response = make_response(u'1')
     response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
-    #session.permanent = True
+    session['refresh_time'] = datetime.now() + timedelta(days=1)
+    session.permanent = True
     return response
 
 @cache.memoize()
@@ -246,6 +247,8 @@ def user_check():
     if app.config['IP_BLOCKLIST'].InList(request.remote_addr):
         return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
 
+    if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
+        set_uid(session['uid'])
     #return True, ''
 
 @cache.cached()
