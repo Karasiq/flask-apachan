@@ -14,7 +14,7 @@ flask-apachan
 * alembic
 
 # Author
-Created by Bidon Pomoev <yoba123@yandex.ru>
+Created by [Bidon Pomoev]<yoba123@yandex.ru>
 
 # How to install
 * Database:
