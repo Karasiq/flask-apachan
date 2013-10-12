@@ -21,18 +21,6 @@
 <a href="{{ url_for('index') }}">На главную</a>
 {% endif %} </h3>
 </center>
-{# <form action="/post" method="post" name="post" enctype="multipart/form-data">
-    {{form.hidden_tag()}}
-    <center><table border="0">
-        <tr><td>Заголовок:</td><td>{{form.title}}</td></tr>
-        <tr><td>Сообщение:</td><td>{{form.msg}}</td></tr>
-        <tr><td>Изображение:</td><td>{{form.img}}</td></tr>
-        {{ form.parent }}
-        {{ form.section }}
-    </table>
-    <input id="commit" type="submit" value="Отправить" name="commit"></center>
-</form>
-    <hr> #}
     <hr width="90%" size=1>
     {% if not session.fingerprint or not session.uid %}
         <center><h3>Включите javascript для возможности отправлять сообщения</h3></center>
