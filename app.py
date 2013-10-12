@@ -436,6 +436,7 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
     votes = db_session.query(models.Vote).filter_by(post_id = post.id)
     for v in votes:
         db_session.delete(v)
+    db_session.commit()
 
     db_session.delete(post)
     if commit:
