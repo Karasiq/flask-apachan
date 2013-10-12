@@ -327,16 +327,18 @@ def hide_thread():
 
 #@cache.memoize(timeout=10)
 @app.route('/mythreads')
-def mythreads():
+@app.route('/mythreads/<page>')
+def mythreads(page=1):
     #result, response = user_check()
     #if not result: return response
-    posts = Post.query.filter(Post.user_id == session.get('uid'), Post.parent == 0).order_by(Post.last_answer.desc())
+    posts = Post.query.filter(Post.user_id == session.get('uid'), Post.parent == 0).order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
     return render_template("section.html", SecName = u'Мои треды', posts = posts,
                            randoms = app.config['RANDOM_SETS'], baseurl = '/mythreads/',
-                           page_posts = id_list(posts))
+                           page_posts = id_list(posts.items))
 #@cache.memoize(timeout=10)
 @app.route('/answers')
-def answers():
+@app.route('/answers/<page>')
+def answers(page=1):
     #result, response = user_check()
     #if not result: return response
 
@@ -344,21 +346,22 @@ def answers():
     ids = list()
     for p in posts:
         ids.append(p.id)
-    answers = Post.query.filter(Post.answer_to.in_(ids)).order_by(Post.time.desc())
+    answers = Post.query.filter(Post.answer_to.in_(ids)).order_by(Post.time.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
     return render_template("section.html", SecName = u'Ответы', posts = answers,
                            randoms = app.config['RANDOM_SETS'], baseurl = '/answers/',
-                           page_posts = id_list(answers), show_answer_to = True)
+                           page_posts = id_list(answers.items), show_answer_to = True)
 
 @app.route('/favorites')
-def favorites():
+@app.route('/favorites/<page>')
+def favorites(page=1):
     #result, response = user_check()
     #if not result: return response
 
     if session.get('favorites'):
-        posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc())
+        posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
         return render_template("section.html", SecName = u'Избранное', posts = posts,
                                randoms = app.config['RANDOM_SETS'], baseurl = '/favorites/',
-                               page_posts = id_list(posts))
+                               page_posts = id_list(posts.items))
     else:
         return render_template('error.html', errortitle=u'В избранном ничего нет')
 
