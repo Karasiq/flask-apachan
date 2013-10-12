@@ -14,7 +14,8 @@ flask-apachan
 * alembic
 
 # Author
-Created by anonymous author.
+Created by anonymous author
+
 Contacts:
     * [Werradith@github.com](https://github.com/Werradith)
     * [Yodacloud@bitbucket.org](https://bitbucket.org/Yodacloud)
