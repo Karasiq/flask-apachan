@@ -93,28 +93,15 @@ def set_uid(uid):
                 session['admin'] = (hashlib.md5(dispatch_token(request.cookies.get('admin'))) == app.config['ADMIN_PASS_MD5'])
             except:
                 session['admin'] = False
-<<<<<<< HEAD
+         session['canvote'] = (user.first_post and user.last_post and user.rating) and \
+                         (datetime.now() - user.first_post >= timedelta(days=14)
+                          and (datetime.now() - user.last_post) <= timedelta(days=3)
+                          and user.rating >= app.config['RATING_BAN_VOTE']) and not session['banned']
+
     refresh_user(user)
     resp = make_response('OK')
     resp.set_cookie('user_name', auth_token(uid))
     return resp
-=======
-
-        session['canvote'] = (user.first_post and user.last_post and user.rating) and \
-                             (datetime.now() - user.first_post >= timedelta(days=14)
-                              and (datetime.now() - user.last_post) <= timedelta(days=3)
-                              and user.rating >= app.config['RATING_BAN_VOTE']) and not session['banned']
-    else: # Новый юзер
-        return redirect(url_for('register'))
-        #session['canvote'] = False
-        #session['banned'] = False
-    refresh_user(user)
-    response = make_response(u'1')
-    response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
-    session['refresh_time'] = datetime.now() + timedelta(days=1)
-    session.permanent = True
-    return response
->>>>>>> master
 
 @cache.memoize()
 def get_safe_url(url):
@@ -600,11 +587,7 @@ def post():
                 thumbfilename, thumbext = os.path.splitext(imgfilename)
                 thumbfilename = thumbfilename + '_thumb' + thumbext
 
-<<<<<<< HEAD
-                if not os.path.exists(aimgfilename):
-=======
                 if not os.path.exists(aimgfilename) or not os.path.exists(thumbfilename):
->>>>>>> master
                     if not os.path.exists(imgdir):
                         os.makedirs(imgdir)
                     with open(aimgfilename, "wb") as imgf:
@@ -707,11 +690,7 @@ for r in app.config['RANDOM_SETS']:
     if r.has_key('dir') and os.path.exists(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r.get('dir'))):
         onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
         RANDOM_IMAGES.append(onlyfiles)
-<<<<<<< HEAD
-
 fujs = FlaskUtilJs(app)
 @app.context_processor
 def inject_fujs():
     return dict(fujs=fujs)
-=======
->>>>>>> master
