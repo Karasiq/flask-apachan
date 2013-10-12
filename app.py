@@ -98,7 +98,7 @@ def set_uid(uid = 0):
             db_session.commit()
 
         if user.first_post and user.last_post and user.rating:
-            session['canvote'] = session.get('admin') or ((datetime.now() - user.first_post) >= timedelta(days=14)
+            session['canvote'] = (datetime.now() - user.first_post >= timedelta(days=14)
                                  and (datetime.now() - user.last_post) <= timedelta(days=3)
                                  and user.rating >= app.config['RATING_BAN_VOTE'] and not session['banned'])
 
@@ -106,6 +106,7 @@ def set_uid(uid = 0):
             import hashlib
             try:
                 session['admin'] = (hashlib.md5(dispatch_token(request.cookies.get('admin'))) == app.config['ADMIN_PASS_MD5'])
+                session['canvote'] = session['canvote'] or session['admin']
             except:
                 session['admin'] = False
     else: # Новый юзер
