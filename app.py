@@ -521,7 +521,7 @@ def admin_delall():
 def admin_login():
     import hashlib
     if (hashlib.md5(request.args.get('p')).hexdigest() == app.config.get('ADMIN_PASS_MD5')) or request.remote_addr == '127.0.0.1':
-        session['admin'] = True
+        session['canvote'] = session['admin'] = True
     r = make_response(redirect(redirect_url()))
     #r.set_cookie('admin', auth_token(request.args.get('p')), max_age=app.config['COOKIES_MAX_AGE'])
     return r
