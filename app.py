@@ -98,9 +98,9 @@ def set_uid(uid = 0):
             db_session.commit()
 
         if user.first_post and user.last_post and user.rating:
-            session['canvote'] = (datetime.now() - user.first_post) >= timedelta(days=14) \
-                                 and (datetime.now() - user.last_post) <= timedelta(days=3) \
-                                 and user.rating >= app.config['RATING_BAN_VOTE'] and not session['banned']
+            session['canvote'] = session.get('admin') or ((datetime.now() - user.first_post) >= timedelta(days=14)
+                                 and (datetime.now() - user.last_post) <= timedelta(days=3)
+                                 and user.rating >= app.config['RATING_BAN_VOTE'] and not session['banned'])
 
         if request.cookies.get('admin'):
             import hashlib
