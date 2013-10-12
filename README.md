@@ -14,12 +14,9 @@ flask-apachan
 * alembic
 
 # Author
-Created by anonymous author
-
-Contacts:
-    * [Werradith@github.com](https://github.com/Werradith)
-    * [Yodacloud@bitbucket.org](https://bitbucket.org/Yodacloud)
-    * [yoba123@yandex.ru](yoba123@yandex.ru)
+* [Werradith@github.com](https://github.com/Werradith)
+* [Yodacloud@bitbucket.org](https://bitbucket.org/Yodacloud)
+* [yoba123@yandex.ru](yoba123@yandex.ru)
 
 # How to install
 * Database:
