@@ -117,7 +117,7 @@ def set_uid(uid = 0):
     refresh_user(user)
     response = make_response(u'1')
     response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
-    session.permanent = True
+    #session.permanent = True
     return response
 
 @cache.memoize()
