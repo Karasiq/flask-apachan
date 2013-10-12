@@ -32,4 +32,4 @@ def set_fingerprint():
 # On run
 deps_js = Bundle('javascript/swfobject.min.js', 'javascript/jquery.json-2.3.min.js', 'javascript/jquery.flash.js', 'javascript/evercookie/evercookie.js', 'javascript/sha1.js') # + Jquery
 fp_js = Bundle('javascript/plugindetect/plugindetect.js', 'javascript/fontdetect.js', 'javascript/fingerprint.js')
-assets.register('js_fingerprint', Bundle(deps_js, fp_js, output='gen/fingerprint.js'))
+assets.register('js_fingerprint', Bundle(deps_js, fp_js, filters='yui_js', output='gen/fingerprint.js'))
