@@ -261,7 +261,7 @@ def index():
 def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] if post.position else 0
 
-@cache.memoize()
+#@cache.memoize()
 @app.route('/viewpost/<postid>') # Посмотреть пост в треде
 def viewpost(postid):
     #result, response = user_check()
