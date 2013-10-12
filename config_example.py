@@ -1,7 +1,7 @@
 ﻿# coding=utf-8
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
-MAX_CONTENT_LENGTH = 5 * 1024 * 1024; # 5 Мегабайт
+MAX_CONTENT_LENGTH = 5 * 1024 * 1024 # 5 Мегабайт
 IMG_FOLDER = 'files'
 
 #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')

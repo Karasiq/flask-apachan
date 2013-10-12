@@ -1,71 +1,57 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
-from sqlalchemy.orm import relationship, backref
-from database import Base
+from database import db
 
-class User(Base):
+
+class User(db.Model):
     __tablename__ = 'user'
     __table_args__ = {
         'mysql_engine': 'InnoDB',
         'mysql_charset': 'utf8'
     }
-    id = Column(Integer, primary_key = True)
-    rating = Column(Integer, default=0)
-    first_post = Column(DateTime)
-    last_post = Column(DateTime)
-    last_ip = Column(String(15))
-    last_useragent = Column(String(200))
-    banned = Column(Boolean, default = False)
-    banexpiration = Column(DateTime)
-    banreason = Column(String(100))
-    posts = relationship('Post', backref = 'author', lazy = 'dynamic')
-    fingerprint = Column(String(100), default='')
-
-    def __repr__(self):
-        return '<User %r>' % (self.body)
+    id = db.Column(db.Integer, primary_key = True)
+    rating = db.Column(db.Integer, default=0)
+    first_post = db.Column(db.DateTime)
+    last_post = db.Column(db.DateTime)
+    last_ip = db.Column(db.String(15))
+    last_useragent = db.Column(db.String(200))
+    banned = db.Column(db.Boolean, default = False)
+    banexpiration = db.Column(db.DateTime)
+    banreason = db.Column(db.String(100))
+    posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
+    fingerprint = db.Column(db.String(100), default='')
 
 
-class Post(Base):
+class Post(db.Model):
     __tablename__ = 'post'
     __table_args__ = {
         'mysql_engine': 'InnoDB',
         'mysql_charset': 'utf8'
     }
-    id = Column(Integer, primary_key = True)
-    title = Column(String(50))
-    message = Column(String(1000))
-    time = Column(DateTime)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    from_ip = Column(String(15))
-    image = Column(String(260), default='')
-    thumb = Column(String(260), default='')
-    rating = Column(Integer, default=0)
-    randid = Column(Integer, default=0)
+    id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.String(50))
+    message = db.Column(db.String(1000))
+    time = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    from_ip = db.Column(db.String(15))
+    image = db.Column(db.String(260), default='')
+    thumb = db.Column(db.String(260), default='')
+    rating = db.Column(db.Integer, default=0)
+    randid = db.Column(db.Integer, default=0)
     # Only answer field:
-    parent = Column(Integer, default=0)
-    answer_to = Column(Integer, default=0)
-    position = Column(Integer, default=0)
+    parent = db.Column(db.Integer, default=0)
+    answer_to = db.Column(db.Integer, default=0)
+    position = db.Column(db.Integer, default=0)
     # Threads field
-    answers = Column(Integer, default=0)
-    last_answer = Column(DateTime)
-    section = Column(String(5))
-    mysql_charset = 'utf8'
-    mysql_engine='InnoDB'
+    answers = db.Column(db.Integer, default=0)
+    last_answer = db.Column(db.DateTime)
+    section = db.Column(db.String(5))
 
-    def __repr__(self):
-        return '<Post %r>' % (self.body)
-
-class Vote(Base): # Vote history
+class Vote(db.Model): # Vote history
     __tablename__ = 'vote'
     __table_args__ = {
         'mysql_engine': 'InnoDB',
         'mysql_charset': 'utf8'
     }
-    id = Column(Integer, primary_key = True)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    post_id = Column(Integer, ForeignKey('post.id'))
-    value = Column(Integer, default = 0)
-    mysql_charset = 'utf8'
-    mysql_engine='InnoDB'
-
-    def __repr__(self):
-        return '{Vote %d [%d] ==> %d}' % (self.user_id, self.value, self.post_id)
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    value = db.Column(db.Integer, default = 0)
