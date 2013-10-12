@@ -5,7 +5,7 @@ function submit_vote(id,v)
 			postid: id,
 			vote: v
 		}, function(data) {
-        $("span#rt" + id).text(data);
+        $("span#rt" + id).text(data.post_rating);
 		$("a#vt1_" + id).text('');
 		$("a#vt2_" + id).text('');
       });

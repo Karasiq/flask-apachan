@@ -14,7 +14,7 @@
         {# </a> #}
     {% endif %}
     {{ p.message|message|ext_urls|safe }}</div></td></tr><tr><td height='10px'></td></tr>
-    <tr><td style='font-size:11px;background-color:white;'>[<a href="/view/{{ p.id }}">#{{ p.id }}</a>] {{ p.time }}
+    <tr><td style='font-size:11px;background-color:white;'>[<a href="/view/{{ p.id }}"{% if session.admin %} title="{{ p.user_id }}"{% endif %}>#{{ p.id }}</a>] {{ p.time }}
     {% if form and form.parent.data != '0' %}
         {% if p.user_id == mainpost.user_id %}
         <a href="{{ url_for('semeno_detector', postid=p.id) }}" rel='nofollow'><b>ОП</b></a>
@@ -47,10 +47,11 @@
     <a href="{{ url_for('view', postid = p.id) }}">Ответить</a>&nbsp;
     {% endif %}
      Рейтинг: <span id="rt{{ p.id }}">{{ p.rating }}</span>
+    {% if session.admin or (session.canvote and p.user_id != session.uid) %}
+        <a id="vt1_{{ p.id }}" href="javascript:submit_vote({{ p.id }}, 1);" style='text-decoration:none'>[+]</a> <a id="vt2_{{ p.id }}" href="javascript:submit_vote({{ p.id }},-1);" style='text-decoration:none'>[-]</a>
+    {% endif %}
     {% if session.admin or (session.can_delete and p.id in session.can_delete) %}
         &nbsp;<a href="{{ url_for('postdel', postid=p.id) }}">[Удалить]</a>
-    {% elif session.canvote and p.user_id != session.uid %}
-    <a id="vt1_{{ p.id }}" href="javascript:submit_vote({{ p.id }}, 1);" style='text-decoration:none'>[+]</a> <a id="vt2_{{ p.id }}" href="javascript:submit_vote({{ p.id }},-1);" style='text-decoration:none'>[-]</a>
     {% endif %}
     {% if show_section %}
         &nbsp; {{ config.SECTIONS[p.section] }}

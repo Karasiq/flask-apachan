@@ -86,10 +86,6 @@ def set_uid(uid):
             db_session.add(user)
             db_session.commit()
 
-        if user.first_post and user.last_post and user.rating:
-            session['canvote'] = (datetime.now() - user.first_post) >= timedelta(days=14) \
-                                 and (datetime.now() - user.last_post) <= timedelta(days=3) \
-                                 and user.rating >= app.config['RATING_BAN_VOTE'] and not session['banned']
 
         if request.cookies.get('admin'):
             import hashlib
@@ -97,10 +93,28 @@ def set_uid(uid):
                 session['admin'] = (hashlib.md5(dispatch_token(request.cookies.get('admin'))) == app.config['ADMIN_PASS_MD5'])
             except:
                 session['admin'] = False
+<<<<<<< HEAD
     refresh_user(user)
     resp = make_response('OK')
     resp.set_cookie('user_name', auth_token(uid))
     return resp
+=======
+
+        session['canvote'] = (user.first_post and user.last_post and user.rating) and \
+                             (datetime.now() - user.first_post >= timedelta(days=14)
+                              and (datetime.now() - user.last_post) <= timedelta(days=3)
+                              and user.rating >= app.config['RATING_BAN_VOTE']) and not session['banned']
+    else: # Новый юзер
+        return redirect(url_for('register'))
+        #session['canvote'] = False
+        #session['banned'] = False
+    refresh_user(user)
+    response = make_response(u'1')
+    response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
+    session['refresh_time'] = datetime.now() + timedelta(days=1)
+    session.permanent = True
+    return response
+>>>>>>> master
 
 @cache.memoize()
 def get_safe_url(url):
@@ -147,7 +161,7 @@ def vote():
     if not val or not pid:
         return render_template("error.html", errortitle=u"Ошибка голосования")
     post = db_session.query(models.Post).filter_by(id = pid).first()
-    if session.get('canvote'):
+    if session.get('canvote') or session.get('admin'):
         user = db_session.query(models.User).filter_by(id = session['uid']).first()
         vote = db_session.query(models.Vote).filter_by(user_id = user.id, post_id = post.id).first()
         if user and post and user.id != post.user_id and not vote and not (val > 1 or val < -1):
@@ -167,7 +181,7 @@ def vote():
             db_session.add(vote)
             db_session.commit()
 
-    return str(post.rating)
+    return jsonify(post_rating = post.rating)
 
 def redirect_url(default='index'):
     return request.args.get('next') or \
@@ -199,6 +213,8 @@ def user_check():
     if app.config['IP_BLOCKLIST'].InList(request.remote_addr):
         return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
 
+    if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
+        set_uid(session['uid'])
     #return True, ''
 
 @cache.cached()
@@ -470,8 +486,7 @@ def admin_delall():
 @app.route('/admin/login')
 def admin_login():
     import hashlib
-    if hashlib.md5(request.args.get('p')).hexdigest() == app.config.get('ADMIN_PASS_MD5') \
-        or request.remote_addr == '127.0.0.1':
+    if (hashlib.md5(request.args.get('p')).hexdigest() == app.config.get('ADMIN_PASS_MD5')) or request.remote_addr == '127.0.0.1':
         session['admin'] = True
     r = make_response(redirect(redirect_url()))
     #r.set_cookie('admin', auth_token(request.args.get('p')), max_age=app.config['COOKIES_MAX_AGE'])
@@ -585,7 +600,11 @@ def post():
                 thumbfilename, thumbext = os.path.splitext(imgfilename)
                 thumbfilename = thumbfilename + '_thumb' + thumbext
 
+<<<<<<< HEAD
                 if not os.path.exists(aimgfilename):
+=======
+                if not os.path.exists(aimgfilename) or not os.path.exists(thumbfilename):
+>>>>>>> master
                     if not os.path.exists(imgdir):
                         os.makedirs(imgdir)
                     with open(aimgfilename, "wb") as imgf:
@@ -614,9 +633,8 @@ def post():
         db_session.add(entry)
 
         db_session.commit()
-        candelete = session.get('can_delete') if session.has_key('can_delete') else list()
-        candelete.append(entry.id)
-        session['can_delete'] = candelete
+        session['can_delete'] = session.get('can_delete') or list()
+        session['can_delete'].append(entry.id)
         if entry.parent == 0:
             return redirect(url_for('view', postid=entry.id))
         else:
@@ -689,8 +707,11 @@ for r in app.config['RANDOM_SETS']:
     if r.has_key('dir') and os.path.exists(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r.get('dir'))):
         onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
         RANDOM_IMAGES.append(onlyfiles)
+<<<<<<< HEAD
 
 fujs = FlaskUtilJs(app)
 @app.context_processor
 def inject_fujs():
     return dict(fujs=fujs)
+=======
+>>>>>>> master
