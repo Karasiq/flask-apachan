@@ -11,6 +11,14 @@ function submit_vote(id,v)
 		$("a#vt2_" + id).text('');
       });
 }
+function unhide_threads()
+{
+    $.getJSON($SCRIPT_ROOT + '/unhide-threads', {}, function(data) {
+        if(data.result) {
+            location.reload();
+        }
+    });
+}
 function copy_selection()
 {
     var t = window.getSelection();

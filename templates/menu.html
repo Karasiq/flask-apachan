@@ -16,7 +16,7 @@
 {% endif %}
 {% if session.hidden %}
 <hr>
-<h4><a href='{{ url_for('unhide_threads') }}'>Показать скрытые треды ({{ session.hidden|length }})</a></h4>
+<h4><a href="#" onclick="unhide_threads();">Показать скрытые треды ({{ session.hidden|length }})</a></h4>
 {% endif %}
 </div>
 </div>
