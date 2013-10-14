@@ -516,7 +516,8 @@ def admin_delall():
         del_post(p, False)
     db_session.commit()
     print(u'Все посты пользователя %d удалены' % int(userid))
-    return admin_ban(userid)
+    #return admin_ban(userid)
+    return '1'
 
 @app.route('/admin/login')
 def admin_login():
