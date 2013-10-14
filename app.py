@@ -272,6 +272,9 @@ def viewpost(postid):
             return redirect(url_for('view', postid = postid))
         else:
             return redirect(url_for('view', postid=post.parent, page=get_page_number(post)) + '#t' + str(postid))
+    else:
+        return redirect(redirect_url())
+
 @cache.memoize()
 def id_list(posts):
     il = list()
