@@ -468,15 +468,16 @@ def thread_transfer(thid, new_section):
 @app.route('/admin/totrash')
 def admin_totrash():
     if not session.get('admin'):
-        return redirect(url_for('index'))
+        return jsonify(result=False)
     thid = int(request.args.get('thread_id'))
     thread_transfer(thid, app.config['TRASH'])
-    return '1'
+    return jsonify(result=True)
 
 @app.route('/admin/del_ip')
 def admin_delip():
     if not session.get('admin'):
-        return redirect(url_for('index'))
+        return jsonify(result=False)
+
     ip = request.args.get('ipaddr')
     posts = Post.query.filter_by(from_ip = ip)
     for p in posts:
@@ -489,14 +490,14 @@ def admin_delip():
         db_session.add(u)
 
     db_session.commit()
-    return '1'
+    return jsonify(result=True)
 
 @app.route('/admin/ban')
 def admin_ban(userid = 0):
     if userid == 0:
         userid = int(request.args.get('userid'))
     if not session.get('admin'):
-        return redirect(url_for('index'))
+        return jsonify(result=False)
     user = User.query.filter_by(id = userid).first()
     if user:
         user.banned = True
@@ -504,12 +505,12 @@ def admin_ban(userid = 0):
         user.banreason = u'Забанен модератором'
         db_session.add(user)
         db_session.commit()
-    return '1'
+    return jsonify(result=True)
 
 @app.route('/admin/delall')
 def admin_delall():
     if not session.get('admin'):
-        return redirect(url_for('index'))
+        return jsonify(result=False)
     userid = request.args.get('userid')
     posts = Post.query.filter_by(user_id = userid)
     for p in posts:
@@ -517,16 +518,14 @@ def admin_delall():
     db_session.commit()
     print(u'Все посты пользователя %d удалены' % int(userid))
     #return admin_ban(userid)
-    return '1'
+    return jsonify(result=True)
 
 @app.route('/admin/login')
 def admin_login():
     import hashlib
     if (hashlib.md5(request.args.get('p')).hexdigest() == app.config.get('ADMIN_PASS_MD5')) or request.remote_addr == '127.0.0.1':
         session['admin'] = True
-    r = make_response(redirect(redirect_url()))
-    #r.set_cookie('admin', auth_token(request.args.get('p')), max_age=app.config['COOKIES_MAX_AGE'])
-    return r
+    return redirect(redirect_url())
 
 RANDOM_IMAGES = list() # init at run
 def get_randompic(num):
@@ -536,6 +535,7 @@ def get_randompic(num):
         return 0, '' # Ошибка
     return num, choice(RANDOM_IMAGES[num - 1])
 
+@cache.cached()
 @app.route('/report')
 def report():
     #postid = request.args.get('post_id')
