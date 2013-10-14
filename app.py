@@ -262,7 +262,7 @@ def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] + 1 if post.position else 1
 
 #@cache.memoize()
-@app.route('/viewpost/<postid>') # Посмотреть пост в треде
+@app.route('/viewpost/<int:postid>') # Посмотреть пост в треде
 def viewpost(postid):
     #result, response = user_check()
     #if not result: return response
@@ -280,15 +280,15 @@ def id_list(posts):
     return il
 
 #@cache.memoize(timeout=20)
-@app.route('/semenodetector/<postid>')
-@app.route('/semenodetector/<postid>/<page>')
+@app.route('/semenodetector/<int:postid>')
+@app.route('/semenodetector/<int:postid>/<int:page>')
 def semeno_detector(postid, page=1):
     #result, response = user_check()
     #if not result: return response
     post = Post.query.filter_by(id = postid).first()
     if post:
         parent_id = post.parent if post.parent != 0 else post.id
-        posts = Post.query.filter(Post.user_id == post.user_id, Post.parent == parent_id, Post.id != postid).order_by(Post.id.asc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+        posts = Post.query.filter(Post.user_id == post.user_id, Post.parent == parent_id, Post.id != postid).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
         form = PostForm()
         form.answer_to.data = postid
         if int(post.parent) == 0:
@@ -327,17 +327,17 @@ def hide_thread():
 
 #@cache.memoize(timeout=10)
 @app.route('/mythreads')
-@app.route('/mythreads/<page>')
+@app.route('/mythreads/<int:page>')
 def mythreads(page=1):
     #result, response = user_check()
     #if not result: return response
-    posts = Post.query.filter(Post.user_id == session.get('uid'), Post.parent == 0).order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    posts = Post.query.filter(Post.user_id == session.get('uid'), Post.parent == 0).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     return render_template("section.html", SecName = u'Мои треды', posts = posts,
                            randoms = app.config['RANDOM_SETS'], baseurl = '/mythreads/',
                            page_posts = id_list(posts.items))
 #@cache.memoize(timeout=10)
 @app.route('/answers')
-@app.route('/answers/<page>')
+@app.route('/answers/<int:page>')
 def answers(page=1):
     #result, response = user_check()
     #if not result: return response
@@ -346,31 +346,31 @@ def answers(page=1):
     ids = list()
     for p in posts:
         ids.append(p.id)
-    answers = Post.query.filter(Post.answer_to.in_(ids)).order_by(Post.time.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    answers = Post.query.filter(Post.answer_to.in_(ids)).order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     return render_template("section.html", SecName = u'Ответы', posts = answers,
                            randoms = app.config['RANDOM_SETS'], baseurl = '/answers/',
                            page_posts = id_list(answers.items), show_answer_to = True)
 
 @app.route('/favorites')
-@app.route('/favorites/<page>')
+@app.route('/favorites/<int:page>')
 def favorites(page=1):
     #result, response = user_check()
     #if not result: return response
 
     if session.get('favorites'):
-        posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+        posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
         return render_template("section.html", SecName = u'Избранное', posts = posts,
                                randoms = app.config['RANDOM_SETS'], baseurl = '/favorites/',
                                page_posts = id_list(posts.items))
     else:
         return render_template('error.html', errortitle=u'В избранном ничего нет')
 
-@app.route('/view/<postid>')
-@app.route('/view/<postid>/<page>')
+@app.route('/view/<int:postid>')
+@app.route('/view/<int:postid>/<int:page>')
 def view(postid, page=1):
     from sqlalchemy import or_
     post = Post.query.filter_by(id = postid).first()
-    answers = Post.query.filter(or_(Post.parent == postid, Post.answer_to == postid)).order_by(Post.id.asc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    answers = Post.query.filter(or_(Post.parent == postid, Post.answer_to == postid)).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
 
     if post is None:
         return render_template("error.html", errortitle = u"Пост не найден")
@@ -675,18 +675,18 @@ def post():
 
 @cache.memoize(timeout=100)
 @app.route('/gallery')
-@app.route('/gallery/<page>')
+@app.route('/gallery/<int:page>')
 def gallery(page=1):
-    posts = Post.query.filter(Post.randid == 0, Post.image != '').order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    posts = Post.query.filter(Post.randid == 0, Post.image != '').order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     return render_template("gallery.html", posts = posts)
 
 #@cache.memoize(timeout=10)
 @app.route('/all')
-@app.route('/all/<page>')
+@app.route('/all/<int:page>')
 def allsections(page=1):
     #result, response = user_check()
     #if not result: return response
-    posts = Post.query.filter_by(parent = 0).order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    posts = Post.query.filter_by(parent = 0).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.parent.data = '0'
     form.section.data = 'b'
@@ -697,13 +697,13 @@ def allsections(page=1):
 
 #@cache.memoize(timeout=10)
 @app.route('/boards/<SectionName>')
-@app.route('/boards/<SectionName>/<page>')
+@app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
     #result, response = user_check()
     #if not result: return response
     if app.config['SECTIONS'].get(SectionName) is None:
         return render_template("error.html", errortitle = u"Раздел не найден")
-    posts = Post.query.filter_by(parent = 0, section = SectionName).order_by(Post.last_answer.desc()).paginate(int(page), per_page=app.config['MAX_POSTS_ON_PAGE'])
+    posts = Post.query.filter_by(parent = 0, section = SectionName).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.section.data = SectionName
     return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, randoms = app.config['RANDOM_SETS'], baseurl = '/boards/' + SectionName + '/')
