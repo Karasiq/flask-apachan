@@ -15,6 +15,7 @@ assets = Environment(app)
 from database import db_session
 from models import Vote, User, Post
 
+@cache.memoize()
 def dispatch_token(encrypted):
     from Crypto.Cipher import AES
     import base64
@@ -23,6 +24,7 @@ def dispatch_token(encrypted):
     aes = AES.new(app.config['SECRET_KEY'], AES.MODE_CFB, IV)
     return aes.decrypt(base64.b64decode(encrypted))
 
+@cache.memoize(timeout=100)
 def auth_token(id):
     from Crypto.Cipher import AES
     import base64
@@ -31,6 +33,7 @@ def auth_token(id):
     aes = AES.new(app.config['SECRET_KEY'], AES.MODE_CFB, IV)
     return base64.b64encode(aes.encrypt(str(id)))
 
+@cache.memoize(timeout=timedelta(days=1).seconds)
 def refresh_user(user):
     if session.get('fingerprint'):
         user.fingerprint = session.get('fingerprint')
@@ -38,6 +41,7 @@ def refresh_user(user):
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
     db_session.commit()
+    return True
 
 @app.route('/redirect')
 def external_redirect():
@@ -54,7 +58,7 @@ def external_redirect():
 @app.route('/set_id')
 def set_uid(uid = 0):
     if session.get('uid') == uid:
-        return '1'
+        return jsonify(result=True)
 
     if uid == 0 and (session.get('uid') or not session.get('fingerprint')):
         return '0'
@@ -114,7 +118,7 @@ def set_uid(uid = 0):
         #session['canvote'] = False
         #session['banned'] = False
     refresh_user(user)
-    response = make_response(u'1')
+    response = make_response(jsonify(result=True))
     response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
     session['refresh_time'] = datetime.now() + timedelta(days=1)
     session.permanent = True
@@ -300,7 +304,7 @@ def semeno_detector(postid, page=1):
             form.parent.data = post.parent
         form.section.data = post.section
         return render_template("section.html", SecName = u'Семенодетектор (#%s)' % int(postid), posts = posts, form = form, mainpost = post,
-                               randoms = app.config['RANDOM_SETS'], baseurl = '/semenodetector/' + postid + '/',
+                               randoms = app.config['RANDOM_SETS'], baseurl = '/semenodetector/%d/' % postid,
                                page_posts = id_list(posts.items))
 
 @app.route('/add-to-favorites')
