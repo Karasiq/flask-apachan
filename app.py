@@ -385,7 +385,7 @@ def view(postid, page=1):
         form.parent.data = post.parent
     form.section.data = post.section
 
-    return render_template("section.html", SecName = app.config['SECTIONS'][post.section], posts = answers, form = form, mainpost = post, randoms = app.config['RANDOM_SETS'], baseurl = '/view/' + postid + '/', page_posts = id_list(answers.items))
+    return render_template("section.html", SecName = app.config['SECTIONS'][post.section], posts = answers, form = form, mainpost = post, randoms = app.config['RANDOM_SETS'], baseurl = '/view/%d/' % postid, page_posts = id_list(answers.items))
 
 def unique_id():
     import hashlib, uuid
