@@ -256,8 +256,6 @@ def user_check():
 @app.route('/index')
 @app.route('/')
 def index():
-    #result, response = user_check()
-    #if not result: return response
     return render_template("index.html", sections = app.config['SECTIONS'])
 
 def get_page_number(post):
@@ -303,7 +301,6 @@ def hide_thread():
     session['hidden'].append(thid)
     return jsonify(result=True)
 
-#@cache.memoize(timeout=10)
 @app.route('/mythreads')
 @app.route('/mythreads/<int:page>')
 def mythreads(page=1):
@@ -485,9 +482,6 @@ def post():
     from PIL import Image
     import images2gif
 
-    #result, response = user_check()
-    #if not result: return response
-
     if session.get('banned'):
         user = User.query.filter_by(id = session.get('uid')).first()
         if user and user.banreason:
@@ -631,12 +625,9 @@ def allsections(page=1):
     return render_stream(page)
 
 
-#@cache.memoize(timeout=10)
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
-    #result, response = user_check()
-    #if not result: return response
     if app.config['SECTIONS'].get(SectionName) is None:
         return render_template("error.html", errortitle = u"Раздел не найден")
 

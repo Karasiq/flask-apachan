@@ -1,4 +1,5 @@
 # coding=utf-8
+# Views file
 from app import *
 
 @cache.memoize(timeout=3600)
