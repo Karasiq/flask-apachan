@@ -6,17 +6,18 @@ from werkzeug import secure_filename
 from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
 from datetime import datetime, timedelta
-import ipcheck, captcha, flask_fingerprint
 import os, sys, tempfile
 
 app = Flask(__name__)
 app.config.from_object('config')
-app.register_blueprint(captcha.captcha)
-app.register_blueprint(flask_fingerprint.fingerprint)
 cache = Cache(app, config=app.config['CACHE_CONFIG'])
 assets = Environment(app)
 from database import db_session
 from models import Vote, User, Post
+
+import ipcheck, captcha, flask_fingerprint
+app.register_blueprint(captcha.captcha)
+app.register_blueprint(flask_fingerprint.fingerprint)
 
 
 def get_current_fingerprint():
@@ -660,6 +661,7 @@ for r in app.config['RANDOM_SETS']:
         onlyfiles = [ f for f in listdir(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir'])) if isfile(join(os.path.join(app.config['BASE_RANDOMPIC_DIR'], r['dir']), f)) ]
         RANDOM_IMAGES.append(onlyfiles)
 
+from flask.ext.util_js import FlaskUtilJs
 fujs = FlaskUtilJs(app)
 
 
