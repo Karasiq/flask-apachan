@@ -22,7 +22,7 @@ app.register_blueprint(flask_fingerprint.fingerprint)
 
 def get_current_fingerprint():
     return session['fingerprint']['system'] if app.config['SYSTEM_WIDE_FP'] else session['fingerprint'][
-        'system_browser']
+        'browser']
 
 
 @cache.memoize()
