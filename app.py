@@ -75,12 +75,9 @@ def external_redirect():
     except:
         return redirect(redirect_url())
 
-@app.route('/set_id')
-def set_uid(uid = 0):
+def set_uid(uid):
     if session.get('uid') == uid:
         return jsonify(result=True)
-
-def set_uid(uid):
     session['uid'] = uid
     user = User.query.filter_by(id=uid).first()
     if user:
