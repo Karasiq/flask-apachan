@@ -24,7 +24,7 @@ def id_list(posts):
         il.append(p.id)
     return il
 
-from cached import render_section, render_stream, render_view
+from cached import flush_cache, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery
 
 @cache.memoize(timeout=3600)
 def dispatch_token(encrypted):
@@ -228,21 +228,24 @@ def set_fp():
 
 @app.route('/reg')
 def register():
-    from sqlalchemy import or_
     if not session.get('fingerprint'):
         return redirect(redirect_url())
 
-    if not session.get('uid'):
-        rec = User.query.filter(or_(User.fingerprint == session.get('fingerprint'), User.last_ip == request.remote_addr)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == session.get('fingerprint')).first()
+    @cache.memoize(timeout=3600)
+    def get_current_user(ip, fp):
+        from sqlalchemy import or_
+        rec = User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first()
         if rec is None:
-            rec = User(last_ip = request.remote_addr, last_useragent = request.headers.get('User-Agent'), fingerprint = session.get('fingerprint'))
+            rec = User(last_ip = ip, last_useragent = request.headers.get('User-Agent'), fingerprint = fp)
             db_session.add(rec)
             db_session.commit()
-        #session['uid'] = rec.id
+        return rec
+
+    if not session.get('uid'):
+        rec = get_current_user(request.headers.get('X-Forwarded-For') or request.remote_addr, session.get('fingerprint'))
         if rec and rec.id:
             set_uid(rec.id)
         response = make_response(redirect(redirect_url()))
-        #response = make_response(render_template("index.html", setid = auth_token(rec.id)))
         response.set_cookie('uid', auth_token(rec.id) if rec and rec.id else '', max_age=app.config['COOKIES_MAX_AGE'])
         return response
     return redirect(redirect_url())
@@ -281,7 +284,7 @@ def index():
 def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] + 1 if post.position else 1
 
-@cache.memoize()
+@cache.memoize(timeout=3600)
 @app.route('/viewpost/<int:postid>') # Посмотреть пост в треде
 def viewpost(postid):
     post = Post.query.filter_by(id = postid).first()
@@ -296,23 +299,7 @@ def viewpost(postid):
 @app.route('/semenodetector/<int:postid>')
 @app.route('/semenodetector/<int:postid>/<int:page>')
 def semeno_detector(postid, page=1):
-    def detect_same_person(post_id):
-        post = Post.query.filter_by(id = post_id).first()
-        if post:
-            parent_id = post.parent if post.parent != 0 else post.id
-            return post, Post.query.filter(Post.user_id == post.user_id, Post.parent == parent_id, Post.id != post_id).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
-        else:
-            return None
-
-    post, posts = detect_same_person(postid)
-    form = PostForm()
-    form.answer_to.data = postid
-    if int(post.parent) == 0:
-        form.parent.data = post.id
-    else:
-        form.parent.data = post.parent
-    form.section.data = post.section
-    return render_template("section.html", SecName = u'Семенодетектор (#%s)' % int(postid), posts = posts, form = form, mainpost = post, randoms = app.config['RANDOM_SETS'], baseurl = '/semenodetector/%d/' % postid, page_posts = id_list(posts.items))
+    return render_semenodetector(postid, page)
 
 @app.route('/add-to-favorites')
 def add_to_favorites():
@@ -342,34 +329,17 @@ def hide_thread():
 @app.route('/mythreads')
 @app.route('/mythreads/<int:page>')
 def mythreads(page=1):
-    posts = Post.query.filter(Post.user_id == session['uid'], Post.parent == 0).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE']) if session.get('uid') else None
-    return render_template("section.html", SecName = u'Мои треды', posts = posts, randoms = app.config['RANDOM_SETS'], page_posts = id_list(posts.items))
+    return render_mythreads(page)
 
 @app.route('/answers')
 @app.route('/answers/<int:page>')
 def answers(page=1):
-    def get_answers(user_id):
-        if user_id:
-            posts = Post.query.filter_by(user_id = user_id).order_by(Post.time.desc()).limit(100)
-            return Post.query.filter(Post.answer_to.in_(id_list(posts))).order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE']) if posts else None
-        else:
-            return None
-
-    answers = get_answers(session.get('uid'))
-    return render_template("section.html", SecName = u'Ответы', posts = answers,
-                           randoms = app.config['RANDOM_SETS'], baseurl = '/answers/',
-                           page_posts = id_list(answers.items), show_answer_to = True)
+    return render_answers(page)
 
 @app.route('/favorites')
 @app.route('/favorites/<int:page>')
 def favorites(page=1):
-    if session.get('favorites'):
-        posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
-        return render_template("section.html", SecName = u'Избранное', posts = posts,
-                               randoms = app.config['RANDOM_SETS'], baseurl = '/favorites/',
-                               page_posts = id_list(posts.items))
-    else:
-        return render_template('error.html', errortitle=u'В избранном ничего нет')
+    return render_favorites(page)
 
 
 @app.route('/view/<int:postid>')
@@ -429,10 +399,7 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
     if commit:
         db_session.commit()
 
-    cache.delete_memoized(viewpost)
-    cache.delete_memoized(render_view)
-    cache.delete_memoized(render_section)
-    cache.delete_memoized(render_stream)
+    flush_cache()
 
 @app.route('/delpost')
 def postdel():
@@ -656,9 +623,7 @@ def post():
 
         db_session.commit()
 
-        cache.delete_memoized(render_stream)
-        cache.delete_memoized(render_view)
-        cache.delete_memoized(render_section)
+        flush_cache()
 
         session['can_delete'] = session.get('can_delete') or list()
         session['can_delete'].append(entry.id)
@@ -672,12 +637,11 @@ def post():
                 flash(error)
         return render_template("error.html", errortitle=u'Ошибка отправки')
 
-@cache.memoize(timeout=60)
+
 @app.route('/gallery')
 @app.route('/gallery/<int:page>')
 def gallery(page=1):
-    posts = Post.query.filter(Post.randid == 0, Post.image != '').order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
-    return render_template("gallery.html", posts = posts)
+    return render_gallery(page)
 
 
 @app.route('/all')
