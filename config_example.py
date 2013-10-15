@@ -6,6 +6,9 @@ IMG_FOLDER = 'files'
 
 #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://user:password@host/dbname?charset=utf8'
+import tempfile
+#CACHE_CONFIG = {'CACHE_TYPE':'redis', 'CACHE_KEY_PREFIX':'flask-apachan', 'CACHE_REDIS_URL':'redis://redis-addr.com:6379/0'}
+CACHE_CONFIG = {'CACHE_TYPE':'filesystem', 'CACHE_DIR' : os.path.join(tempfile.gettempdir(), 'flask-apachan-cache')}
 
 CAPTCHA_ENABLED = True
 RECAPTCHA_ENABLED = False

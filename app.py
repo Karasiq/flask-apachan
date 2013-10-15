@@ -3,14 +3,15 @@ from flask import Flask, render_template, request, redirect, make_response, sess
 from flask.ext.assets import Environment, Bundle
 from flask.ext.cache import Cache
 from werkzeug import secure_filename
-from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
 from datetime import datetime, timedelta
 import ipcheck, captcha
-import os, sys, tempfile
+import os
 
 app = Flask(__name__)
-cache = Cache(app, config={'CACHE_TYPE':'filesystem', 'CACHE_DIR' : os.path.join(tempfile.gettempdir(), 'flask-apachan-cache')})
+app.config.from_object('config')
+app.register_blueprint(captcha.captcha)
+cache = Cache(app, config=app.config['CACHE_CONFIG'])
 assets = Environment(app)
 from database import db_session
 from models import Vote, User, Post
@@ -697,9 +698,6 @@ def section(SectionName, page=1):
 # on start
 from os import listdir
 from os.path import isfile, join
-
-app.config.from_object('config')
-app.register_blueprint(captcha.captcha)
 
 app.config['IP_BLOCKLIST'] = ipcheck.IpList()
 if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
