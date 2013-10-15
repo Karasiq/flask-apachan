@@ -210,9 +210,9 @@ def redirect_url(default='index'):
 def set_fp_callback(uid, fingerprint):
     session['fingerprint'] = fingerprint
     @cache.memoize(timeout=3600)
-    def get_current_user(ip, fp):
+    def get_current_user(uid, ip, fp):
         from sqlalchemy import or_
-        rec = User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first()
+        rec = User.query.filter_by(id = int(uid)).first() if uid else (User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first())
         if rec is None:
             rec = User(last_ip = ip, last_useragent = request.headers.get('User-Agent'), fingerprint = fp)
             db_session.add(rec)
@@ -220,7 +220,7 @@ def set_fp_callback(uid, fingerprint):
         return rec
 
     if not session.get('uid'):
-        rec = get_current_user(request.headers.get('X-Forwarded-For') or request.remote_addr, get_current_fingerprint())
+        rec = get_current_user(uid, request.headers.get('X-Forwarded-For') or request.remote_addr, get_current_fingerprint())
         if rec and rec.id:
             set_uid(rec.id)
         response = make_response(redirect(redirect_url()))
