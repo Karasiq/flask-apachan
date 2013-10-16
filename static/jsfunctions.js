@@ -24,10 +24,9 @@ function copy_selection()
     if(t!="")
     {
         var $msgfield = $("textarea#msg");
-        $msgfield.text($msgfield.text() + "[quote]"+t+"[/quote]");
-        return false;
+        $msgfield.val($msgfield.val() + "[quote]"+t+"[/quote]");
     }
-    else return true;
+    return true;
 }
 function set_fp()
 {
