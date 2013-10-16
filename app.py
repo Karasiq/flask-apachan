@@ -56,7 +56,7 @@ def auth_token(id):
 @cache.memoize(timeout=timedelta(days=1).seconds)
 def refresh_user(user):
     if session.get('fingerprint'):
-        user.fingerprint = session.get('fingerprint')
+        user.fingerprint = get_current_fingerprint()
     user.last_ip = request.remote_addr
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
@@ -220,10 +220,10 @@ def set_fp_callback(uid, fingerprint):
         rec = get_current_user(uid, request.headers.get('X-Forwarded-For') or request.remote_addr, get_current_fingerprint())
         if rec and rec.id:
             set_uid(rec.id)
-        response = make_response(redirect(redirect_url()))
+        response = make_response(jsonify(result=True))
         response.set_cookie('uid', auth_token(rec.id) if rec and rec.id else '', max_age=app.config['COOKIES_MAX_AGE'])
         return response
-    return redirect(redirect_url())
+    return jsonify(result=True)
 
 
 @app.before_request
