@@ -1,8 +1,7 @@
 # coding=utf-8
-from flask import Blueprint, request, jsonify, session
-from flask.ext.assets import Environment, Bundle
-import os
-from app import app, assets
+from flask import Blueprint, request, session
+from flask.ext.assets import Bundle
+from app import assets
 fingerprint = Blueprint('fingerprint', __name__)
 
 @fingerprint.route('/get-uid')

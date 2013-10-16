@@ -3,10 +3,9 @@ from flask import Flask, render_template, request, redirect, make_response, sess
 from flask.ext.assets import Environment, Bundle
 from flask.ext.cache import Cache
 from werkzeug import secure_filename
-from flask.ext.sqlalchemy import SQLAlchemy
 from forms import PostForm
 from datetime import datetime, timedelta
-import os, sys, tempfile
+import os
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -603,7 +602,6 @@ def post():
             return redirect(url_for('view', postid=entry.id))
         else:
             return redirect(url_for('viewpost', postid=entry.id))
-            # return redirect(url_for('view', postid=entry.parent))
     else:
         for error in form.errors:
                 flash(error)
