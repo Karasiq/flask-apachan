@@ -4,10 +4,11 @@ from app import *
 
 @cache.memoize(timeout=3600)
 def render_stream(page, session=session):
-    posts = Post.query.filter_by(parent = 0).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
+    from sqlalchemy import not_, and_
+    posts = Post.query.filter( and_(Post.parent == 0, not_(Post.section.in_(app.config['HIDDEN_BOARDS']))) ).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     form = PostForm()
     form.parent.data = '0'
-    form.section.data = 'b'
+    form.section.data = app.config['DEFAULT_SECTION']
     return render_template("section.html", SecName = u'Поток', posts = posts, form = form,
                            randoms = app.config['RANDOM_SETS'], show_section = True,
                            baseurl = '/all/')
@@ -93,6 +94,7 @@ def render_gallery(page, session=session):
     return render_template("gallery.html", posts = posts, baseurl = '/gallery/')
 
 def flush_cache():
+    from app import viewpost
     cache.delete_memoized(viewpost)
     cache.delete_memoized(render_view)
     cache.delete_memoized(render_section)

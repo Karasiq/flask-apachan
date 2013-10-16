@@ -2,7 +2,9 @@
 <b>Навигация</b>
 <div id='nav_div' style='display:none;line-height:80%'>
 {% for key, value in config.SECTIONS.iteritems() %}
-    <h3><a title="{{ value }}" href="{{ url_for('section', SectionName=key) }}">{{ value }}</a></h3>
+    {% if not config.HIDDEN_BOARDS or key not in config.HIDDEN_BOARDS %}
+        <h3><a title="{{ value }}" href="{{ url_for('section', SectionName=key) }}">{{ value }}</a></h3>
+    {% endif %}
 {% endfor %}
 <hr>
 <h3><a href="{{ url_for('allsections') }}">Поток</a></h3>

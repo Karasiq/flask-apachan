@@ -54,7 +54,10 @@ IP_BLOCKLIST_FILE = 'blocklist.txt'
 TRASH = 'trash'
 SECTIONS = { 'b' : u'Бред',
              'a' : u'Анус',
-			 'trash' : u'Помойка'}
+			 'trash' : u'Помойка',
+             'hid' : u'Скрытый'}
+DEFAULT_SECTION = 'b'
+HIDDEN_BOARDS = ['hid']
 			 
 CAPTCHA_FILES = [ # in /captcha
     {
