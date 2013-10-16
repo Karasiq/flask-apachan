@@ -511,7 +511,7 @@ def post():
         from jinja2 import Markup
         entry = Post(title = form.title.data, message = unicode(Markup.escape(form.msg.data)), time = datetime.now(), parent = int(form.parent.data), answer_to = int(form.answer_to.data), section = form.section.data, from_ip = request.remote_addr, user_id = user.id, thumb = '', image = '', last_answer = datetime.now())
 
-        msghash = hashlib.md5(entry.message).hexdigest()
+        msghash = hashlib.md5(entry.message.encode('utf-8')).hexdigest()
         if session.get('last_message_hash') == msghash:
             return render_template("error.html", errortitle=u'Не надо отправлять один и тот же пост несколько раз')
         session['last_message_hash'] = msghash
