@@ -220,10 +220,8 @@ def set_fp_callback(uid, fingerprint):
         rec = get_current_user(uid, request.headers.get('X-Forwarded-For') or request.remote_addr, get_current_fingerprint())
         if rec and rec.id:
             set_uid(rec.id)
-        response = make_response(jsonify(result=True))
-        response.set_cookie('uid', auth_token(rec.id) if rec and rec.id else '', max_age=app.config['COOKIES_MAX_AGE'])
-        return response
-    return jsonify(result=True)
+
+    return jsonify(result=True, new_id = auth_token(session.get('uid')))
 
 
 @app.before_request
@@ -233,12 +231,12 @@ def user_check():
         return app.config['IP_BLOCKLIST'].InList(ip)
 
     session.permanent = True
-    if not request.endpoint or request.endpoint.split('.')[0] not in ['captcha', 'register', 'static', 'set_uid', 'set_fp']:
+    if not request.blueprint and request.endpoint not in ['register', 'static', 'flask_util_js']:
         if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
             return redirect(url_for('human_test'))
         elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
             return redirect(url_for('captcha.show_captcha'))
-    if not session.get('uid') and session.get('fingerprint') and (not request.endpoint or request.endpoint not in ['register', 'static', 'set_uid', 'set_fp']):
+    if not session.get('uid') and session.get('fingerprint') and (not request.blueprint and request.endpoint not in ['register', 'static','flask_util_js']):
         return redirect(url_for('register'))
 
     if check_ip(request.headers.get('X-Forwarded-For') or request.remote_addr):

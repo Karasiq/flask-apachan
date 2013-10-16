@@ -27,7 +27,7 @@ def set_fingerprint():
     fp_hashes['browser_hdrs'] = hashlib.md5(request.headers['Accept'] + request.headers['Accept-Language'] + request.headers['Accept-Encoding']).hexdigest()
     fp_hashes['system_browser'] = hashlib.md5(fp_hashes['system'] + fp_hashes['browser_hdrs']).hexdigest()
 
-    return set_fp_callback(request.json['user_name'], fp_hashes)
+    return set_fp_callback(request.json['uid'], fp_hashes)
 
 # On run
 deps_js = Bundle('javascript/swfobject.min.js', 'javascript/jquery.json-2.3.min.js', 'javascript/jquery.flash.js', 'javascript/evercookie/evercookie.js', 'javascript/sha1.js') # + Jquery

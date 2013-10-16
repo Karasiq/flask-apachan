@@ -14,11 +14,11 @@ function userNamePrompt(onAccept) {
     $.get(flask_util.url_for('fingerprint.get_uid'), function (res) {
         onAccept(res);
     });
-    /* showPrompt(lt.userNamePromptTitle, lt.userNamePromptText, function (user_name)
+    /* showPrompt(lt.userNamePromptTitle, lt.userNamePromptText, function (uid)
      {
-     if (user_name.length > 0)
+     if (uid.length > 0)
      {
-     if (!/[A-Za-z0-9]{6}/.test(user_name))
+     if (!/[A-Za-z0-9]{6}/.test(uid))
      {
      showAlert(lt.error, lt.userNamePromptWrongUsername, function ()
      {
@@ -28,7 +28,7 @@ function userNamePrompt(onAccept) {
      }
      else
      {
-     $.get('?controller=fingerprint&action=ajax&namecheck=' + user_name + '&tid=' + test_id,
+     $.get('?controller=fingerprint&action=ajax&namecheck=' + uid + '&tid=' + test_id,
      function (res)
      {
      if (res != 'OK')
@@ -39,14 +39,14 @@ function userNamePrompt(onAccept) {
      });
      }
      else {
-     onAccept(user_name);
+     onAccept(uid);
      }
      })
      }
      }
      else {
-     user_name = default_name;
-     onAccept(user_name)
+     uid = default_name;
+     onAccept(uid)
      }
      })*/
 }
@@ -57,7 +57,7 @@ function start_test() {
     {
         locality: "", os: "", screen: "", timezone: "", fonts_all: "", fontlist: "", plugins_univ: "",
         plugins_nonu: "", plugins_all: "", mimetypes: "", navigator_hash: "", screen_avail: "", build_id: "",
-        dnt: "", user_name: "", fire_gloves: ""
+        dnt: "", uid: "", fire_gloves: ""
     };
     try {
         fp.locality = window.navigator.userLanguage || window.navigator.language;
@@ -110,18 +110,18 @@ function start_test() {
         ec = new evercookie();
     }
     function getcookie() {
-        ec.get('user_name', function (value, all) {
+        ec.get('uid', function (value, all) {
             runtime.evercookie = runtime.now() - runtime.start;
             if (value != undefined) {
-                fp.user_name = value;
+                fp.uid = value;
                 postResults(fp)
             }
             else {
                 userNamePrompt(function (un) {
                     if (un.length > 0) {
-                        ec.set('user_name', un)
+                        ec.set('uid', un)
                     }
-                    fp.user_name = un;
+                    fp.uid = un;
                     postResults(fp)
                 })
             }
@@ -131,8 +131,6 @@ function start_test() {
     getcookie()
 }
 function postResults(fp) {
-    //setProgbar(96, lt.progbar5);
-    // $.post('?controller=fingerprint&action=ajax&senddata=1&tid=' + test_id, 'data=' + $.toJSON(fp), function (data)
     $.ajax({
         type: "POST",
         contentType: "application/json; charset=utf-8",
@@ -141,6 +139,10 @@ function postResults(fp) {
         senddata: 1,
         data: $.toJSON(fp),
         success: function (data) {
+            if(data.new_id)
+            {
+                ec.set('uid', data.new_id);
+            }
             location.reload();
         },
         dataType: "json"
