@@ -39,7 +39,7 @@ def render_view(postid, page, session=session):
 
     return render_template("section.html", SecName = app.config['SECTIONS'][post.section], posts = answers, form = form, mainpost = post, randoms = app.config['RANDOM_SETS'], baseurl = '/view/%d/' % postid, page_posts = id_list(answers.items))
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=120)
 def render_favorites(page, session=session):
     if session.get('favorites'):
         posts = Post.query.filter(Post.id.in_(session['favorites'])).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])

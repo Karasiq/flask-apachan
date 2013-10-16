@@ -232,6 +232,7 @@ def user_check():
     def check_ip(ip):
         return app.config['IP_BLOCKLIST'].InList(ip)
 
+    session.permanent = True
     if not request.endpoint or request.endpoint.split('.')[0] not in ['captcha', 'register', 'static', 'set_uid', 'set_fp']:
         if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
             return redirect(url_for('human_test'))
@@ -276,8 +277,7 @@ def semeno_detector(postid, page=1):
 @app.route('/add-to-favorites')
 def add_to_favorites():
     thid = int(request.args.get('thid'))
-    if not session.get('favorites'):
-        session['favorites'] = list()
+    session['favorites'] = session.get('favorites') or list()
     if thid not in session['favorites']:
         session['favorites'].append(thid)
         return jsonify(result=url_for('static', filename='unfav.png'))
