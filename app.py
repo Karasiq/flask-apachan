@@ -35,7 +35,7 @@ def id_list(posts):
 
 from cached import flush_cache, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def dispatch_token(encrypted):
     from Crypto.Cipher import AES
     import base64
@@ -131,7 +131,7 @@ def set_uid(uid):
     session.permanent = True
     return response
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def get_safe_url(url):
     import base64
     if not app.config.get('SERVER_NAME') or get_netloc(url) != app.config['SERVER_NAME']:
@@ -139,7 +139,7 @@ def get_safe_url(url):
     else:
         return url
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 @app.template_filter('ext_urls')
 def escape_ext_urls(txt):
     import re
@@ -149,7 +149,7 @@ def escape_ext_urls(txt):
         result = result.replace(m.group(0), 'href=\"%s\"' % get_safe_url(m.group(1)))
     return result
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 @app.template_filter('message')
 def render_message(msg):
     #from jinja2 import Markup
@@ -206,7 +206,7 @@ def redirect_url(default='index'):
 
 def set_fp_callback(uid, fingerprint):
     session['fingerprint'] = fingerprint
-    @cache.memoize(timeout=3600)
+    @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
     def get_current_user(uid, ip, fp):
         from sqlalchemy import or_
         rec = User.query.filter_by(id = int(uid)).first() if uid else (User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first())
@@ -228,7 +228,7 @@ def set_fp_callback(uid, fingerprint):
 
 @app.before_request
 def user_check():
-    @cache.memoize(timeout=3600)
+    @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
     def check_ip(ip):
         return app.config['IP_BLOCKLIST'].InList(ip)
 
@@ -259,7 +259,7 @@ def index():
 def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] + 1 if post.position else 1
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 @app.route('/viewpost/<int:postid>') # Посмотреть пост в треде
 def viewpost(postid):
     post = Post.query.filter_by(id = postid).first()
