@@ -9,7 +9,7 @@ def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section 
     elif e == 'post':
         return Post.query.filter_by(id = postid).first()
     elif e == 'thread' or e == 'view':
-        posts = Post.query.filter(or_(Post.parent == postid, Post.answer_to == postid))
+        posts = Post.query.filter(or_(Post.parent == postid, Post.answer_to == postid), Post.id != postid)
         if page == 0: page = posts.count() / app.config['MAX_POSTS_ON_PAGE'] + (posts.count() % app.config['MAX_POSTS_ON_PAGE'] > 0 or posts.count() == 0)
         return posts.order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'section':
