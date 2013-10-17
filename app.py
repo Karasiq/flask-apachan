@@ -119,10 +119,10 @@ def set_uid(uid):
             except:
                 session['admin'] = False
 
-        session['canvote'] = (user.first_post and user.last_post and user.rating) and \
-                             (datetime.now() - user.first_post >= timedelta(days=14)
-                              and (datetime.now() - user.last_post) <= timedelta(days=3)
-                              and user.rating >= app.config['RATING_BAN_VOTE']) and not session['banned']
+        session['canvote'] = not session['banned'] and (user.first_post and user.last_post and user.rating) and \
+                             (datetime.now() - user.first_post >= timedelta(days=7)
+                              and (datetime.now() - user.last_post) <= timedelta(days=3))
+                              # and user.rating >= app.config['RATING_BAN_VOTE']
     else: # Новый юзер
         return redirect(url_for('register'))
         #session['canvote'] = False
