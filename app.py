@@ -439,12 +439,12 @@ def admin_ban(userid = 0):
 def admin_delall():
     if not session.get('admin'):
         return jsonify(result=False)
-    userid = request.args.get('userid')
+    userid = int(request.args.get('userid'))
     posts = Post.query.filter_by(user_id = userid)
     for p in posts:
         del_post(p, False)
     db_session.commit()
-    print(u'Все посты пользователя %d удалены' % int(userid))
+    #print(u'Все посты пользователя %d удалены' % int(userid))
     #return admin_ban(userid)
     return jsonify(result=True)
 
