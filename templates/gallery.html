@@ -15,9 +15,9 @@
         {% endfor %}
     {% endif %}
 <table align='center' width='800'>
-    <tr><td><img src="{{ url_for('captcha.get_captcha_img') }}" align='left'></td><td>
+    <tr><td>
         {% set i = 0 %}
-        {% for p in posts.items %}
+        {%- for p in posts.items -%}
             <img src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" max-width=200 max-height=200>
             {% if i == 6 %}
                 <br><br>
