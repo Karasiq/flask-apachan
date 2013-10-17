@@ -31,7 +31,8 @@
     {% endif %}
     <script type="text/javascript">
         var ajax_data = {
-            endpoint: '{{ request.endpoint }}'
+            endpoint: '{{ request.endpoint }}',
+            baseurl: '{{ baseurl }}'
             {% if posts and posts.page %}, page: {{ posts.page }}{% endif %}
             {% if mainpost %}, postid: {{ mainpost.id }}{% endif %}
         };

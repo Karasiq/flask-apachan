@@ -104,7 +104,7 @@ def render_gallery(page, session=session):
 def render_ajax(data, session=session):
     mainpost = get_posts('post', postid=int(data['postid'])) if data.get('postid') else None
     posts = get_posts(data['endpoint'], page=int(data['page']) if data.get('page') else 1, postid=int(data['postid']) if data.get('postid') else None)
-    return jsonify(result = True, posts = render_template("posts.html", mainpost = mainpost, posts = posts))
+    return jsonify(result = True, posts = render_template("posts.html", mainpost = mainpost, posts = posts, baseurl = data['baseurl']))
 
 def flush_cache():
     from app import viewpost
