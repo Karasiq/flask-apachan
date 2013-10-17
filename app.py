@@ -32,7 +32,7 @@ def id_list(posts):
         il.append(p.id)
     return il
 
-from cached import flush_cache, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery
+from cached import flush_cache, get_posts, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery, render_ajax
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def dispatch_token(encrypted):
@@ -61,6 +61,10 @@ def refresh_user(user):
     db_session.add(user)
     db_session.commit()
     return True
+
+@app.route('/ajax/reload')
+def ajax_reload():
+    return render_ajax(request.args)
 
 @app.route('/redirect')
 def external_redirect():
@@ -257,7 +261,7 @@ def get_page_number(post):
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 @app.route('/viewpost/<int:postid>') # Посмотреть пост в треде
 def viewpost(postid):
-    post = Post.query.filter_by(id = postid).first()
+    post = get_posts('post', postid=postid)
     if post:
         if post.parent == 0:
             return redirect(url_for('view', postid = postid))
@@ -311,7 +315,7 @@ def favorites(page=1):
 
 @app.route('/view/<int:postid>')
 @app.route('/view/<int:postid>/<int:page>')
-def view(postid, page=1):
+def view(postid, page=0):
     return render_view(postid, page)
 
 def unique_id():
@@ -371,7 +375,7 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
 @app.route('/delpost')
 def postdel():
     postid = int(request.args.get('postid'))
-    post = Post.query.filter_by(id = postid).first()
+    post = get_posts('post', postid=postid)
     if not session.get('admin') and (not postid in session.get('can_delete') or not post or post.user_id != int(session.get('uid'))):
         return render_template("error.html", errortitle=u'Ошибка удаления поста')
 

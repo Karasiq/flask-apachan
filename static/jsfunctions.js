@@ -102,3 +102,22 @@ function menu_out1()
   var ndiv = document.getElementById("nav_div1");
   ndiv.style.display='none';
 }
+
+var auto_refresh_enabled = false;
+$( document ).ready(function() {
+    auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
+    $("#auto-reload").text(auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+});
+setInterval(function() {
+    if(auto_refresh_enabled) {
+        $.getJSON($SCRIPT_ROOT + '/ajax/reload', ajax_data, function(data) {
+            if(data.result) $("div#posts").html(data.posts);
+        });
+    }
+    return true;
+}, 20000);
+function change_auto_refresh() {
+    auto_refresh_enabled = !auto_refresh_enabled;
+    $("#auto-reload").text(auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+    localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
+}

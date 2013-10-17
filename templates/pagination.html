@@ -1,0 +1,14 @@
+{% if posts.has_next or posts.has_prev %}
+    <strong>Страницы: </strong>
+    {% for page in posts.iter_pages(left_edge = 15, right_edge = 15) %}
+        {% if page %}
+            {% if page != posts.page %}
+                <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
+            {% else %}
+                <strong>{{ page }}</strong>
+            {% endif %}
+        {% else %}
+            <span class=ellipsis>…</span>
+        {% endif %}
+    {% endfor %}
+{% endif %}

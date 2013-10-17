@@ -1,0 +1,17 @@
+{% block pagination %}<div align="center"><h2>{% include 'pagination.html' %}</h2></div>{% endblock %}
+{% if mainpost %}
+    {% with p = mainpost %}
+    {% include 'post.html' %}
+    {% endwith %}
+{% endif %}
+{% for p in posts.items if not session.hidden or p.id not in session.hidden %}
+    {% include 'post.html' %}
+{% endfor %}
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+{{ self.pagination() }}
