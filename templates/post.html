@@ -61,7 +61,7 @@
     {% if session.admin %}
         <a href="javascript:ban({{ p.user_id }});">[бан]</a>
         <a href="javascript:delall({{ p.user_id }});">[удалить все посты]</a>
-        <a href="javascript:delall_ip({{ p.from_ip }});">[удалить все посты (IP)]</a>
+        <a href="javascript:delall_ip('{{ p.from_ip }}');">[удалить все посты (IP)]</a>
         {% if p.parent == 0 %}
         <a href="javascript:to_trash({{ p.id }});">[в помойку]</a>
         {% endif %}
