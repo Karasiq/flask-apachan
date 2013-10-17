@@ -256,7 +256,7 @@ def index():
     return render_template("index.html", sections = app.config['SECTIONS'])
 
 def get_page_number(post):
-    return post.position / app.config['MAX_POSTS_ON_PAGE'] + 1 if post.position else 1
+    return post.position / app.config['MAX_POSTS_ON_PAGE'] + (post.position % app.config['MAX_POSTS_ON_PAGE'] > 0) if post.position else 1
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 @app.route('/viewpost/<int:postid>') # Посмотреть пост в треде
