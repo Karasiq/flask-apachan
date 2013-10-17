@@ -29,7 +29,7 @@ def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section 
     elif e == 'detector' or e == 'semeno_detector':
         post = get_posts('post', postid=postid)
         parent_id = post.parent if post.parent != 0 else post.id
-        return Post.query.filter_by(parent = parent_id, user_id = post.user_id).order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
+        return Post.query.filter_by(parent = parent_id, user_id = post.user_id).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'gallery':
         return Post.query.filter(Post.randid == 0, Post.image != '').order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
 
