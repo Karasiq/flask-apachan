@@ -1,19 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
     <title>Галерея - {{ config.SITE_NAME }}</title>
-    {% if posts.has_next or posts.has_prev %}
-        {% for page in posts.iter_pages(left_edge = 15, right_edge = 15) %}
-            {% if page %}
-                {% if page != posts.page %}
-                    <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
-                {% else %}
-                    <strong>{{ page }}</strong>
-                {% endif %}
-            {% else %}
-                <span class=ellipsis>…</span>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {% include "pagination.html" %}
 <table align='center' width='800'>
     <tr><td>
         {% set i = 0 %}
