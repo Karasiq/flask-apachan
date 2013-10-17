@@ -14,7 +14,7 @@ def clean():
         print('User %d deleted' % u.id)
     posts = Post.query.filter_by(parent = 0, answers = 0)
     for p in posts:
-        del_post(p)
+        del_post(p, False)
         print('Post %d deleted' % p.id)
     db_session.commit()
     from cached import flush_cache
