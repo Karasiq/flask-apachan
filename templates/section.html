@@ -14,8 +14,8 @@
     <center><h2>{{ title }}</h2></center>
     <title>{{ title }}</title>
 
-    <center><h3>{% if form and form.parent.data != '0' %}
-<a href="{{ url_for('section', SectionName = form.section.data) }}">В корень раздела</a>
+    <center><h3>{% if (form and form.parent.data != '0') or mainpost %}
+<a href="{{ url_for('section', SectionName = form.section.data if form else mainpost.parent) }}">В корень раздела</a>
 {% if mainpost.parent != 0 %}
 &nbsp; <a href="{{ url_for('viewpost', postid = mainpost.id) }}">В корень треда</a>
 {% endif %}
@@ -37,6 +37,7 @@
             {% if mainpost %}, postid: {{ mainpost.id }}{% endif %}
             {% if show_section %}, show_section: {{ show_section }}{% endif %}
             {% if show_answer_to %}, show_answer_to: {{ show_answer_to }}{% endif %}
+            {% if section %}, section: '{{ section }}'{% endif %}
         };
     </script>
     <div align="center"><h3><a href="#" id="auto-reload" onclick="change_auto_refresh();"></a></h3></div>

@@ -49,7 +49,7 @@ def render_section(SectionName, page, session=session):
     posts = get_posts('section', page, section=SectionName)
     form = PostForm()
     form.section.data = SectionName
-    return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, randoms = app.config['RANDOM_SETS'], baseurl = '/boards/%s/' % SectionName)
+    return render_template("section.html", SecName = app.config['SECTIONS'][SectionName], posts = posts, form = form, randoms = app.config['RANDOM_SETS'], baseurl = '/boards/%s/' % SectionName, section = SectionName)
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def render_view(postid, page, session=session):
@@ -103,7 +103,7 @@ def render_gallery(page, session=session):
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def render_ajax(data, session=session):
     mainpost = get_posts('post', postid=int(data['postid'])) if data.get('postid') else None
-    posts = get_posts(data['endpoint'], page=int(data['page']) if data.get('page') else 1, postid=int(data['postid']) if data.get('postid') else None)
+    posts = get_posts(data['endpoint'], page=int(data['page']) if data.get('page') else 1, postid=int(data['postid']) if data.get('postid') else None, section=data.get('section'))
     return jsonify(result = True, posts = render_template("posts.html", mainpost = mainpost, posts = posts, baseurl = data['baseurl'], show_section = data.get('show_section'), show_answer_to = data.get('show_answer_to')))
 
 def flush_cache():
