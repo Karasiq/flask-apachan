@@ -198,6 +198,7 @@ def vote():
             db_session.add(post)
             db_session.add(vote)
             db_session.commit()
+            flush_cache()
 
     return jsonify(post_rating = post.rating)
 
