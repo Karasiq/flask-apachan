@@ -14,17 +14,11 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-<table align='center'>
+<table align='center' width='800'>
     <tr><td>
         {% set i = 0 %}
-        {%- for p in posts.items -%}
-            <img src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" max-width=200 max-height=200>
-            {% if i == 6 %}
-                <br><br>
-                {% set i = 0 %}
-            {% else %}
-                {% set i = i + 1 %}
-            {% endif %}
+        {% for p in posts.items %}
+            &nbsp;<img src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" max-width=200 max-height=200>
         {%- endfor -%}</td>
     </tr>
 </table>
