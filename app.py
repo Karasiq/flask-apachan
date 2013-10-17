@@ -387,7 +387,7 @@ def postdel():
         return redirect(url_for('viewpost', postid=post.parent))
 
 def thread_transfer(thid, new_section):
-    post = Post.query.filter_by(id = thid).first()
+    post = get_posts('post', postid=thid)
 
     if post and post.parent == 0:
         post.section = new_section
@@ -397,6 +397,7 @@ def thread_transfer(thid, new_section):
             c.section = new_section
             db_session.add(c)
         db_session.commit()
+        flush_cache()
 
 @app.route('/admin/totrash')
 def admin_totrash():
