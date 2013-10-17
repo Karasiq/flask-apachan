@@ -32,7 +32,7 @@ def id_list(posts):
         il.append(p.id)
     return il
 
-from cached import flush_cache, get_posts, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery, render_ajax
+from cached import flush_cache, get_posts, get_user, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery, render_ajax
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def dispatch_token(encrypted):
@@ -78,24 +78,35 @@ def external_redirect():
     except:
         return redirect(redirect_url())
 
+def ban_user(uid, banexpiration, banreason):
+    user = get_user(uid)
+    user.banned = True
+    user.banexpiration = banexpiration
+    user.banreason = banreason
+    db_session.add(user)
+    db_session.commit()
+    if session and request and session.get('uid') == uid:
+        session['banned'] = True
+
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
+def check_banned(session=session):
+    user = get_user(session['uid'])
+    return session.get('banned') or (user and user.banned and datetime.now() < user.banexpiration)
+
 def set_uid(uid):
     if session.get('uid') == uid:
         return jsonify(result=True)
     session['uid'] = uid
-    user = User.query.filter_by(id=uid).first()
+    user = get_user(uid)
     if user:
         session['banned'] = user.banned and datetime.now() < user.banexpiration
 
-        ipbans = User.query.filter_by(last_ip = request.remote_addr, banned = True)
-        for ipban in ipbans:
-            if datetime.now() < ipban.banexpiration:
-                user.banned = True
-                user.banexpiration = ipban.banexpiration
-                user.banreason = u'Забанен по айпи'
-                db_session.add(user)
-                db_session.commit()
-                session['banned'] = True
-                break
+        if app.config['USER_UNICAL_IPS']:
+            ipbans = User.query.filter_by(last_ip = request.remote_addr, banned = True)
+            for ipban in ipbans:
+                if datetime.now() < ipban.banexpiration:
+                    ban_user(user.id, ipban.banexpiration, ipban.banreason)
+                    break
 
         if user.banned and datetime.now() >= user.banexpiration: # Снятие бана
             user.banned = False
@@ -104,12 +115,8 @@ def set_uid(uid):
             user.rating = 0 # Сброс
             db_session.add(user)
             db_session.commit()
-        elif user.rating < (app.config['RATING_BAN_VOTE'] * -1):
-            user.banned = True
-            user.banexpiration = datetime.now() + timedelta(days = 10)
-            user.banreason = u'Бан по сумме голосов (вероятно за идиотизм)'
-            db_session.add(user)
-            db_session.commit()
+        elif app.config['RATING_BAN'] and user.rating < app.config['RATING_BAN']:
+            ban_user(user.id, datetime.now() + timedelta(days = 10), u'Бан по сумме голосов (вероятно за идиотизм)')
 
 
         if request.cookies.get('admin'):
@@ -119,10 +126,10 @@ def set_uid(uid):
             except:
                 session['admin'] = False
 
-        session['canvote'] = not session['banned'] and (user.first_post and user.last_post and user.rating) and \
+        session['canvote'] = not check_banned() and (user.first_post and user.last_post) and \
                              (datetime.now() - user.first_post >= timedelta(days=7)
-                              and (datetime.now() - user.last_post) <= timedelta(days=3))
-                              # and user.rating >= app.config['RATING_BAN_VOTE']
+                              and (datetime.now() - user.last_post) <= timedelta(days=3)) \
+                              and user.rating >= app.config['RATING_CANVOTE']
     else: # Новый юзер
         return redirect(url_for('register'))
         #session['canvote'] = False
@@ -179,21 +186,26 @@ def vote():
     if not val or not pid:
         return render_template("error.html", errortitle=u"Ошибка голосования")
     post = Post.query.filter_by(id = pid).first()
-    if session.get('canvote') or session.get('admin'):
-        user = User.query.filter_by(id = session['uid']).first()
+    if session.get('canvote') and not check_banned() or session.get('admin'):
+        user = get_user(session.get('uid'))
         vote = Vote.query.filter_by(user_id = user.id, post_id = post.id).first()
         if user and post and user.id != post.user_id and not vote and not (val > 1 or val < -1):
             vote = Vote(post_id = post.id, user_id = user.id, value = val)
             post.rating += val
-            if post.rating <= -5:
+            if app.config['RATING_TRASH'] and post.rating <= app.config['RATING_TRASH']:
                 post.section = app.config['TRASH'] # Перенос в помойку
                 answers = Post.query.filter_by(parent = post.id)
                 for a in answers:
                     a.section = app.config['TRASH']
                     db_session.add(a)
-            author = User.query.filter_by(id = post.user_id).first()
+            author = get_user(post.user_id)
             if author:
                 author.rating += val
+                if app.config['RATING_BAN'] and author.rating < app.config['RATING_BAN']:
+                    author.banned = True
+                    author.banexpiration = datetime.now() + timedelta(days = 10)
+                    author.banreason = u'Бан по сумме голосов (вероятно за идиотизм)'
+                    cache.delete_memoized(set_uid)
                 db_session.add(author)
             db_session.add(post)
             db_session.add(vote)
@@ -213,7 +225,7 @@ def set_fp_callback(uid, fingerprint):
     @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
     def get_current_user(uid, ip, fp):
         from sqlalchemy import or_
-        rec = User.query.filter_by(id = int(uid)).first() if uid else (User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first())
+        rec = get_user(int(uid)) if uid else (User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first())
         if rec is None:
             rec = User(last_ip = ip, last_useragent = request.headers.get('User-Agent'), fingerprint = fp)
             db_session.add(rec)
@@ -428,17 +440,12 @@ def admin_delip():
 
 @app.route('/admin/ban')
 def admin_ban(userid = 0):
-    if userid == 0:
-        userid = int(request.args.get('userid'))
-    if not session.get('admin'):
-        return jsonify(result=False)
-    user = User.query.filter_by(id = userid).first()
-    if user:
-        user.banned = True
-        user.banexpiration = datetime.now() + timedelta(days = 30)
-        user.banreason = u'Забанен модератором'
-        db_session.add(user)
-        db_session.commit()
+    if userid == 0: userid = int(request.args.get('userid'))
+
+    if not session.get('admin') or userid == session.get('uid'):
+        return jsonify(result=False) # Ошибка
+
+    ban_user(userid, datetime.now() + timedelta(days = 30), u'Забанен модератором')
     return jsonify(result=True)
 
 @app.route('/admin/delall')
@@ -480,8 +487,8 @@ def post():
     from PIL import Image
     import images2gif
 
-    if session.get('banned'):
-        user = User.query.filter_by(id = session.get('uid')).first()
+    if check_banned():
+        user = get_user(session.get('uid'))
         if user and user.banreason:
             return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут.\r\nПричина: %s" \
                                 % user.banreason)
@@ -497,7 +504,7 @@ def post():
         if app.config['SECTIONS'].get(form.section.data) is None:
             return render_template("error.html", errortitle = u"Раздел не найден")
 
-        user = User.query.filter_by(id = session['uid']).first()
+        user = get_user(session.get('uid'))
         if user is None:
             return redirect(url_for('register'))
         if user.banned and (datetime.now() < user.banexpiration):

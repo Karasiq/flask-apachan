@@ -2,6 +2,10 @@
 # Views file
 from app import *
 
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
+def get_user(uid):
+    return User.query.filter_by(id=uid).first()
+
 def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section = app.config['DEFAULT_SECTION']):
     from sqlalchemy import not_, and_, or_
     if e == 'stream' or e == 'allsections':

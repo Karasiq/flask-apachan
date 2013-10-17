@@ -26,7 +26,11 @@ SITE_NAME = 'site name'
 USER_UNICAL_IPS = True
 SYSTEM_WIDE_FP = False
 MAX_POSTS_ON_PAGE = 30
-RATING_BAN_VOTE = 20
+
+RATING_CANVOTE = 0 # Disabled
+RATING_TRASH = -5
+RATING_BAN = -30
+
 RANDOM_SETS = [
 	{
 		'name' : u'Random'
