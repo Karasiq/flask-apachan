@@ -35,6 +35,8 @@
             baseurl: '{{ baseurl }}'
             {% if posts and posts.page %}, page: {{ posts.page }}{% endif %}
             {% if mainpost %}, postid: {{ mainpost.id }}{% endif %}
+            {% if show_section %}, show_section: {{ show_section }}{% endif %}
+            {% if show_answer_to %}, show_answer_to: {{ show_answer_to }}{% endif %}
         };
     </script>
     <div align="center"><h3><a href="#" id="auto-reload" onclick="change_auto_refresh();"></a></h3></div>
