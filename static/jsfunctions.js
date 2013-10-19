@@ -17,7 +17,7 @@ function unhide_threads()
 {
     $.getJSON($SCRIPT_ROOT + '/unhide-threads', {}, function(data) {
         if(data.result) {
-            location.reload();
+            refresh_page();
         }
     });
 }
