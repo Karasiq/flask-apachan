@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
     <title>Галерея - {{ config.SITE_NAME }}</title>
-    {% include "pagination.html" %}
+    {% block pagination %}<div align="center"><h2>{% include 'pagination.html' %}</h2></div>{% endblock %}
 <table align='center' width='800'>
     <tr><td>
         {% set i = 0 %}
@@ -10,4 +10,5 @@
         {%- endfor -%}</td>
     </tr>
 </table>
+    {{ self.pagination() }}
 {% endblock %}
