@@ -2,21 +2,21 @@ function ban(id) {
     $.getJSON($SCRIPT_ROOT + '/admin/ban', {
         userid: id
     }, function (data) {
-        location.reload();
+        refresh_page();
     });
 }
 function delall(id) {
     $.getJSON($SCRIPT_ROOT + '/admin/delall', {
         userid: id
     }, function (data) {
-        location.reload();
+        refresh_page();
     });
 }
 function delall_ip(ip) {
     $.getJSON($SCRIPT_ROOT + '/admin/del_ip', {
         ipaddr: ip
     }, function (data) {
-        location.reload();
+        refresh_page();
     });
 }
 function transfer(id) {
