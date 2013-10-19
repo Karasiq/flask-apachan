@@ -435,6 +435,15 @@ def admin_transfer():
         thread_transfer(thid, newsection)
     return jsonify(result=True)
 
+@app.route('/admin/clear_cache')
+def admin_clear_cache():
+    if not session.get('admin'):
+        return jsonify(result=False)
+    else:
+        flush_cache()
+        cache.delete_memoized(get_user)
+        return jsonify(result=True)
+
 @app.route('/admin/del_ip')
 def admin_delip():
     if not session.get('admin'):

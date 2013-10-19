@@ -20,5 +20,8 @@
 <hr>
 <h4><a href="#" onclick="unhide_threads();">Показать скрытые треды ({{ session.hidden|length }})</a></h4>
 {% endif %}
+{% if session.admin %}
+<h4><a href="#" onclick="clear_cache();">[ADMIN] Очистить кэш сервера</a></h4>
+{% endif %}
 </div>
 </div>

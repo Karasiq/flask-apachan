@@ -38,3 +38,11 @@ function transfer(id) {
         }
     });
 }
+
+function clear_cache() {
+    $.getJSON($SCRIPT_ROOT + '/admin/clear_cache', function(data) {
+        if(data.result) {
+            refresh_page();
+        }
+    });
+}
