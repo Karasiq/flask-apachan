@@ -112,6 +112,7 @@ def render_ajax(data, session=session):
 
 def flush_cache():
     from app import viewpost
+    # cache.delete_memoized(get_user)
     cache.delete_memoized(render_ajax)
     cache.delete_memoized(viewpost)
     cache.delete_memoized(render_view)

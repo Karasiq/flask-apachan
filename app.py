@@ -56,10 +56,11 @@ def auth_token(id):
 def refresh_user(user):
     if session.get('fingerprint'):
         user.fingerprint = get_current_fingerprint()
-    user.last_ip = request.remote_addr
+    user.last_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
     db_session.commit()
+    cache.delete_memoized(get_user, user.id)
     return True
 
 @app.route('/ajax/reload')
@@ -85,6 +86,7 @@ def ban_user(uid, banexpiration, banreason):
     user.banreason = banreason
     db_session.add(user)
     db_session.commit()
+    cache.delete_memoized(get_user, uid)
     if session and request and session.get('uid') == uid:
         session['banned'] = True
 
@@ -115,6 +117,7 @@ def set_uid(uid):
             user.rating = 0 # Сброс
             db_session.add(user)
             db_session.commit()
+            cache.delete_memoized(get_user, user.id)
         elif app.config['RATING_BAN'] and user.rating < app.config['RATING_BAN']:
             ban_user(user.id, datetime.now() + timedelta(days = 10), u'Бан по сумме голосов (вероятно за идиотизм)')
 
@@ -225,11 +228,12 @@ def set_fp_callback(uid, fingerprint):
     @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
     def get_current_user(uid, ip, fp):
         from sqlalchemy import or_
-        rec = get_user(int(uid)) if uid else (User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first())
+        rec = get_user(uid) if uid else (User.query.filter(or_(User.fingerprint == fp, User.last_ip == ip)).first() if app.config['USER_UNICAL_IPS'] else User.query.filter(User.fingerprint == fp).first())
         if rec is None:
             rec = User(last_ip = ip, last_useragent = request.headers.get('User-Agent'), fingerprint = fp)
             db_session.add(rec)
             db_session.commit()
+            cache.delete_memoized(get_user, rec.id)
         return rec
 
     if not session.get('uid'):
@@ -600,7 +604,7 @@ def post():
         if (entry.thumb == '' or entry.image == '') and entry.parent == 0:
             return render_template("error.html", errortitle=u'Нельзя запостить тред без картинки')
 
-        user.last_ip = request.remote_addr
+        user.last_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
         user.last_useragent = request.headers.get('User-Agent')
         user.last_post = entry.time
         db_session.add(user)
@@ -609,6 +613,7 @@ def post():
         db_session.commit()
 
         flush_cache()
+        cache.delete_memoized(get_user, user.id)
 
         session['can_delete'] = session.get('can_delete') or list()
         session['can_delete'].append(entry.id)
