@@ -63,7 +63,7 @@
         <a href="javascript:delall({{ p.user_id }});">[удалить все посты]</a>
         <a href="javascript:delall_ip('{{ p.from_ip }}');">[удалить все посты (IP)]</a>
         {% if p.parent == 0 %}
-        <a href="javascript:to_trash({{ p.id }});">[в помойку]</a>
+        <a id="transfer_{{ p.id }}" href="javascript:transfer({{ p.id }});">[перенести]</a>
         {% endif %}
     {% endif %}
     </td><td align='right' style='font-size:11px;background-color:white;'><a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a></td></tr></table>

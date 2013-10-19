@@ -415,12 +415,24 @@ def thread_transfer(thid, new_section):
         db_session.commit()
         flush_cache()
 
-@app.route('/admin/totrash')
-def admin_totrash():
+@app.route('/admin/transfer_data')
+def admin_transfer_data():
+    from flask import render_template_string
+    post = get_posts('post', postid=request.args['thread_id'])
+    return render_template_string('''<select id="tsb_{{ post.id }}">
+    {% for key, value in config.SECTIONS.iteritems()%}
+    <option {% if key == post.section %}selected{% endif %} value="{{ key }}">{{ value }}</option>
+    {% endfor %}
+    </select>''', post=post)
+
+@app.route('/admin/transfer', methods=['POST'])
+def admin_transfer():
     if not session.get('admin'):
         return jsonify(result=False)
-    thid = int(request.args.get('thread_id'))
-    thread_transfer(thid, app.config['TRASH'])
+    thid = int(request.form['thread_id'])
+    newsection = request.form['new_section']
+    if app.config['SECTIONS'].get(newsection): # section key is valid
+        thread_transfer(thid, newsection)
     return jsonify(result=True)
 
 @app.route('/admin/del_ip')
