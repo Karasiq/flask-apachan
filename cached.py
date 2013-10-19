@@ -101,7 +101,7 @@ def render_semenodetector(postid, page, session=session):
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def render_gallery(page, session=session):
-    posts = get_posts('gallery')
+    posts = get_posts('gallery', page)
     return render_template("gallery.html", posts = posts, baseurl = '/gallery/')
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
