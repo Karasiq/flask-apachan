@@ -32,7 +32,7 @@ def id_list(posts):
         il.append(p.id)
     return il
 
-from cached import flush_cache, get_posts, get_user, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery, render_ajax
+from cached import flush_cache, flush_cached_user, get_posts, get_user, render_section, render_stream, render_view, render_answers, render_favorites, render_mythreads, render_semenodetector, render_gallery, render_ajax
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def dispatch_token(encrypted):
@@ -60,7 +60,7 @@ def refresh_user(user):
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
     db_session.commit()
-    cache.delete_memoized(get_user, user.id)
+    flush_cached_user(user.id)
     return True
 
 @app.route('/ajax/reload')
@@ -86,7 +86,7 @@ def ban_user(uid, banexpiration, banreason):
     user.banreason = banreason
     db_session.add(user)
     db_session.commit()
-    cache.delete_memoized(get_user, uid)
+    flush_cached_user(user.id)
     if session and request and session.get('uid') == uid:
         session['banned'] = True
 
@@ -117,7 +117,7 @@ def set_uid(uid):
             user.rating = 0 # Сброс
             db_session.add(user)
             db_session.commit()
-            cache.delete_memoized(get_user, user.id)
+            flush_cached_user(user.id)
         elif app.config['RATING_BAN'] and user.rating < app.config['RATING_BAN']:
             ban_user(user.id, datetime.now() + timedelta(days = 10), u'Бан по сумме голосов (вероятно за идиотизм)')
 
@@ -233,7 +233,7 @@ def set_fp_callback(uid, fingerprint):
             rec = User(last_ip = ip, last_useragent = request.headers.get('User-Agent'), fingerprint = fp)
             db_session.add(rec)
             db_session.commit()
-            cache.delete_memoized(get_user, rec.id)
+            flush_cached_user(rec.id)
         return rec
 
     if not session.get('uid'):
@@ -609,11 +609,10 @@ def post():
         user.last_post = entry.time
         db_session.add(user)
         db_session.add(entry)
-
         db_session.commit()
 
         flush_cache()
-        cache.delete_memoized(get_user, user.id)
+        flush_cached_user(user.id)
 
         session['can_delete'] = session.get('can_delete') or list()
         session['can_delete'].append(entry.id)

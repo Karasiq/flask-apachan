@@ -110,6 +110,10 @@ def render_ajax(data, session=session):
     posts = get_posts(data['endpoint'], page=int(data['page']) if data.get('page') else 1, postid=int(data['postid']) if data.get('postid') else None, section=data.get('section'))
     return jsonify(result = True, posts = render_template("posts.html", mainpost = mainpost, posts = posts, baseurl = data['baseurl'], show_section = data.get('show_section'), show_answer_to = data.get('show_answer_to')))
 
+def flush_cached_user(uid):
+    cache.delete_memoized(get_user, int(uid))
+    cache.delete_memoized(get_user, long(uid))
+
 def flush_cache():
     from app import viewpost
     # cache.delete_memoized(get_user)
