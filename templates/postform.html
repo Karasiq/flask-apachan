@@ -1,4 +1,7 @@
 ﻿{% block postform %}
+{% if session.crawler %}
+    <center><h1>Posting is disabled to crawlers user-agent</h1></center>
+{% else %}
 <table width='850' align='center'>
 	<tr><td>
 		<table width=700 align=center style='font-family:Tahoma;font-size:12px'>
@@ -43,4 +46,5 @@
 </table>
 <hr width="90%" size=1>
 <br>
+{% endif %}
 {% endblock %}

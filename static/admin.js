@@ -16,7 +16,9 @@ function delall_ip(ip) {
     $.getJSON($SCRIPT_ROOT + '/admin/del_ip', {
         ipaddr: ip
     }, function (data) {
-        refresh_page();
+        if(data.result) {
+            refresh_page();
+        }
     });
 }
 function transfer(id) {
@@ -35,6 +37,25 @@ function transfer(id) {
                     }
                 });
             })
+        }
+    });
+}
+function pin(id) {
+    $.getJSON($SCRIPT_ROOT + '/admin/pin', {
+        thread_id: id
+    }, function (data) {
+        if(data.result) {
+            refresh_page();
+        }
+    });
+}
+
+function unpin(id) {
+    $.getJSON($SCRIPT_ROOT + '/admin/unpin', {
+        thread_id: id
+    }, function (data) {
+        if(data.result) {
+            refresh_page();
         }
     });
 }

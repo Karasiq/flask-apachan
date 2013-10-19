@@ -93,7 +93,7 @@ def ban_user(uid, banexpiration, banreason):
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def check_banned(session=session):
     user = get_user(session['uid'])
-    return session.get('banned') or (user and user.banned and datetime.now() < user.banexpiration)
+    return session.get('crawler') or session.get('banned') or (user and user.banned and datetime.now() < user.banexpiration)
 
 def set_uid(uid):
     if session.get('uid') == uid:
@@ -248,31 +248,40 @@ def set_fp_callback(uid, fingerprint):
 
 @app.before_request
 def user_check():
+    session['crawler'] = request.headers.get('User-Agent') and any(_ in request.headers['User-Agent'] for _ in ['Googlebot', '+http://yandex.com/bots', 'Yahoo! Slurp', 'XML-Sitemaps'])
     @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
     def check_ip(ip):
         return app.config['IP_BLOCKLIST'].InList(ip)
 
     session.permanent = True
-    if not request.blueprint and request.endpoint not in ['register', 'static', 'flask_util_js']:
-        if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
-            return redirect(url_for('human_test'))
-        elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
-            return redirect(url_for('captcha.show_captcha'))
-    if not session.get('uid') and session.get('fingerprint') and (not request.blueprint and request.endpoint not in ['register', 'static','flask_util_js']):
-        return redirect(url_for('register'))
+    if not session.get('crawler'):
+        if not request.blueprint and request.endpoint not in ['register', 'static', 'flask_util_js']:
+            if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
+                return redirect(url_for('human_test'))
+            elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
+                return redirect(url_for('captcha.show_captcha'))
+        if not session.get('uid') and session.get('fingerprint') and (not request.blueprint and request.endpoint not in ['register', 'static','flask_util_js']):
+            return redirect(url_for('register'))
 
-    if check_ip(request.headers.get('X-Forwarded-For') or request.remote_addr):
-        return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
+        if check_ip(request.headers.get('X-Forwarded-For') or request.remote_addr):
+            return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
 
-    if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
-        set_uid(session['uid'])
-    #return True, ''
+        if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
+            set_uid(session['uid'])
 
 @cache.cached()
 @app.route('/index')
 @app.route('/')
 def index():
     return render_template("index.html", sections = app.config['SECTIONS'])
+
+
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+@app.route('/favicon.ico')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
 
 def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] + (post.position % app.config['MAX_POSTS_ON_PAGE'] > 0) if post.position else 1
@@ -437,6 +446,31 @@ def admin_transfer():
         thread_transfer(thid, newsection)
     return jsonify(result=True)
 
+@app.route('/admin/pin') # Закрепляет на 3 дня
+def admin_pin_thread():
+    if not session.get('admin'):
+        return jsonify(result=False)
+    post = get_posts('post', postid=int(request.args['thread_id']))
+    post.last_answer = datetime.now() + timedelta(days=3)
+    db_session.add(post)
+    db_session.commit()
+    flush_cache()
+    return jsonify(result=True)
+
+@app.route('/admin/unpin')
+def admin_unpin_thread():
+    if not session.get('admin'):
+        return jsonify(result=False)
+    post = get_posts('post', postid=int(request.args['thread_id']))
+    last_post = Post.query.filter(Post.parent == post.id).order_by(
+        Post.time.desc()).first()
+    if last_post:
+        post.last_answer = last_post.time
+        db_session.add(post)
+        db_session.commit()
+        flush_cache()
+    return jsonify(result=True)
+
 @app.route('/admin/clear_cache')
 def admin_clear_cache():
     if not session.get('admin'):
@@ -526,7 +560,7 @@ def post():
     if form.validate_on_submit():
         form.msg.data = form.msg.data.strip()
         form.title.data = form.title.data.strip()
-        if not len(form.msg.data) and not len(form.img_url) and not 'img' in request.files and int(form.parent.data) == 0:
+        if not len(form.msg.data) and not len(form.img_url.data) and not 'img' in request.files and int(form.parent.data) == 0:
             return render_template("error.html", errortitle = u"Нельзя запостить пустой тред")
         if app.config['SECTIONS'].get(form.section.data) is None:
             return render_template("error.html", errortitle = u"Раздел не найден")
@@ -562,7 +596,7 @@ def post():
             if parent:
                 entry.position = parent.answers
                 parent.answers += 1
-                if not form.sage.data:
+                if not form.sage.data and (not parent.last_answer or parent.last_answer < entry.time):
                     parent.last_answer = entry.time
                 db_session.add(parent)
 
@@ -664,7 +698,8 @@ def allsections(page=1):
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
-    if app.config['SECTIONS'].get(SectionName) is None or (SectionName in app.config['HIDDEN_BOARDS'] and not session.get('fingerprint')):
+    if app.config['SECTIONS'].get(SectionName) is None or \
+            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('fingerprint') or session.get('crawler'))):
         return render_template("error.html", errortitle = u"Раздел не найден")
 
     else:

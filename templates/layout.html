@@ -5,6 +5,7 @@
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
 	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"/>
+    {% if not session.crawler %}
     {{ fujs.js }}
     {% assets "js_main" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -21,7 +22,9 @@
         a.anew:visited {color:#939393;}
         .quote { background: #FFFFFF; border:1px solid darkgray; font-family:Verdana;font-size:10px;text-align:left; padding: 5px 10px 5px 10px; margin-bottom:0px;margin-left:10px;}
     </style>
+    {% endif %}
     <meta charset='utf-8'>
+    <meta name="keywords" content="{{ config.SITE_NAME }}, апачан, анонимная имиджборда, АИБ, imageboard, anonymous imageboard, апачан скрытый, апачан не борда, апачан бред, анонимный форум"/>
   </head>
     <BODY bgcolor="#F7F7F7" text="#000000" link="#000000" vlink="#000000" alink="#000000" style="font-family:Verdana;font-size:12px">
 	{% with messages = get_flashed_messages() %}
