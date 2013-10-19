@@ -278,10 +278,12 @@ def index():
 
 @app.route('/robots.txt')
 @app.route('/sitemap.xml')
-@app.route('/favicon.ico')
-def static_from_root():
-    return send_from_directory(app.static_folder, request.path[1:])
-
+def sitemap_files():
+    from flask import Response
+    @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
+    def render_static_template(filename):
+        return render_template(filename)
+    return Response(render_static_template(request.path[1:]), mimetype = 'text/plain')
 
 def get_page_number(post):
     return post.position / app.config['MAX_POSTS_ON_PAGE'] + (post.position % app.config['MAX_POSTS_ON_PAGE'] > 0) if post.position else 1
