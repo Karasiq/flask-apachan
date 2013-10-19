@@ -24,7 +24,7 @@
     </style>
     {% endif %}
     <meta charset='utf-8'>
-    <meta name="keywords" content="{{ config.SITE_NAME }}, апачан, анонимная имиджборда, АИБ, imageboard, anonymous imageboard, апачан скрытый, апачан не борда, апачан бред, анонимный форум"/>
+    <meta name="keywords" content="{{ config.SITE_NAME }}{% if config.KEYWORDS %}, {{ config.KEYWORDS }}{% endif %}"/>
   </head>
     <BODY bgcolor="#F7F7F7" text="#000000" link="#000000" vlink="#000000" alink="#000000" style="font-family:Verdana;font-size:12px">
 	{% with messages = get_flashed_messages() %}
