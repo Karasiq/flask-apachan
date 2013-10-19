@@ -1,0 +1,21 @@
+a.anew:visited {color:#939393;}
+.quote { background: #FFFFFF; border:1px solid darkgray; font-family:Verdana;font-size:10px;text-align:left; padding: 5px 10px 5px 10px; margin-bottom:0px;margin-left:10px;}
+
+div.post-image {
+    position:relative;
+}
+
+#main {
+    max-height:200px;
+    max-width:200px;
+}
+
+#overlay {
+    opacity: 0.5;
+    position:absolute;
+    height:200px;
+    width:200px;
+    top:0;
+    left:0;
+    display:none;
+}

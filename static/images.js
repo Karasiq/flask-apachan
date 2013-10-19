@@ -76,19 +76,22 @@ function showSmall( img, offset ) {
 
 function img_on_click(img, src)
 {
+    var $overlay = $(img).parent().children('#overlay');
+    $overlay.show();
     var im = document.createElement( 'img' );
     im.src = src;
-    im.onload = function () {
 
+    $(im).load(function () {
+        $overlay.hide();
         if ( this.height > screenSize().height || this.width > screenSize().width ) {
             showBig( this );
         }
         else {
             showSmall( this, getOffsetSum( img ) );
         }
-    };
+    });
     im.onerror = function () {
-
+        $overlay.hide();
         this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.png';
         this.onerror = function () {
             this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.gif';

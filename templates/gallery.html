@@ -6,7 +6,7 @@
     <tr><td>
         {% set i = 0 %}
         {% for p in posts.items %}
-            &nbsp;<img src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" max-width=200 max-height=200>
+            &nbsp;<img id="main" src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');">
         {%- endfor -%}</td>
     </tr>
 </table>
