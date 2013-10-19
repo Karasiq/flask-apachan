@@ -104,15 +104,18 @@ function menu_out1()
 }
 
 var auto_refresh_enabled = false;
+function refresh_page() {
+    $.getJSON($SCRIPT_ROOT + '/ajax/reload', ajax_data, function(data) {
+        if(data.result) $("div#posts").html(data.posts);
+    });
+}
 $( document ).ready(function() {
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
     $("#auto-reload").text(auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
 });
 setInterval(function() {
     if(auto_refresh_enabled) {
-        $.getJSON($SCRIPT_ROOT + '/ajax/reload', ajax_data, function(data) {
-            if(data.result) $("div#posts").html(data.posts);
-        });
+        refresh_page();
     }
     return true;
 }, 20000);
