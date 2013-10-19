@@ -187,8 +187,9 @@ def vote():
     val = request.args.get('vote', 0, type=int)
     pid = request.args.get('postid', 0, type=int)
     if not val or not pid:
-        return render_template("error.html", errortitle=u"Ошибка голосования")
+        return jsonify(result=False)
     post = Post.query.filter_by(id = pid).first()
+    result = False
     if session.get('canvote') and not check_banned() or session.get('admin'):
         user = get_user(session.get('uid'))
         vote = Vote.query.filter_by(user_id = user.id, post_id = post.id).first()
@@ -213,9 +214,10 @@ def vote():
             db_session.add(post)
             db_session.add(vote)
             db_session.commit()
+            result = True
             flush_cache()
 
-    return jsonify(post_rating = post.rating)
+    return jsonify(result = result, post_rating = post.rating)
 
 def redirect_url(default='index'):
     return request.args.get('next') or \

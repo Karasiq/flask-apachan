@@ -1,13 +1,16 @@
 var highlighted = 0;
 function submit_vote(id,v)
 {
+    var $vt = $("#voting_" + id);
+    $vt.html('<img width="15" height="15" src="' + flask_util.url_for('static', {filename:'wait.gif'}) + '">');
 	$.getJSON($SCRIPT_ROOT + '/_vote', {
 			postid: id,
 			vote: v
 		}, function(data) {
         $("span#rt" + id).text(data.post_rating);
-		$("a#vt1_" + id).text('');
-		$("a#vt2_" + id).text('');
+        var $status_img = $('<img>');
+        $vt.html($status_img);
+        $status_img.attr('src', data.result ? flask_util.url_for('static', {filename:"success.png"}) : flask_util.url_for('static', {filename:"fail.png"}));
       });
 }
 function unhide_threads()

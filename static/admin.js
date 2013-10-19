@@ -39,10 +39,21 @@ function transfer(id) {
     });
 }
 
-function clear_cache() {
-    $.getJSON($SCRIPT_ROOT + '/admin/clear_cache', {}, function(data) {
-        if(data.result) {
-            refresh_page();
-        }
+$(function() {
+    var $clear_cache = $("#admin-clear-cache");
+    $clear_cache.click(function() {
+        $.getJSON($SCRIPT_ROOT + '/admin/clear_cache', {}, function(data) {
+            var $status_img = $("#admin-clear-cache-status");
+            if(!$status_img.length)
+            {
+                $status_img = $('<img id="admin-clear-cache-status">');
+                $clear_cache.after($status_img);
+            }
+            $status_img.attr('src', data.result ? flask_util.url_for('static', {filename:"success.png"}) : flask_util.url_for('static', {filename:"fail.png"}));
+
+            if(data.result) {
+                refresh_page();
+            }
+        });
     });
-}
+});
