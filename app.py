@@ -526,7 +526,7 @@ def post():
     if form.validate_on_submit():
         form.msg.data = form.msg.data.strip()
         form.title.data = form.title.data.strip()
-        if not len(form.msg.data) and int(form.parent.data) == 0:
+        if not len(form.msg.data) and not len(form.img_url) and not 'img' in request.files and int(form.parent.data) == 0:
             return render_template("error.html", errortitle = u"Нельзя запостить пустой тред")
         if app.config['SECTIONS'].get(form.section.data) is None:
             return render_template("error.html", errortitle = u"Раздел не найден")
