@@ -10,3 +10,7 @@ if __name__ == '__main__':
     else:
         app.config['SERVER_NAME'] = app.config['RELEASE_SERVER_NAME']
         app.run(debug=False, threaded=True, port=app.config['RELEASE_PORT'], host=app.config['RELEASE_HOST'])
+        from logging import FileHandler, WARNING
+        file_handler = FileHandler(app.config['LOG_FILE'])
+        file_handler.setLevel(WARNING)
+        app.logger.addHandler(file_handler)

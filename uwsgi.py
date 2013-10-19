@@ -8,3 +8,7 @@ if app.config['DEBUG_ENABLED']:
     app.config['SERVER_NAME'] = app.config['DEBUG_SERVER_NAME']
 else:
     app.config['SERVER_NAME'] = app.config['RELEASE_SERVER_NAME']
+    from logging import FileHandler, WARNING
+    file_handler = FileHandler(app.config['LOG_FILE'])
+    file_handler.setLevel(WARNING)
+    app.logger.addHandler(file_handler)

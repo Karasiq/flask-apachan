@@ -11,6 +11,8 @@ import tempfile
 CACHE_CONFIG = {'CACHE_TYPE':'filesystem', 'CACHE_DIR' : os.path.join(tempfile.gettempdir(), 'flask-apachan-cache')}
 CACHING_TIMEOUT = 600 # 10 min
 
+LOG_FILE = 'flask-apachan.log'
+
 CAPTCHA_ENABLED = True
 RECAPTCHA_ENABLED = False
 RECAPTCHA_PUBLIC_KEY = 'changeme'
