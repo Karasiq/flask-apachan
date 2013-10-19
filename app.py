@@ -168,8 +168,8 @@ def render_message(msg):
     #from jinja2 import Markup
     import re
     r = msg
-    r = re.sub(r'(?s)\[quote](.*)\[/quote\]', '<div class="quote">\\1</div>', r)
-    r = re.sub(r'(?s)\[spoiler](.*)\[/spoiler\]', "<a style=\"background:darkgray;color:darkgray\" onmouseover=\"this.style.color=\'white';\" onmouseout=\"this.style.color=\'darkgray\';\">\\1</a>", r)
+    r = re.sub(r'(?s)\[quote](.*?)\[/quote\]', '<div class="quote">\\1</div>', r)
+    r = re.sub(r'(?s)\[spoiler](.*?)\[/spoiler\]', "<a style=\"background:darkgray;color:darkgray\" onmouseover=\"this.style.color=\'white';\" onmouseout=\"this.style.color=\'darkgray\';\">\\1</a>", r)
     r = re.sub(r'\[b](.*)\[/b\]', '<b>\\1</b>', r)
     r = re.sub(r'\[u](.*)\[/u\]', '<u>\\1</u>', r)
     r = re.sub(r'\[s](.*)\[/s\]', '<s>\\1</s>', r)
