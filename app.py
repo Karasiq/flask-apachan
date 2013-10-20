@@ -713,6 +713,8 @@ def section(SectionName, page=1):
 # on start
 from os import listdir
 from os.path import isfile, join
+import locale
+locale.setlocale(locale.LC_ALL, '')
 
 app.config['IP_BLOCKLIST'] = ipcheck.IpList()
 if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
