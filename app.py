@@ -24,7 +24,7 @@ def get_current_fingerprint():
         'browser']
 
 
-@cache.memoize()
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def id_list(posts):
     if not posts: return []
     il = list()
@@ -269,7 +269,7 @@ def user_check():
         if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
             set_uid(session['uid'])
 
-@cache.cached()
+@cache.cached(timeout=app.config['CACHING_TIMEOUT'])
 @app.route('/index')
 @app.route('/')
 def index():
@@ -362,12 +362,12 @@ def human_test():
     else:
         return render_template('recaptcha.html', form = HumanTestForm())
 
-@cache.memoize()
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def get_netloc(url):
     import urlparse
     return urlparse.urlparse(url).netloc
 
-@cache.memoize()
+#@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 @app.route('/img/<int:randid>/<filename>', methods=['GET'])
 def getimage(randid, filename):
     #if not request.headers.get('Referer') or get_netloc(request.headers.get('Referer')).split(':')[0] not in app.config['ALLOWED_HOSTS']:
@@ -478,8 +478,7 @@ def admin_clear_cache():
     if not session.get('admin'):
         return jsonify(result=False)
     else:
-        flush_cache()
-        cache.delete_memoized(get_user)
+        cache.clear()
         return jsonify(result=True)
 
 @app.route('/admin/del_ip')

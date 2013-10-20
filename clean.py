@@ -17,8 +17,8 @@ def clean():
         del_post(p, False)
         print('Post %d deleted' % p.id)
     db_session.commit()
-    from cached import flush_cache
-    flush_cache()
+    #from cached import flush_cache
+    #flush_cache()
 
 if __name__ == '__main__':
     clean()
