@@ -717,7 +717,7 @@ if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
 
 js = Bundle('jquery-2.0.3.min.js', 'jsfunctions.js', 'images.js',
             filters=(None if app.config['DEBUG_ENABLED'] else 'yui_js'), output='gen/main.js')
-css = Bundle('style.css', filters=(None if app.config['DEBUG_ENABLED'] else 'yui_js'), output='gen/main.css')
+css = Bundle('style.css', filters=(None if app.config['DEBUG_ENABLED'] else 'yui_css'), output='gen/main.css')
 assets.register('js_main', js)
 assets.register('css_main', css)
 
