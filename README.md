@@ -24,10 +24,4 @@ flask-apachan
 
 # Issues
 * Access error when generating assets/saving pictures
-    Fix:  
-<pre>
-chmod +w ./static
-chmod +w ./static/gen
-chmod +w ./static/.webassets-cache
-chmod +w [IMG_FOLDER from config.py]
-</pre>
+    Fix: `chmod +w ./static ./static/gen ./static/.webassets-cache [IMG_FOLDER from config.py]`
