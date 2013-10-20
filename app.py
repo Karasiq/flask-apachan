@@ -478,8 +478,11 @@ def admin_clear_cache():
     if not session.get('admin'):
         return jsonify(result=False)
     else:
-        cache.clear()
-        return jsonify(result=True)
+        try:
+            cache.clear()
+            return jsonify(result=True)
+        except:
+            return jsonify(result=False)
 
 @app.route('/admin/del_ip')
 def admin_delip():
