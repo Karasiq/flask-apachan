@@ -400,6 +400,16 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
     if commit:
         db_session.commit()
 
+    if not Post.query.filter_by(image=post.image).count():
+        try:
+            import os
+            os.remove(os.path.join(app.config['IMG_FOLDER'], post.image))
+            os.remove(os.path.join(app.config['IMG_FOLDER'], post.thumb))
+        except OSError as e:
+            import errno
+            if e.errno != errno.ENOENT:
+                raise
+
     flush_cache()
 
 @app.route('/delpost')
