@@ -697,6 +697,9 @@ def post():
         user.last_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
         user.last_useragent = request.headers.get('User-Agent')
         user.last_post = entry.time
+        if not user.first_post:
+            user.first_post = entry.time
+
         db_session.add(user)
         db_session.add(entry)
         db_session.commit()
@@ -731,8 +734,9 @@ def allsections(page=1):
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
+    first_post = get_user(session['uid']).first_post
     if app.config['SECTIONS'].get(SectionName) is None or \
-            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or get_user(session['uid']).first_post < datetime.now() + timedelta(hours=3) or check_banned())):
+            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or first_post < datetime.now() + timedelta(hours=3) or check_banned())):
         return render_template("error.html", errortitle = u"Раздел не найден")
 
     else:
