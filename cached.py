@@ -22,7 +22,7 @@ def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section 
         return Post.query.filter(Post.id.in_(idlist)).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'user_posts':
         if not userid: userid = session.get('uid')
-        return Post.query.filter_by(user_id = userid).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
+        return Post.query.filter_by(user_id = userid).order_by(Post.id.asc())
     elif e == 'user_threads' or e == 'mythreads':
         if not userid: userid = session.get('uid')
         return Post.query.filter_by(user_id = userid, parent = 0).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
@@ -32,8 +32,11 @@ def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section 
         return Post.query.filter(Post.answer_to.in_(id_list(posts))).order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'detector' or e == 'semeno_detector':
         post = get_posts('post', postid=postid)
-        parent_id = post.parent if post.parent != 0 else post.id
-        return Post.query.filter_by(parent = parent_id, user_id = post.user_id).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
+        if post:
+            parent_id = post.parent if post.parent != 0 else post.id
+            return Post.query.filter_by(parent = parent_id, user_id = post.user_id).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
+        else:
+            return None
     elif e == 'gallery':
         return Post.query.filter(Post.randid == 0, Post.image != '').order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
 
