@@ -388,6 +388,25 @@ def del_post(post, commit = True): # Рекурсивное удаление п�
                 parent.last_answer = last_post.time
         parent.answers -= 1
         db_session.add(parent)
+
+    user = get_user(post.user_id)
+    if user.last_post == post.time:
+        last_post = Post.query.filter(Post.user_id == user.id, Post.id != post.id).order_by(
+            Post.time.desc()).first()
+        if last_post:
+            user.last_post = last_post.time
+        else:
+            user.last_post = None
+        db_session.add(user)
+    elif user.first_post == post.time:
+        first_post = Post.query.filter(Post.user_id == user.id, Post.id != post.id).order_by(
+            Post.time.asc()).first()
+        if first_post:
+            user.first_post = first_post.time
+        else:
+            user.first_post = None
+        db_session.add(user)
+
     childs = Post.query.filter(or_(Post.answer_to == post.id, Post.parent == post.id))
     for c in childs:
         del_post(c, False)
