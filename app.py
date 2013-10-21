@@ -732,7 +732,7 @@ def allsections(page=1):
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
     if app.config['SECTIONS'].get(SectionName) is None or \
-            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not get_user(session['uid']).last_post or check_banned())):
+            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or get_user(session['uid']).last_post < datetime.now() + timedelta(hours=3) or check_banned())):
         return render_template("error.html", errortitle = u"Раздел не найден")
 
     else:
