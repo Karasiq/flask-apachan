@@ -176,7 +176,7 @@ def render_message(msg):
     r = re.sub(r'\[i](.*)\[/i\]', '<i>\\1</i>', r)
     r = re.sub(r'\[url](?!javascript:)([^\r\n]*)\[/url\]', '<a href=\"\\1\">\\1</a>', r)
     r = re.sub(r'\[url="?(?!javascript:)([^\r\n]*)"?\](?!javascript:)(.*)\[/url]', '<a href=\"\\1\">\\2</a>', r)
-    r = re.sub(r'https?://(?:www\.)youtube\.com/watch\?[\w\-&%=]*\bv=([\w-]*)', render_template("youtube.html"), r)
+    r = re.sub(r'https?://(?:www\.|)youtube\.com/watch\?[\w\-&%=_;]*\bv=([\w\-_]*)', render_template("youtube.html"), r)
     if app.config.get('SERVER_NAME'):
         r = re.sub(r'(?<!")(?<!">)\bhttps?://' + app.config['SERVER_NAME'] + r'/([^"\s<>]*)', '<a href=\"/\\1\">/\\1</a>', r) # relative
     r = re.sub(r'(?<!")(?<!">)\b(https?://[^"\s<>]*)', '<a href=\"\\1\">\\1</a>', r)
