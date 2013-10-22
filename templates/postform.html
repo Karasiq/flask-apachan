@@ -1,6 +1,7 @@
 ﻿{% block postform %}
 {% if session.crawler %}
-    <center><h1>Posting is disabled to crawlers user-agent</h1></center>
+    {% if config.SITE_NAME %}<center><h1>{{ config.SITE_NAME }}</h1></center>{% endif %}
+    {% if config.KEYWORDS %}<center><h2>{{ config.KEYWORDS }}</h2></center>{% endif %}
 {% else %}
 <table width='850' align='center'>
 	<tr><td>
