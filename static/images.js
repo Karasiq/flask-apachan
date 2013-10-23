@@ -49,7 +49,7 @@ function showBig( img ) {
     popup.onclick = function () {
         document.body.style.overflow = 'auto';
         this.parentNode.removeChild( this );
-        $('div.video').show();
+        $('div.video').css('visibility','visible');
     };
 
     popup.appendChild( img );
@@ -68,7 +68,7 @@ function showSmall( img, offset ) {
     //popup.style.boxShadow = '0px 0px 8px #000';
     popup.onclick = function () {
         this.parentNode.removeChild( this );
-        $('div.video').show();
+        $('div.video').css('visibility','visible');
     };
 
     popup.appendChild( img );
@@ -84,7 +84,7 @@ function img_on_click(img, src)
     im.src = src;
 
     $(im).load(function () {
-        $('div.video').hide();
+        $('div.video').css('visibility','hidden');
         $overlay.hide();
         if ( this.height > screenSize().height || this.width > screenSize().width ) {
             showBig( this );
