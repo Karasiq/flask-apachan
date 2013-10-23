@@ -33,7 +33,7 @@ def upgrade():
     op.create_table('post',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=50), nullable=True),
-    sa.Column('message', sa.String(length=5000), nullable=True),
+    sa.Column('message', sa.String(length=1000), nullable=True),
     sa.Column('time', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('from_ip', sa.String(length=15), nullable=True),
