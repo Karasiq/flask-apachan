@@ -117,7 +117,7 @@ $(document).ready(function () {
     $(".post-form").hide();
     $(".post-form-show").click(function() {
         $(this).hide();
-        $(this).parent('div').children(".post-form").show();
+        $(this).parent().parent().children(".post-form").show();
         return false;
     });
 });

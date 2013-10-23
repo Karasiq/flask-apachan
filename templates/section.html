@@ -3,7 +3,7 @@
 {% if mainpost and mainpost.title %}
     {% set title = mainpost.title %}
 {% elif mainpost and mainpost.message %}
-    {% set title = mainpost.message[:40] %}
+    {% set title = mainpost.message[:40]|safe %}
 {% elif SecName %}
     {% set title = SecName + ' - ' + config.SITE_NAME %}
 {% else %}
