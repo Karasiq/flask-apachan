@@ -99,6 +99,11 @@ function refresh_page() {
 $(document).ready(function () {
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
     $("#auto-reload").text(auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+    $(".post-form-show").click(function() {
+        $(this).hide();
+        $(this).parent('div').children(".post-form").show();
+        return false;
+    });
 });
 setInterval(function () {
     if (auto_refresh_enabled) {

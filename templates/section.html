@@ -14,7 +14,8 @@
     <center><h2>{{ title }}</h2></center>
     <title>{{ title }}</title>
 
-    <center><h3>{% if (form and form.parent.data != '0') or mainpost %}
+{% block navigation %}
+<center><h3>{% if (form and form.parent.data != '0') or mainpost %}
 <a href="{{ url_for('section', SectionName = form.section.data if form else mainpost.parent) }}">В корень раздела</a>
 {% if mainpost.parent != 0 %}
 &nbsp; <a href="{{ url_for('viewpost', postid = mainpost.id) }}">В корень треда</a>
@@ -23,12 +24,17 @@
 <a href="{{ url_for('index') }}">На главную</a>
 {% endif %} </h3>
 </center>
-    <hr width="90%" size=1>
-    {% if not session.fingerprint or not session.uid %}
-        <center><h3>Включите javascript для возможности отправлять сообщения</h3></center>
-    {% elif form %}
-        {% include 'postform.html' %}
-    {% endif %}
+{% endblock %}
+    {% block postform %}
+        <hr width="90%" size=1>
+        {% if not session.fingerprint or not session.uid %}
+            <center><h3>Включите javascript для возможности отправлять сообщения</h3></center>
+        {% elif form %}
+            {% include 'postform.html' %}
+        {% endif %}
+        <hr width="90%" size=1>
+        <br>
+    {% endblock %}
     <script type="text/javascript">
         var ajax_data = {
             endpoint: '{{ request.endpoint }}',
@@ -42,4 +48,6 @@
     </script>
     <div align="center"><h3><a href="#" id="auto-reload" onclick="change_auto_refresh();"></a></h3></div>
     <div id="posts">{% include 'posts.html' %}</div>
+    {{ self.postform() }}
+    {{ self.navigation() }}
 {% endblock %}

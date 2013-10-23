@@ -1,9 +1,10 @@
-﻿{% block postform %}
-{% if session.crawler %}
+﻿{% if session.crawler %}
     {% if config.SITE_NAME %}<center><h1>{{ config.SITE_NAME }}</h1></center>{% endif %}
     {% if config.KEYWORDS %}<center><h2>{{ config.KEYWORDS }}</h2></center>{% endif %}
 {% else %}
-<table width='850' align='center'>
+<div align="center" style="text-align: center;">
+<a href="javascript:void(0);" class="post-form-show"><h3>Добавить ответ</h3></a>
+<table width='850' align="center" class="post-form" style="display: none;">
 	<tr><td>
 		<table width=700 align=center style='font-family:Tahoma;font-size:12px'>
 			<form name="form1" id="form1" method="post" action="{{ url_for('post') }}" enctype="multipart/form-data">
@@ -45,7 +46,5 @@
 		</table>
 	</td></tr>
 </table>
-<hr width="90%" size=1>
-<br>
+</div>
 {% endif %}
-{% endblock %}
