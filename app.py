@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 cache = Cache(app, config=app.config['CACHE_CONFIG'])
 assets = Environment(app)
-from database import db_session
+from database import db, db_session
 from models import Vote, User, Post
 
 import ipcheck, captcha, flask_fingerprint

@@ -28,7 +28,7 @@ class Post(db.Model):
     }
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String(50))
-    message = db.Column(db.String(1000))
+    message = db.Column(db.String(5000))
     time = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     from_ip = db.Column(db.String(15))

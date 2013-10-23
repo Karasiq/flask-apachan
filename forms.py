@@ -10,7 +10,7 @@ class HumanTestForm(Form):
 
 class PostForm(Form):
     title = TextField('title', validators = [Length(max = 50)])
-    msg = TextAreaField('msg', validators = [Length(max = 1000)])
+    msg = TextAreaField('msg', validators = [Length(max = 5000)])
     img_url = TextField('img_url', validators = [Length(max = 300)])
     img = FileField('img')
     sage = BooleanField('sage', default=False)
