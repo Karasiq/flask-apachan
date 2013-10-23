@@ -26,13 +26,16 @@
 </center>
 {% endblock %}
     {% block postform %}
-        <hr width="90%" size=1>
         {% if not session.fingerprint or not session.uid %}
             <center><h3>Включите javascript для возможности отправлять сообщения</h3></center>
+        {% elif session.crawler %}
+            {% if config.SITE_NAME %}<center><h1>{{ config.SITE_NAME }}</h1></center>{% endif %}
+            {% if config.KEYWORDS %}<center><h2>{{ config.KEYWORDS }}</h2></center>{% endif %}
         {% elif form %}
+            <hr width="90%" size=1>
             {% include 'postform.html' %}
+            <hr width="90%" size=1>
         {% endif %}
-        <hr width="90%" size=1>
         <br>
     {% endblock %}
     <script type="text/javascript">

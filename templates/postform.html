@@ -1,8 +1,4 @@
-﻿{% if session.crawler %}
-    {% if config.SITE_NAME %}<center><h1>{{ config.SITE_NAME }}</h1></center>{% endif %}
-    {% if config.KEYWORDS %}<center><h2>{{ config.KEYWORDS }}</h2></center>{% endif %}
-{% else %}
-<div align="center" style="text-align: center;">
+﻿<div align="center" style="text-align: center;">
 <button class="post-form-show" style="display: none;">Показать форму отправки</button>
 <table width='850' align="center" class="post-form">
 	<tr><td>
@@ -47,4 +43,3 @@
 	</td></tr>
 </table>
 </div>
-{% endif %}
