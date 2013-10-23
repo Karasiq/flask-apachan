@@ -3,8 +3,8 @@
     {% if config.KEYWORDS %}<center><h2>{{ config.KEYWORDS }}</h2></center>{% endif %}
 {% else %}
 <div align="center" style="text-align: center;">
-<a href="javascript:void(0);" class="post-form-show"><h3>Добавить ответ</h3></a>
-<table width='850' align="center" class="post-form" style="display: none;">
+<button class="post-form-show" style="display: none;">Показать форму отправки</button>
+<table width='850' align="center" class="post-form">
 	<tr><td>
 		<table width=700 align=center style='font-family:Tahoma;font-size:12px'>
 			<form name="form1" id="form1" method="post" action="{{ url_for('post') }}" enctype="multipart/form-data">
