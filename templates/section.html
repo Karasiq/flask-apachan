@@ -1,6 +1,4 @@
-{% if not ajax %}
 {% extends "layout.html" %}
-{% endif %}
 {% block content %}
 {% if mainpost and mainpost.title %}
     {% set title = mainpost.title %}
@@ -11,7 +9,8 @@
 {% else %}
     {% set title = config.SITE_NAME %}
 {% endif %}
-    <center><h2>{{ title }}</h2></center>
+    <center><img src="{{ url_for('static', filename='refresh.png') }}" height=40 width=40 id="auto-reload" style="display: none;"> <h2>{{ title }}</h2></center>
+    <div style="text-align: center" id="last-refresh"></div>
     <title>{{ title }}</title>
 
 {% block navigation %}
@@ -49,7 +48,6 @@
             {% if section %}, section: '{{ section }}'{% endif %}
         };
     </script>
-    <div align="center"><h3><a href="#" id="auto-reload" onclick="change_auto_refresh();"></a></h3></div>
     <div id="posts">{% include 'posts.html' %}</div>
     {{ self.postform() }}
     {{ self.navigation() }}

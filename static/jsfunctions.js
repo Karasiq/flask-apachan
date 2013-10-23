@@ -93,12 +93,26 @@ function menu_out1() {
 var auto_refresh_enabled = false;
 function refresh_page() {
     $.getJSON($SCRIPT_ROOT + '/ajax/reload', ajax_data, function (data) {
-        if (data.result) $("div#posts").html(data.posts);
+        if (data.result) {
+            $("div#posts").html(data.posts);
+            var currentdate = new Date();
+            $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
+        }
     });
 }
 $(document).ready(function () {
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
-    $("#auto-reload").text(auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+    var $auto_reload = $("#auto-reload");
+    $auto_reload.attr('title', auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+    $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled ? "refresh-dis.png" : "refresh.png"}));
+    $auto_reload.show();
+    $auto_reload.click(function() {
+        auto_refresh_enabled = !auto_refresh_enabled;
+        $auto_reload.attr('title', auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+        $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled ? "refresh-dis.png" : "refresh.png"}));
+        localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
+    });
+
     $(".post-form-show").show();
     $(".post-form").hide();
     $(".post-form-show").click(function() {
@@ -113,8 +127,3 @@ setInterval(function () {
     }
     return true;
 }, 20000);
-function change_auto_refresh() {
-    auto_refresh_enabled = !auto_refresh_enabled;
-    $("#auto-reload").text(auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
-    localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
-}
