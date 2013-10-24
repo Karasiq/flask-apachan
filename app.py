@@ -704,7 +704,8 @@ def post():
         user.last_useragent = request.headers.get('User-Agent')
         user.last_post = entry.time
         if not user.first_post:
-            session['first_post'] = user.first_post = entry.time
+            user.first_post = entry.time
+        session['first_post'] = user.first_post
 
         db_session.add(user)
         db_session.add(entry)
