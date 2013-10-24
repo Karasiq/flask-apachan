@@ -65,7 +65,10 @@ def refresh_user(user):
 
 @app.route('/ajax/reload')
 def ajax_reload():
-    return render_ajax(request.args)
+    try:
+        return render_ajax(request.args)
+    except:
+	    return jsonify(result=False)
 
 @app.route('/redirect')
 def external_redirect():
@@ -92,8 +95,8 @@ def ban_user(uid, banexpiration, banreason):
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def check_banned(session=session):
-    user = get_user(session['uid'])
-    return session.get('crawler') or session.get('banned') or (user and user.banned and datetime.now() < user.banexpiration)
+    user = get_user(session['uid']) if session.get('uid') else None
+    return user and (session.get('crawler') or session.get('banned') or (user and user.banned and datetime.now() < user.banexpiration))
 
 def set_uid(uid):
     if session.get('uid') == uid:
@@ -737,7 +740,7 @@ def allsections(page=1):
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
-    first_post = get_user(session['uid']).first_post
+    first_post = get_user(session['uid']).first_post if session.get('uid') else None
     if app.config['SECTIONS'].get(SectionName) is None or \
             (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or first_post < datetime.now() + timedelta(hours=3) or check_banned()) and not session.get('admin')):
         return render_template("error.html", errortitle = u"Раздел не найден")
