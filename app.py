@@ -704,7 +704,7 @@ def post():
         user.last_useragent = request.headers.get('User-Agent')
         user.last_post = entry.time
         if not user.first_post:
-            user.first_post = entry.time
+            session['first_post'] = user.first_post = entry.time
 
         db_session.add(user)
         db_session.add(entry)
@@ -740,7 +740,7 @@ def allsections(page=1):
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
-    first_post = get_user(session['uid']).first_post if session.get('uid') else None
+    first_post = session.get('first_post')
     if app.config['SECTIONS'].get(SectionName) is None or \
             (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or first_post < datetime.now() + timedelta(hours=3) or check_banned()) and not session.get('admin')):
         return render_template("error.html", errortitle = u"Раздел не найден")

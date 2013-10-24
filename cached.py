@@ -95,7 +95,7 @@ def render_answers(page, session=session):
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def render_mythreads(page, session=session):
     posts = get_posts('user_threads', page, userid=session.get('uid'))
-    return render_template("section.html", SecName = u'Мои треды', posts = posts, randoms = app.config['RANDOM_SETS'], page_posts = id_list(posts.items))
+    return render_template("section.html", SecName = u'Мои треды', posts = posts, randoms = app.config['RANDOM_SETS'], page_posts = id_list(posts.items), baseurl = '/mythreads/')
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def render_semenodetector(postid, page, session=session):
