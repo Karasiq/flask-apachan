@@ -377,47 +377,30 @@ def getimage(randid, filename):
     else:
         return send_from_directory(os.path.join(app.config['BASE_RANDOMPIC_DIR'], app.config['RANDOM_SETS'][randid]['dir']), filename)
 
-def del_post(post, commit = True): # Рекурсивное удаление поста
+def del_post(post): # Рекурсивное удаление поста
     from sqlalchemy import or_
     if post.parent != 0:
         parent = Post.query.filter_by(id = post.parent).first()
-        if parent.last_answer == post.time:
-            last_post = Post.query.filter(Post.parent == parent.id, Post.id != post.id).order_by(
-                        Post.time.desc()).first()
-            if last_post:
-                parent.last_answer = last_post.time
-        parent.answers -= 1
-        db_session.add(parent)
-
-    user = get_user(post.user_id)
-    if user.last_post == post.time:
-        last_post = Post.query.filter(Post.user_id == user.id, Post.id != post.id).order_by(
-            Post.time.desc()).first()
-        if last_post:
-            user.last_post = last_post.time
-        else:
-            user.last_post = None
-        db_session.add(user)
-    elif user.first_post == post.time:
-        first_post = Post.query.filter(Post.user_id == user.id, Post.id != post.id).order_by(
-            Post.time.asc()).first()
-        if first_post:
-            user.first_post = first_post.time
-        else:
-            user.first_post = None
-        db_session.add(user)
+        if parent:
+            if parent.last_answer == post.time:
+                last_post = Post.query.filter(Post.parent == parent.id, Post.id != post.id).order_by(
+                            Post.time.desc()).first()
+                if last_post:
+                    parent.last_answer = last_post.time
+            parent.answers -= 1
+            db_session.add(parent)
+            db_session.commit()
 
     childs = Post.query.filter(or_(Post.answer_to == post.id, Post.parent == post.id))
     for c in childs:
-        del_post(c, False)
+        del_post(c)
     votes = Vote.query.filter_by(post_id = post.id)
     for v in votes:
         db_session.delete(v)
     db_session.commit()
 
     db_session.delete(post)
-    if commit:
-        db_session.commit()
+    db_session.commit()
 
     if not Post.query.filter_by(image=post.image).count():
         try:
@@ -438,7 +421,27 @@ def postdel():
     if not session.get('admin') and (not postid in session.get('can_delete') or not post or post.user_id != int(session.get('uid'))):
         return render_template("error.html", errortitle=u'Ошибка удаления поста')
 
-    del_post(post, True)
+    user = get_user(post.user_id)
+    if user and user.last_post == post.time:
+        last_post = Post.query.filter(Post.user_id == user.id, Post.id != post.id).order_by(
+            Post.time.desc()).first()
+        if last_post:
+            user.last_post = last_post.time
+        else:
+            user.last_post = None
+        db_session.add(user)
+        db_session.commit()
+    elif user and user.first_post == post.time:
+        first_post = Post.query.filter(Post.user_id == user.id, Post.id != post.id).order_by(
+            Post.time.asc()).first()
+        if first_post:
+            user.first_post = first_post.time
+        else:
+            user.first_post = None
+        db_session.add(user)
+        db_session.commit()
+
+    del_post(post)
     if post.parent == 0:
         return redirect(url_for('section', SectionName=post.section))
     else:
@@ -521,7 +524,7 @@ def admin_delip():
     ip = request.args.get('ipaddr')
     posts = Post.query.filter_by(from_ip = ip)
     for p in posts:
-        del_post(p, False)
+        del_post(p)
     users = User.query.filter_by(last_ip = ip)
     for u in users:
         u.banned = True
@@ -549,7 +552,7 @@ def admin_delall():
     userid = int(request.args.get('userid'))
     posts = Post.query.filter_by(user_id = userid)
     for p in posts:
-        del_post(p, False)
+        del_post(p)
     db_session.commit()
     #print(u'Все посты пользователя %d удалены' % int(userid))
     #return admin_ban(userid)
