@@ -8,11 +8,12 @@ from models import User, Post
 
 def clean():
     from app import del_post
+    from datetime import datetime, timedelta
     users = User.query.filter_by(last_post = None)
     for u in users:
         db_session.delete(u)
         print('User %d deleted' % u.id)
-    posts = Post.query.filter_by(parent = 0, answers = 0)
+    posts = Post.query.filter(Post.parent == 0, Post.answers == 0, Post.time >= datetime.now() + timedelta(days=3))
     for p in posts:
         del_post(p)
         print('Post %d deleted' % p.id)
