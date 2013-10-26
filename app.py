@@ -68,7 +68,10 @@ def ajax_reload():
     try:
         return render_ajax(request.args)
     except:
-        return jsonify(result=False)
+        if session.get('admin'):
+            raise
+        else:
+            return jsonify(result=False)
 
 @app.route('/redirect')
 def external_redirect():
