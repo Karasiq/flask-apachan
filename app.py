@@ -65,13 +65,7 @@ def refresh_user(user):
 
 @app.route('/ajax/reload')
 def ajax_reload():
-    try:
-        return render_ajax(request.args)
-    except:
-        if session.get('admin'):
-            raise
-        else:
-            return jsonify(result=False)
+    return render_ajax(request.args)
 
 @app.route('/redirect')
 def external_redirect():
