@@ -715,6 +715,9 @@ def post():
         flush_cached_user(user.id)
 
         session['can_delete'] = session.get('can_delete') or list()
+        while len(session['can_delete']) >= 3:
+            session['can_delete'].pop(0)
+			
         session['can_delete'].append(entry.id)
         if entry.parent == 0:
             return redirect(url_for('view', postid=entry.id))
