@@ -100,7 +100,8 @@ def check_banned(session=session):
 
 def set_uid(uid):
     if session.get('uid') == uid:
-        return jsonify(result=True)
+        return True
+		
     session['uid'] = uid
     user = get_user(uid)
     if user:
@@ -137,15 +138,12 @@ def set_uid(uid):
                               and (datetime.now() - user.last_post) <= timedelta(days=3)) \
                               and user.rating >= app.config['RATING_CANVOTE']
     else: # Новый юзер
-        return redirect(url_for('register'))
-        #session['canvote'] = False
-        #session['banned'] = False
+        return False
+		
     refresh_user(user)
-    response = make_response(jsonify(result=True))
-    response.set_cookie('uid', auth_token(session.get('uid')), max_age=app.config['COOKIES_MAX_AGE'])
     session['refresh_time'] = datetime.now() + timedelta(days=1)
     session.permanent = True
-    return response
+    return True
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def get_safe_url(url):
@@ -258,13 +256,13 @@ def user_check():
 
     session.permanent = True
     if not session.get('crawler'):
-        if not request.blueprint and request.endpoint not in ['register', 'static', 'flask_util_js']:
+        if not request.blueprint and request.endpoint not in ['static', 'flask_util_js']:
             if app.config['RECAPTCHA_ENABLED'] and (not session.get('human-test-validity') or session.get('human-test-validity') < datetime.now()):
                 return redirect(url_for('human_test'))
             elif app.config['CAPTCHA_ENABLED'] and (not session.get('captcha-resolve')):
                 return redirect(url_for('captcha.show_captcha'))
-        if not session.get('uid') and session.get('fingerprint') and (not request.blueprint and request.endpoint not in ['register', 'static','flask_util_js']):
-            return redirect(url_for('register'))
+        #if not session.get('uid') and session.get('fingerprint') and (not request.blueprint and request.endpoint not in ['static','flask_util_js']):
+            #return redirect(url_for('register'))
 
         if check_ip(request.headers.get('X-Forwarded-For') or request.remote_addr):
             return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
@@ -605,8 +603,10 @@ def post():
             return render_template("error.html", errortitle = u"Раздел не найден")
 
         user = get_user(session.get('uid'))
-        if user is None:
-            return redirect(url_for('register'))
+        if user is None: # Неизвестная ошибка
+			session.clear()
+            return redirect(url_for('index'))
+			
         if user.banned and (datetime.now() < user.banexpiration):
             return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут: " + user.banreason)
 
