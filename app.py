@@ -68,7 +68,7 @@ def ajax_reload():
     try:
         return render_ajax(request.args)
     except:
-	    return jsonify(result=False)
+        return jsonify(result=False)
 
 @app.route('/redirect')
 def external_redirect():
@@ -101,7 +101,7 @@ def check_banned(session=session):
 def set_uid(uid):
     if session.get('uid') == uid:
         return True
-		
+        
     session['uid'] = uid
     user = get_user(uid)
     if user:
@@ -139,7 +139,7 @@ def set_uid(uid):
                               and user.rating >= app.config['RATING_CANVOTE']
     else: # Новый юзер
         return False
-		
+        
     refresh_user(user)
     session['refresh_time'] = datetime.now() + timedelta(days=1)
     session.permanent = True
@@ -604,9 +604,9 @@ def post():
 
         user = get_user(session.get('uid'))
         if user is None: # Неизвестная ошибка
-			session.clear()
+            session.clear()
             return redirect(url_for('index'))
-			
+            
         if user.banned and (datetime.now() < user.banexpiration):
             return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут: " + user.banreason)
 
@@ -717,7 +717,7 @@ def post():
         session['can_delete'] = session.get('can_delete') or list()
         while len(session['can_delete']) >= 3:
             session['can_delete'].pop(0)
-			
+            
         session['can_delete'].append(entry.id)
         if entry.parent == 0:
             return redirect(url_for('view', postid=entry.id))
