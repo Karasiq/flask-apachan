@@ -61,11 +61,11 @@ function hide_post(id) {
     });
 }
 function highlight(comment) {
-    var tbl = document.getElementById("tbl" + comment);
-    tbl.style.background = "#F0E68C";
+    var tbl = $("#tbl" + comment);
+    tbl.toggleClass('post-highlighted');
     if (highlighted && highlighted != comment) {
-        tbl = document.getElementById("tbl" + highlighted);
-        tbl.style.background = "#E6E6E6";
+        tbl = $("#tbl" + highlighted);
+        tbl.toggleClass('post-highlighted');
     }
     highlighted = comment;
 }

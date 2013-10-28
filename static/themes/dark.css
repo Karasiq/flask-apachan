@@ -23,3 +23,8 @@ a {
 .post-common {
     background-color:#3D3D3D;
 }
+
+.post-highlighted {
+    color: #1A1A1A;
+    background-color: #EADC62;
+}
