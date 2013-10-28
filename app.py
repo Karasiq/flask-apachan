@@ -145,6 +145,8 @@ def set_uid(uid):
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def get_safe_url(url):
     import base64
+    from jinja2 import Markup
+    url = Markup(url).unescape()
     if not app.config.get('SERVER_NAME') or get_netloc(url) != app.config['SERVER_NAME']:
         return url_for('external_redirect', url=base64.b64encode(url))
     else:
