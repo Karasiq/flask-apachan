@@ -128,6 +128,11 @@ $(document).ready(function () {
             return false;
         });
     }
+
+    $('.ins_random').change(function() {
+        $(this).parents('td:first').children("#img_url").attr('disabled', $(this).val() != '0');
+        $(this).parents('td:first').children("#img").attr('disabled', $(this).val() != '0');
+    });
 });
 setInterval(function () {
     if (auto_refresh_enabled) {

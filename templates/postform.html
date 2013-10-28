@@ -28,11 +28,8 @@
 					Изображение:<br>
 					Не больше 2х мегабайт.
 				</td>
-				<td>{{ form.img }} <!--<input type='button' value='Random' onclick='javascript:insert_random();'>!-->
-					{# <select form="form1" NAME='ins_random' onchange='javascript:document.form1.img_url.disabled=(this.value>0);form1.img.disabled=(this.value>0);'>
-						<option selected value='0'>Random
-					</SELECT> #}
-					{{ form.ins_random(onchange='javascript:document.form1.img_url.disabled=(this.value>0);form1.img.disabled=(this.value>0);') }}
+				<td>{{ form.img }}
+					{{ form.ins_random(class="ins_random") }}
 					<br>
 					<b><u>Разрешенные типы файлов: JPG,JPEG,GIF,PNG,BMP,TIFF</u></b>
 					<br>Или URL картинки сюда: {{ form.img_url(size='50') }}
