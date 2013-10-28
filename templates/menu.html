@@ -19,6 +19,7 @@
 <h3><a href='{{ url_for('favorites') }}'>Моё избранное ({{ session.favorites|length }})</a></h3>
 {% endif %}
 <hr>
+<h4><input type="checkbox" id="always-show-postform"><label for="always-show-postform">Всегда показывать форму отправки</label></h4>
 {% if session.hidden %}
 <h4><a href="#" onclick="unhide_threads();">Показать скрытые треды ({{ session.hidden|length }})</a></h4>
 {% endif %}

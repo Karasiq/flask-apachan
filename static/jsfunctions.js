@@ -112,14 +112,22 @@ $(document).ready(function () {
         $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled ? "refresh-dis.png" : "refresh.png"}));
         localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
     });
-
-    $(".post-form-show").show();
-    $(".post-form").hide();
-    $(".post-form-show").click(function() {
-        $(this).hide();
-        $(this).parent().parent().children(".post-form").show();
-        return false;
+    var aspf = localStorage.getItem('always-show-postform') || 'false';
+    $("#always-show-postform").val(aspf);
+    $("#always-show-postform").click(function(){
+        localStorage.setItem('always-show-postform', $(this).is(':checked'));
+        location.reload();
     });
+    if(aspf == 'false')
+    {
+        $(".post-form-show").show();
+        $(".post-form").hide();
+        $(".post-form-show").click(function() {
+            $(this).hide();
+            $(this).parent().parent().children(".post-form").show();
+            return false;
+        });
+    }
 });
 setInterval(function () {
     if (auto_refresh_enabled) {
