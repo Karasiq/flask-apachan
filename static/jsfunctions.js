@@ -62,10 +62,10 @@ function hide_post(id) {
 }
 function highlight(comment) {
     var tbl = $("#tbl" + comment);
-    tbl.toggleClass('post-highlighted');
+    tbl.addClass('post-highlighted');
     if (highlighted && highlighted != comment) {
         tbl = $("#tbl" + highlighted);
-        tbl.toggleClass('post-highlighted');
+        tbl.removeClass('post-highlighted');
     }
     highlighted = comment;
 }
