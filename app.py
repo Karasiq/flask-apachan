@@ -739,13 +739,17 @@ def gallery(page=1):
 def allsections(page=1):
     return render_stream(page)
 
+def get_first_post_time():
+    user = get_user(session.get('uid'))
+    return user.first_post if user else None
+
 
 @app.route('/boards/<SectionName>')
 @app.route('/boards/<SectionName>/<int:page>')
 def section(SectionName, page=1):
-    first_post = session.get('first_post')
+    first_post = get_first_post_time()
     if app.config['SECTIONS'].get(SectionName) is None or \
-            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or first_post < datetime.now() + timedelta(hours=3) or check_banned()) and not session.get('admin')):
+            (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or datetime.now() - first_post < timedelta(hours=3) or check_banned()) and not session.get('admin')):
         return render_template("error.html", errortitle = u"Раздел не найден")
 
     else:
