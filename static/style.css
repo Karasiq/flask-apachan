@@ -19,20 +19,3 @@ div.post-image {
     left:0;
     display:none;
 }
-
-.post {
-    font-size:13px;
-    border: 1px solid gray;
-}
-
-.post-main {
-    background-color:#CCEECC;
-}
-
-.post-bad {
-    background-color:#FFCCCC;
-}
-
-.post-common {
-    background-color:#E6E6E6;
-}

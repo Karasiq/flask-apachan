@@ -19,6 +19,11 @@
 <h3><a href='{{ url_for('favorites') }}'>Моё избранное ({{ session.favorites|length }})</a></h3>
 {% endif %}
 <hr>
+    <select id="theme-select" style="display: none;">
+        {% for theme in config.THEMES %}
+        <option value="{{ theme.file }}"{% if theme.get('default') %} selected{% endif %}>{{ theme.name }}</option>
+        {% endfor %}
+    </select>
 <h4><input type="checkbox" id="always-show-postform"><label for="always-show-postform">Всегда показывать форму отправки</label></h4>
 {% if session.hidden %}
 <h4><a href="#" onclick="unhide_threads();">Показать скрытые треды ({{ session.hidden|length }})</a></h4>

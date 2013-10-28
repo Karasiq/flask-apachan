@@ -100,7 +100,31 @@ function refresh_page() {
         }
     });
 }
+
+function set_theme(new_theme)
+{
+    $('#theme').html('');
+    $('<link>')
+        .appendTo($('#theme'))
+        .attr({type : 'text/css', rel : 'stylesheet'})
+        .attr('href', flask_util.url_for('static', {filename: 'themes/' + new_theme}));
+}
+
 $(document).ready(function () {
+    set_theme('default.css');
+    var theme_select = $("#theme-select");
+    theme_select.change(function() {
+        localStorage.setItem('theme', $(this).val());
+        set_theme($(this).val());
+    });
+    var theme = localStorage.getItem('theme') || 'default.css';
+    if(theme)
+    {
+        theme_select.val(theme);
+        set_theme(theme);
+    }
+    theme_select.show();
+
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
     var $auto_reload = $("#auto-reload");
     $auto_reload.attr('title', auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");

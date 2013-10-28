@@ -1,0 +1,20 @@
+body {
+    background-color: #303030;
+}
+
+.post {
+    font-size:13px;
+    border: 1px solid gray;
+}
+
+.post-main {
+    background-color:#003300;
+}
+
+.post-bad {
+    background-color:#660000;
+}
+
+.post-common {
+    background-color:#3D3D3D;
+}
