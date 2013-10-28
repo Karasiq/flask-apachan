@@ -1,5 +1,10 @@
 body {
     background-color: #303030;
+    color: #C2C2C2;
+}
+
+a {
+    color: #B0B0B0;
 }
 
 .post {
