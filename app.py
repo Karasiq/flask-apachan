@@ -648,6 +648,8 @@ def post():
             imgdir = app.config['IMG_FOLDER']
             if len(form.img_url.data) > 0: # from url
                 from urlparse import urlparse
+                def progress(download_t, download_d, upload_t, upload_d):
+                    return 1 if download_t > app.config['MAX_CONTENT_LENGTH'] or download_d > app.config['MAX_CONTENT_LENGTH'] else 0
                 c = pycurl.Curl()
                 buf = StringIO.StringIO()
                 try:
@@ -655,6 +657,8 @@ def post():
                     c.setopt(pycurl.URL, (_url.scheme + '://' + _url.netloc.encode('idna') + _url.path).encode('utf-8'))
                     c.setopt(pycurl.WRITEFUNCTION, buf.write)
                     c.setopt(pycurl.FOLLOWLOCATION, 1)
+                    c.setopt(pycurl.NOPROGRESS, 0)
+                    c.setopt(pycurl.PROGRESSFUNCTION, progress)
                     c.perform()
                     imgfile = tempfile.TemporaryFile()
                     imgfile.write(buf.getvalue())
