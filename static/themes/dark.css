@@ -10,6 +10,7 @@ a {
 .post {
     font-size:13px;
     border: 1px solid gray;
+    width: 900px;
 }
 
 .post-main {
