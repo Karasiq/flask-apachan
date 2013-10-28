@@ -1,12 +1,12 @@
 ﻿{% if mainpost and mainpost.id == p.id %}
-{% set post_bg_color = 'CCEECC' %}
+    {% set post_class = 'post-main' %}
 {% elif p.rating < 0 %}
-{% set post_bg_color = 'FFCCCC' %}
+    {% set post_class = 'post-bad' %}
 {% else %}
-{% set post_bg_color = 'E6E6E6' %}
+    {% set post_class = 'post-common' %}
 {% endif %}
 
-<br><br><a name="t{{ p.id }}"></a><table oncontextmenu="copy_selection();" id="tbl{{ p.id }}" align='center' width='780' id="p{{ p.id }}" style='font-size:13px;background-color:#{{ post_bg_color }};border: 1px solid gray;'><tr><td colspan='2'><div id="cd{{ p.id }}" style='width:780px;overflow:hidden;'>
+<br><br><a name="t{{ p.id }}"></a><table oncontextmenu="copy_selection();" id="tbl{{ p.id }}" align='center' width='780' id="p{{ p.id }}" class="post {{ post_class }}"><tr><td colspan='2'><div id="cd{{ p.id }}" style='width:780px;overflow:hidden;'>
     {% if p.title %}
         <b>{{ p.title|escape }}</b><br>
     {% endif %}
