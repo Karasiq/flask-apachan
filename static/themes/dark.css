@@ -7,6 +7,10 @@ a {
     color: #B0B0B0;
 }
 
+a.anew:link {
+	color: #CCFF99;
+}
+
 .post {
     font-size:13px;
     border: 1px solid gray;
@@ -14,7 +18,7 @@ a {
 }
 
 .post-main {
-    background-color:#003300;
+    background-color:#001A00;
 }
 
 .post-bad {
