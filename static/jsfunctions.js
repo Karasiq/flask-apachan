@@ -127,13 +127,13 @@ $(document).ready(function () {
 
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
     var $auto_reload = $("#auto-reload");
-    $auto_reload.attr('title', auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
+    $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
     $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled ? "refresh-dis.png" : "refresh.png"}));
     $auto_reload.show();
     $auto_reload.click(function() {
-        auto_refresh_enabled = !auto_refresh_enabled;
-        $auto_reload.attr('title', auto_refresh_enabled ? "Отключить автообновление" : "Включить автообновление");
-        $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled ? "refresh-dis.png" : "refresh.png"}));
+        auto_refresh_enabled = auto_refresh_enabled === 'true' ? 'false' : 'true';
+        $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
+        $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}));
         localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
     });
     var aspf = localStorage.getItem('always-show-postform') || 'false';
@@ -159,8 +159,13 @@ $(document).ready(function () {
     });
 });
 setInterval(function () {
-    if (auto_refresh_enabled) {
+	auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
+    var $auto_reload = $("#auto-reload");
+    $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
+    $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}));
+	
+    if (auto_refresh_enabled === 'true') {
         refresh_page();
     }
     return true;
-}, 20000);
+}, 30000);
