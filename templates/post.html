@@ -1,6 +1,6 @@
 ﻿{% if mainpost and mainpost.id == p.id %}
     {% set post_class = 'post-main' %}
-{% elif p.rating < 0 %}
+{% elif p.rating < 0 and not config.DISABLE_RATING %}
     {% set post_class = 'post-bad' %}
 {% else %}
     {% set post_class = 'post-common' %}
@@ -51,10 +51,12 @@
     {% else %}
     <a href="{{ url_for('view', postid = p.id) }}">Ответить</a>&nbsp;
     {% endif %}
-     Рейтинг: <span id="rt{{ p.id }}">{{ p.rating }}</span>
+    {% if not config.DISABLE_RATING %} Рейтинг: <span id="rt{{ p.id }}">{{ p.rating }}</span>
     {% if session.admin or (session.canvote and p.user_id != session.uid) %}
         <span id="voting_{{ p.id }}"><a id="vt1_{{ p.id }}" href="javascript:submit_vote({{ p.id }}, 1);" style='text-decoration:none'>[+]</a> <a id="vt2_{{ p.id }}" href="javascript:submit_vote({{ p.id }},-1);" style='text-decoration:none'>[-]</a></span>
     {% endif %}
+	{% endif %}
+	
     {% if session.admin or (session.can_delete and p.id in session.can_delete) %}
         &nbsp;<a href="{{ url_for('postdel', postid=p.id) }}">[Удалить]</a>
     {% endif %}
