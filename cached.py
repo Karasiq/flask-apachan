@@ -19,7 +19,7 @@ def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section 
     elif e == 'section':
         return Post.query.filter_by(parent = 0, section = section).order_by(Post.last_answer.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'selection' or e == 'favorites':
-        return Post.query.filter(Post.id.in_(idlist)).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
+        return Post.query.filter(Post.id.in_(idlist)).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE']) if idlist else None
     elif e == 'user_posts':
         if not userid: userid = session.get('uid')
         return Post.query.filter_by(user_id = userid).order_by(Post.id.asc())
