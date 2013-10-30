@@ -71,13 +71,10 @@ def ajax_reload():
 def external_redirect():
     import base64
     from jinja2 import Markup
-    try:
-        url = Markup.escape(base64.b64decode(request.args.get('url')))
-        if url[:4] != 'http':
-            return render_template("error.html", errortitle=u'Не надо так делать')
-        return redirect(url)
-    except:
-        return redirect(redirect_url())
+    url = Markup.escape(base64.b64decode(request.args.get('url')).decode('utf-8'))
+    if url[:4] != 'http':
+        return render_template("error.html", errortitle=u'Не надо так делать')
+    return redirect(url)
 
 def ban_user(uid, banexpiration, banreason):
     user = get_user(uid)
