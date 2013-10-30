@@ -148,7 +148,7 @@ def get_safe_url(url):
     from jinja2 import Markup
     url = Markup(url).unescape()
     if not app.config.get('SERVER_NAME') or get_netloc(url) != app.config['SERVER_NAME']:
-        return url_for('external_redirect', url=base64.b64encode(url))
+        return url_for('external_redirect', url=base64.b64encode(url.encode('utf-8')))
     else:
         return url
 
