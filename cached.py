@@ -28,7 +28,7 @@ def get_posts(e, page = 1, postid = None, idlist = None, userid = None, section 
         return Post.query.filter_by(user_id = userid, parent = 0).order_by(Post.id.asc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'user_answers' or e == 'answers':
         if not userid: userid = session.get('uid')
-        posts = get_posts('user_posts', userid=userid).limit(100)
+        posts = get_posts('user_posts', userid=userid).order_by(Post.time.desc()).limit(100)
         return Post.query.filter(Post.answer_to.in_(id_list(posts))).order_by(Post.time.desc()).paginate(page, per_page=app.config['MAX_POSTS_ON_PAGE'])
     elif e == 'detector' or e == 'semeno_detector':
         post = get_posts('post', postid=postid)
