@@ -261,7 +261,7 @@ def user_check():
             #return redirect(url_for('register'))
 
         if check_ip(request.remote_addr):
-            return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
+            return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован: %s' % request.remote_addr)
 
         if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
             set_uid(session['uid'])
