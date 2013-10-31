@@ -56,7 +56,7 @@ def auth_token(id):
 def refresh_user(user):
     if session.get('fingerprint'):
         user.fingerprint = get_current_fingerprint()
-    user.last_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
+    user.last_ip = request.remote_addr
     user.last_useragent = request.headers.get('User-Agent')
     db_session.add(user)
     db_session.commit()
@@ -236,7 +236,7 @@ def set_fp_callback(uid, fingerprint):
         return rec
 
     if not session.get('uid'):
-        rec = get_current_user(uid, request.headers.get('X-Forwarded-For') or request.remote_addr, get_current_fingerprint())
+        rec = get_current_user(uid, request.remote_addr, get_current_fingerprint())
         if rec and rec.id:
             set_uid(rec.id)
 
@@ -260,7 +260,7 @@ def user_check():
         #if not session.get('uid') and session.get('fingerprint') and (not request.blueprint and request.endpoint not in ['static','flask_util_js']):
             #return redirect(url_for('register'))
 
-        if check_ip(request.headers.get('X-Forwarded-For') or request.remote_addr):
+        if check_ip(request.remote_addr):
             return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован')
 
         if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
@@ -700,7 +700,7 @@ def post():
         if (entry.thumb == '' or entry.image == '') and entry.parent == 0:
             return render_template("error.html", errortitle=u'Нельзя запостить тред без картинки')
 
-        user.last_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
+        user.last_ip = request.remote_addr
         user.last_useragent = request.headers.get('User-Agent')
         user.last_post = entry.time
         if not user.first_post:
