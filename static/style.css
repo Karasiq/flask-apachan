@@ -2,11 +2,11 @@ a.anew:visited {color:#939393;}
 
 div.post-image {
     position:relative;
-    min-width:50px;
-    min-height:50px;
 }
 
 #main {
+    min-width:50px;
+    min-height:50px;
     max-height:200px;
     max-width:200px;
 }
