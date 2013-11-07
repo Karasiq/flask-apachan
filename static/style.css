@@ -2,6 +2,8 @@ a.anew:visited {color:#939393;}
 
 div.post-image {
     position:relative;
+    min-width:50px;
+    min-height:50px;
 }
 
 #main {
@@ -12,8 +14,8 @@ div.post-image {
 #overlay {
     opacity: 0.5;
     position:absolute;
-    height:200px;
-    width:200px;
+    height:50px;
+    width:50px;
     top:0;
     left:0;
     display:none;

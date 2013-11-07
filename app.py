@@ -294,6 +294,8 @@ def viewpost(postid):
             return redirect(url_for('view', postid = postid))
         else:
             return redirect(url_for('view', postid=post.parent, page=get_page_number(post)) + '#t' + str(postid))
+    else:
+        return render_template("error.html", errortitle=u'Пост не найден')
 
 @app.route('/semenodetector/<int:postid>')
 @app.route('/semenodetector/<int:postid>/<int:page>')
