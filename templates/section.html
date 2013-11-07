@@ -16,6 +16,7 @@
     <center><img src="{{ url_for('static', filename='refresh.png') }}" height=40 width=40 id="auto-reload" style="display: none;"> <h2>{{ title }}</h2></center>
     <div style="text-align: center" id="last-refresh"></div>
     <title>{{ title }}</title>
+    <meta name="title" content="{{ title }}"/>
 
 {% block navigation %}
 <center><h3>{% if (form and form.parent.data != '0') or mainpost %}
