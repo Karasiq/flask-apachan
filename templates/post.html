@@ -13,7 +13,7 @@
     {% if p.image != '' %}
         {# <a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}"> #}
         <div class="post-image">
-            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" {% if p.randid == 0 %} onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" {% endif %} style='float:left;{% if p.randid == 0 %}cursor: pointer;{% endif %}' HSPACE='5'/>
+            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" {% if p.randid == 0 %} onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" {% endif %} style='float:left;{% if p.randid == 0 %}cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in;{% endif %}' HSPACE='5'/>
             <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}"/>
         </div>
         {# </a> #}
