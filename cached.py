@@ -60,6 +60,7 @@ def render_section(SectionName, page, session=session):
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
 def render_view(postid, page, session=session):
+    from app import check_banned, get_first_post_time
     post = get_posts('post', postid=postid)
     answers = get_posts('thread', page, postid)
 
