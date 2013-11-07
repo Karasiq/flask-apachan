@@ -73,4 +73,4 @@
         <a href="javascript:unpin({{ p.id|tojson }});">[открепить]</a>
         {% endif %}
     {% endif %}
-    </td><td align='right' style='font-size:11px;'><a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a></td></tr></table>
+    </td>{# <td align='right' style='font-size:11px;'><a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a></td> #}</tr></table>
