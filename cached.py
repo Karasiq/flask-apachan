@@ -63,8 +63,11 @@ def render_view(postid, page, session=session):
     post = get_posts('post', postid=postid)
     answers = get_posts('thread', page, postid)
 
-    if post is None:
+    first_post = get_first_post_time()
+    if post is None or \
+            (post.section in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or datetime.now() - first_post < timedelta(hours=3) or check_banned()) and not session.get('admin')):
         return render_template("error.html", errortitle = u"Пост не найден")
+        
     form = PostForm()
     form.answer_to.data = post.id
     if int(post.parent) == 0:
