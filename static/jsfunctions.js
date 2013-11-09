@@ -124,11 +124,17 @@ $(document).ready(function () {
         set_theme(theme);
     }
     theme_select.show();
+    
+    var $post_button = $('#commit');
+    $post_button.prop('disabled', false);
+    $post_button.click(function() {
+        $(this).prop('disabled', true);
+    });
 
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
     var $auto_reload = $("#auto-reload");
     $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
-    $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled ? "refresh-dis.png" : "refresh.png"}));
+    $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}));
     $auto_reload.show();
     $auto_reload.click(function() {
         auto_refresh_enabled = auto_refresh_enabled === 'true' ? 'false' : 'true';

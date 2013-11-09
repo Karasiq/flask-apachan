@@ -12,8 +12,7 @@
 				{% if mainpost %}
 				{{ form.sage }}Не поднимать
 				{% endif %}
-				{{ form.commit(value='Запостить', onclick='form1.commit.disabled=true;form1.submit();') }}
-				{#<input id="commit" type="submit" value="Запостить" name="commit" onclick='form1.commit.disabled=true;'>  #}</td></tr>
+				{{ form.commit(value='Запостить') }}
 
 				{{ form.parent }}
 				{{ form.answer_to }}
@@ -21,7 +20,7 @@
 				<tr><td width='140px'>Сообщение:<br>
 				</td>
 					<td>
-						{{ form.msg(cols='60', rows='8', onfocus='form1.commit.disabled=false;') }}
+						{{ form.msg(cols='60', rows='8') }}
 						{# <textarea name="msg" id="datafield" cols="60" rows="8" onfocus='form1.commit.disabled=false;'></textarea> #}
 					</td></tr>
 				<td width='140px'>
