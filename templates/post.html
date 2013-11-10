@@ -14,8 +14,8 @@
         <div class="post-image">
             {% if p.randid == 0 %}<a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}" class="show-full-image">{% endif %}
             <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" style='float:left;{% if p.randid == 0 %}cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in;{% endif %}' HSPACE='5'/>
+            <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}" style="display: none;"/>
             {% if p.randid == 0 %}</a>{% endif %}
-            <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}" hidden="true"/>
         </div>
     {% endif %}
     {{ p.message|message|ext_urls|safe }}</div></td></tr><tr><td height='10px'></td></tr>
