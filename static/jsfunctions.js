@@ -110,6 +110,14 @@ function set_theme(new_theme)
         .attr('href', flask_util.url_for('static', {filename: 'themes/' + new_theme}));
 }
 
+function getPlayingVideosCount() {
+    var d = 0;
+    $("embed.youtube-video").each(function(){
+        if(this.getPlayerState() == 1) d++;
+    });
+    return d;
+}
+
 $(document).ready(function () {
     set_theme('default.css');
     var theme_select = $("#theme-select");
@@ -175,7 +183,7 @@ setInterval(function () {
     $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
     $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}));
 	
-    if (auto_refresh_enabled === 'true') {
+    if (auto_refresh_enabled === 'true' && !getPlayingVideosCount()) {
         refresh_page();
     }
     return true;
