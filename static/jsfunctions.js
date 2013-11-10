@@ -137,6 +137,8 @@ $(document).ready(function () {
     $post_button.prop('disabled', false);
     $post_button.click(function() {
         $(this).prop('disabled', true);
+        $('#form1').submit();
+        return false;
     });
 
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
