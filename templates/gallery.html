@@ -6,8 +6,9 @@
     <tr><td>
         {% for p in posts.items %}
 		&nbsp;
-            <img id="main" src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');">
-			<a href="{{ url_for('viewpost', postid=p.id) }}">#</a>
+            <a href="{{ url_for('viewpost', postid=p.id) }}">
+                <img id="main" src="{{ url_for('getimage', filename=p.thumb, randid=0) }}" onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}'); return false;">
+			</a>
         {%- endfor -%}</td>
     </tr>
 </table>

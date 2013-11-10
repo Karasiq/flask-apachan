@@ -11,12 +11,12 @@
         <b>{{ p.title|escape }}</b><br>
     {% endif %}
     {% if p.image != '' %}
-        {# <a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}"> #}
         <div class="post-image">
-            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" {% if p.randid == 0 %} onclick="img_on_click(this, '{{ url_for('getimage', randid=p.randid, filename=p.image) }}');" {% endif %} style='float:left;{% if p.randid == 0 %}cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in;{% endif %}' HSPACE='5'/>
-            <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}"/>
+            {% if p.randid == 0 %}<a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}" class="show-full-image">{% endif %}
+            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" style='float:left;{% if p.randid == 0 %}cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in;{% endif %}' HSPACE='5'/>
+            {% if p.randid == 0 %}</a>{% endif %}
+            <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}" hidden="true"/>
         </div>
-        {# </a> #}
     {% endif %}
     {{ p.message|message|ext_urls|safe }}</div></td></tr><tr><td height='10px'></td></tr>
     <tr><td style='font-size:11px;'>[<a href="/view/{{ p.id }}"{% if session.admin %} title="{{ p.user_id }} {{ p.from_ip }}"{% endif %}>#{{ p.id }}</a>] {{ p.time.strftime('%d %B %Y %H:%M:%S').decode('cp1251') }}
