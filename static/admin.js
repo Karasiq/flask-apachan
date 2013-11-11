@@ -77,4 +77,11 @@ $(function() {
             }
         });
     });
+    var $show_admin_panel = $('.show-admin-panel');
+    $show_admin_panel.show();
+    $show_admin_panel.click(function() {
+        $(this).hide();
+        $(this).next('span').show();
+        return false;
+    });
 });

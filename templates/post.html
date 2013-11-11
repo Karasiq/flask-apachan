@@ -64,13 +64,16 @@
         &nbsp; {{ config.SECTIONS[p.section] }}
     {% endif %}
     {% if session.admin %}
-        <a href="javascript:ban({{ p.user_id|tojson }});">[бан]</a>
-        <a href="javascript:delall({{ p.user_id|tojson }});">[удалить все посты]</a>
-        <a href='javascript:delall_ip({{ p.from_ip|tojson }});'>[удалить все посты (IP)]</a>
-        {% if p.parent == 0 %}
-        <a id="transfer_{{ p.id }}" href="javascript:transfer({{ p.id|tojson }});">[перенести]</a>
-        <a href="javascript:pin({{ p.id|tojson }});">[закрепить]</a>
-        <a href="javascript:unpin({{ p.id|tojson }});">[открепить]</a>
-        {% endif %}
+        <label class="show-admin-panel" style="display: none;">[...]</label>
+        <span id="admin-funcs" style="display: none;">
+            <a href="javascript:ban({{ p.user_id|tojson }});">[бан]</a>
+            <a href="javascript:delall({{ p.user_id|tojson }});">[удалить все посты]</a>
+            <a href='javascript:delall_ip({{ p.from_ip|tojson }});'>[удалить все посты (IP)]</a>
+            {% if p.parent == 0 %}
+            <a id="transfer_{{ p.id }}" href="javascript:transfer({{ p.id|tojson }});">[перенести]</a>
+            <a href="javascript:pin({{ p.id|tojson }});">[закрепить]</a>
+            <a href="javascript:unpin({{ p.id|tojson }});">[открепить]</a>
+            {% endif %}
+        </span>
     {% endif %}
     </td>{# <td align='right' style='font-size:11px;'><a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a></td> #}</tr></table>
