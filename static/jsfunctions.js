@@ -132,7 +132,6 @@ $(document).ready(function () {
         theme_select.val(theme);
         set_theme(theme);
     }
-    theme_select.show();
     
     var $post_button = $('#commit');
     $post_button.prop('disabled', false);
@@ -146,7 +145,6 @@ $(document).ready(function () {
     var $auto_reload = $("#auto-reload");
     $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
     $auto_reload.attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}));
-    $auto_reload.show();
     $auto_reload.click(function() {
         auto_refresh_enabled = auto_refresh_enabled === 'true' ? 'false' : 'true';
         $auto_reload.attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление");
@@ -179,6 +177,16 @@ $(document).ready(function () {
     if(hash.charAt(1) == 't') {
         highlight(hash.substring(2));
     }
+    
+    var $shaded = $('.shaded');
+    $shaded.css('opacity', 0.2);
+    $shaded.hover(function() {
+        $(this).fadeTo('fast', 1);
+    }, function() {
+        $(this).fadeTo('fast', 0.2);
+    });
+    
+    $('.require-js').show();
 });
 setInterval(function () {
 	auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');

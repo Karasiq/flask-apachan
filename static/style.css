@@ -29,3 +29,7 @@ div.post-image {
     padding:5px;
     border: 4px double black;
 }
+
+.require-js {
+    display: none;
+}
