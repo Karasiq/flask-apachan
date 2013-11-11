@@ -159,7 +159,7 @@ def escape_ext_urls(txt):
     result = txt
     matches = re.finditer(r'\bhref="(https?://[^"\r\n]*)"', txt)
     for m in matches:
-        result = result.replace(m.group(0), 'href=\"%s\"' % get_safe_url(m.group(1)))
+        result = result.replace(m.group(0), 'href=\"%s\" rel="nofollow"' % get_safe_url(m.group(1)))
     return result
 
 @cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
