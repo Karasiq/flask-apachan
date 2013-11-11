@@ -78,10 +78,14 @@ $(function() {
         });
     });
     var $show_admin_panel = $('.show-admin-panel');
-    $show_admin_panel.show();
+    $show_admin_panel.hover(function() {
+        $(this).fadeTo(1,1);
+    }, function() {
+        $(this).fadeTo(1,0);
+    });
     $show_admin_panel.click(function() {
-        $(this).hide();
         $(this).next('span').show();
+        $(this).remove();
         return false;
     });
 });
