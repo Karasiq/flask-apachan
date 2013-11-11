@@ -78,7 +78,7 @@
     {% endif %}
     </td><td align='right'>
     <span class="shaded require-js">
-    {% if p.parent == 0 %}<script src="http://odnaknopka.ru/ok2.js" type="text/javascript"></script>{% endif %}
+    {% if mainpost and p == mainpost %}<script src="http://odnaknopka.ru/ok2.js" type="text/javascript"></script>{% endif %}
     {# <a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a> #}
     </span>
     </td> </tr></table>
