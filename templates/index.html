@@ -1,13 +1,20 @@
 ﻿{% extends "layout.html" %}
 {% block content %}
 <title>{{ config.SITE_NAME }}</title>
-<center><img src="{{ url_for('static', filename='hqdefault.jpg') }}">
-    <h2>
-{% for key, value in sections.iteritems() %}
-{% if not config.HIDDEN_BOARDS or key not in config.HIDDEN_BOARDS %}
-<a href="/boards/{{ key }}">{{ value }}</a>
-{% endif %}
-{% endfor %}
-<br><a href="{{ url_for('allsections') }}">Поток</a>
-</h2></center>
+<center><img src="{{ url_for('static', filename='headerpic.png') }}">
+<h2>Разделы:</h2>
+<h3>
+    {% for key, value in sections.iteritems() %}
+    {% if not config.HIDDEN_BOARDS or key not in config.HIDDEN_BOARDS %}
+    <a href="/boards/{{ key }}">{{ value }}</a><br>
+    {% endif %}
+    {% endfor %}
+</h3>
+<h2>Прочее:</h2>
+<h3>
+    <a href="{{ url_for('allsections') }}">Поток</a><br>
+    <a href="{{ url_for('gallery') }}">Галерея</a>
+</h3>
+
+</center>
 {% endblock %}
