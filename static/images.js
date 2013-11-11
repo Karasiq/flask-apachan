@@ -110,9 +110,13 @@ function img_on_click(img, src)
     return false;
 }
 
-$(function() {
+function enable_image_magnifier() {
     $('a.show-full-image').click('img', function() {
         img_on_click($(this).children("#main")[0], $(this).attr('href'));
         return false;
     });
+}
+
+$(function() {
+    enable_image_magnifier();
 });

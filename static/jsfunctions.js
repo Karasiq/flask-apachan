@@ -97,6 +97,7 @@ function refresh_page() {
             $("div#posts").html(data.posts);
             var currentdate = new Date();
             $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
+            enable_image_magnifier();
         }
     });
 }
