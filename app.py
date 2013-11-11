@@ -78,11 +78,14 @@ def external_redirect():
 
 def ban_user(uid, banexpiration, banreason):
     user = get_user(uid)
-    user.banned = True
-    user.banexpiration = banexpiration
-    user.banreason = banreason
-    db_session.add(user)
-    db_session.commit()
+    try:
+        user.banned = True
+        user.banexpiration = banexpiration
+        user.banreason = banreason
+        db_session.add(user)
+        db_session.commit()
+    except AssertionError: # "A conflicting state is already present in the identity map for key blabla"
+        pass
     flush_cached_user(user.id)
     if session and request and session.get('uid') == uid:
         session['banned'] = True
