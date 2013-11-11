@@ -73,7 +73,7 @@ def external_redirect():
     from jinja2 import Markup
     url = Markup.escape(base64.b64decode(request.args.get('url')).decode('utf-8'))
     if url[:4] != 'http':
-        return render_template("error.html", errortitle=u'Не надо так делать')
+        return render_template("error.html", errortitle=u'Не надо так делать'), 403
     return redirect(url)
 
 def ban_user(uid, banexpiration, banreason):
@@ -264,7 +264,7 @@ def user_check():
             #return redirect(url_for('register'))
 
         if check_ip(request.remote_addr):
-            return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован: %s' % request.remote_addr)
+            return render_template('error.html', errortitle=u'Этот IP-адрес заблокирован: %s' % request.remote_addr), 403
 
         if session.get('refresh_time') and session.get('uid') and session['refresh_time'] >= datetime.now():
             set_uid(session['uid'])
@@ -298,7 +298,7 @@ def viewpost(postid):
         else:
             return redirect(url_for('view', postid=post.parent, page=get_page_number(post)) + '#t' + str(postid))
     else:
-        return render_template("error.html", errortitle=u'Пост не найден')
+        return render_template("error.html", errortitle=u'Пост не найден'), 404
 
 @app.route('/semenodetector/<int:postid>')
 @app.route('/semenodetector/<int:postid>/<int:page>')
@@ -421,7 +421,7 @@ def postdel():
     postid = int(request.args.get('postid'))
     post = get_posts('post', postid=postid)
     if not session.get('admin') and (not postid in session.get('can_delete') or not post or post.user_id != int(session.get('uid'))):
-        return render_template("error.html", errortitle=u'Ошибка удаления поста')
+        return render_template("error.html", errortitle=u'Ошибка удаления поста'), 500
 
     user = get_user(post.user_id)
     if user and user.last_post == post.time:
@@ -578,7 +578,7 @@ def get_randompic(num):
 @app.route('/report')
 def report():
     #postid = request.args.get('post_id')
-    return render_template("error.html", errortitle = u'Анус себе заарбузь')
+    return render_template("error.html", errortitle = u'Анус себе заарбузь'), 501
 
 @app.route('/post', methods=['POST'])
 def post():
@@ -590,18 +590,18 @@ def post():
         user = get_user(session.get('uid'))
         if user and user.banreason:
             return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут.\r\nПричина: %s" \
-                                % user.banreason)
+                                % user.banreason), 403
         else:
-            return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут.")
+            return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут."), 403
 
     form = PostForm()
     if form.validate_on_submit():
         form.msg.data = form.msg.data.strip()
         form.title.data = form.title.data.strip()
         if not len(form.msg.data) and not len(form.img_url.data) and not 'img' in request.files and int(form.parent.data) == 0:
-            return render_template("error.html", errortitle = u"Нельзя запостить пустой тред")
+            return render_template("error.html", errortitle = u"Нельзя запостить пустой тред"), 400
         if app.config['SECTIONS'].get(form.section.data) is None:
-            return render_template("error.html", errortitle = u"Раздел не найден")
+            return render_template("error.html", errortitle = u"Раздел не найден"), 404
 
         user = get_user(session.get('uid'))
         if user is None: # Неизвестная ошибка
@@ -609,13 +609,13 @@ def post():
             return redirect(url_for('index'))
             
         if user.banned and (datetime.now() < user.banexpiration):
-            return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут: " + user.banreason)
+            return render_template("error.html", errortitle = u"Вы забанены и не можете постить тут: " + user.banreason), 403
 
         if not session.get('admin') and user.last_post is not None and (datetime.now() - user.last_post) < timedelta(seconds = 30):
-            return render_template("error.html", errortitle = u"Пост можно отправлять не чаще, чем раз в 30 секунд")
+            return render_template("error.html", errortitle = u"Пост можно отправлять не чаще, чем раз в 30 секунд"), 412
 
         if not session.get('admin') and user.last_post is not None and (datetime.now() - user.last_post) < timedelta(minutes = 3) and form.parent == 0:
-            return render_template("error.html", errortitle = u"Треды можно создавать не чаще, чем раз в 3 минуты")
+            return render_template("error.html", errortitle = u"Треды можно создавать не чаще, чем раз в 3 минуты"), 412
 
         from jinja2 import Markup
         entry = Post(title = form.title.data, message = unicode(Markup.escape(form.msg.data)), time = datetime.now(), parent = int(form.parent.data), answer_to = int(form.answer_to.data), section = form.section.data, from_ip = request.remote_addr, user_id = user.id, thumb = '', image = '', last_answer = datetime.now())
@@ -623,7 +623,7 @@ def post():
         #if not session.get('admin'):
         #    msghash = hashlib.md5(entry.message.encode('utf-8') + entry.title.encode('utf-8') + str(entry.parent)).hexdigest()
         #    if session.get('last_message_hash') == msghash:
-        #        return render_template("error.html", errortitle=u'Не надо отправлять один и тот же пост несколько раз')
+        #        return render_template("error.html", errortitle=u'Не надо отправлять один и тот же пост несколько раз'), 409
         #    session['last_message_hash'] = msghash
 
 
@@ -632,7 +632,7 @@ def post():
             if entry.answer_to != entry.parent:
                 answer = Post.query.filter_by(id = entry.answer_to).first()
                 if not answer or answer.parent != entry.parent:
-                    return render_template("error.html", errortitle = u"Неверные данные")
+                    return render_template("error.html", errortitle = u"Неверные данные"), 400
             if parent:
                 entry.position = parent.answers
                 parent.answers += 1
@@ -666,7 +666,7 @@ def post():
                     imgfile.write(buf.getvalue())
                     imgfile.seek(0, 0)
                 except:
-                    return render_template("error.html", errortitle=u'Ошибка загрузки изображения')
+                    return render_template("error.html", errortitle=u'Ошибка загрузки изображения'), 408
 
             elif 'img' in request.files: # from file
                 imgfile = request.files.get('img')
@@ -676,7 +676,7 @@ def post():
                 type = imghdr.what('', blob)
                 if not type:
                 #shutil.rmtree(imgdir)
-                    return render_template("error.html", errortitle = u"Неверный файл изображения")
+                    return render_template("error.html", errortitle = u"Неверный файл изображения"), 400
 
                 imgfilename = hashlib.md5(blob).hexdigest() + '.' + type
                 aimgfilename = os.path.join(imgdir, imgfilename)
@@ -703,7 +703,7 @@ def post():
                 entry.image = imgfilename
 
         if (entry.thumb == '' or entry.image == '') and entry.parent == 0:
-            return render_template("error.html", errortitle=u'Нельзя запостить тред без картинки')
+            return render_template("error.html", errortitle=u'Нельзя запостить тред без картинки'), 412
 
         user.last_ip = request.remote_addr
         user.last_useragent = request.headers.get('User-Agent')
@@ -731,7 +731,7 @@ def post():
     else:
         for error in form.errors:
                 flash(error)
-        return render_template("error.html", errortitle=u'Ошибка отправки')
+        return render_template("error.html", errortitle=u'Ошибка отправки'), 400
 
 
 @app.route('/gallery')
@@ -756,7 +756,7 @@ def section(SectionName, page=1):
     first_post = get_first_post_time()
     if app.config['SECTIONS'].get(SectionName) is None or \
             (SectionName in app.config['HIDDEN_BOARDS'] and (not session.get('uid') or session.get('crawler') or not first_post or datetime.now() - first_post < timedelta(hours=3) or check_banned()) and not session.get('admin')):
-        return render_template("error.html", errortitle = u"Раздел не найден")
+        return render_template("error.html", errortitle = u"Раздел не найден"), 404
 
     else:
         return render_section(SectionName, page)
