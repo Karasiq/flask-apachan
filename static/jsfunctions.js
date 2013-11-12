@@ -130,7 +130,7 @@ $(document).ready(function () {
     });
     var aspf = localStorage.getItem('always-show-postform') || 'false';
     $("#always-show-postform").prop('checked', aspf).click(function(){
-        localStorage.setItem('always-show-postform', $(this).prop('checked'));
+        localStorage.setItem('always-show-postform', $(this).is(':checked'));
         location.reload();
     });
     if(aspf == 'false')
