@@ -5,7 +5,7 @@
             {% if page != posts.page %}
                 <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
             {% else %}
-                <strong>{{ page }}</strong>
+                <span style="font-weight:bold; color:red;">{{ page }}</span>
             {% endif %}
         {% else %}
             <span class=ellipsis>…</span>

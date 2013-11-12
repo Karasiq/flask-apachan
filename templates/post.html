@@ -64,7 +64,7 @@
         &nbsp; {{ config.SECTIONS[p.section] }}
     {% endif %}
     {% if session.admin %}
-        <label class="show-admin-panel" style="opacity:0;">[...]</label>
+        <span class="show-admin-panel" style="opacity:0;">[...]</span>
         <span id="admin-funcs" style="display: none;">
             <a href="javascript:ban({{ p.user_id|tojson }});">[бан]</a>
             <a href="javascript:delall({{ p.user_id|tojson }});">[удалить все посты]</a>
