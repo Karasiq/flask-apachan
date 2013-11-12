@@ -6,7 +6,7 @@
     {% set post_class = 'post-common' %}
 {% endif %}
 
-<br><br><a name="t{{ p.id }}"></a><table oncontextmenu="copy_selection();" id="tbl{{ p.id }}" align='center' id="p{{ p.id }}" class="post {{ post_class }}"><tr><td colspan='2'><div id="cd{{ p.id }}" style='overflow:hidden;'>
+<br><br><a name="t{{ p.id }}"></a><table id="tbl{{ p.id }}" align='center' id="p{{ p.id }}" class="post {{ post_class }}"><tr><td colspan='2'><div id="cd{{ p.id }}" style='overflow:hidden;'>
     {% if p.title %}
         <b>{{ p.title|escape }}</b><br>
     {% endif %}

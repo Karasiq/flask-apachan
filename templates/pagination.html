@@ -3,7 +3,7 @@
     {% for page in posts.iter_pages(left_edge = 15, right_edge = 15) %}
         {% if page %}
             {% if page != posts.page %}
-                <a href="{{ baseurl }}{{ page }}">{{ page }}</a>
+                <a class="page-jump" href="{{ baseurl }}{{ page }}">{{ page }}</a>
             {% else %}
                 <span style="font-weight:bold; color:red;">{{ page }}</span>
             {% endif %}

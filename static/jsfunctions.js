@@ -19,14 +19,6 @@ function unhide_threads() {
         }
     });
 }
-function copy_selection() {
-    var t = window.getSelection();
-    if (t != "") {
-        var $msgfield = $("textarea#msg");
-        $msgfield.val($msgfield.val() + "[quote]" + t + "[/quote]");
-    }
-    return true;
-}
 function set_fp() {
     var fingerprint = new Fingerprint({canvas: true}).get();
     // var fingerprint = new Fingerprint().get();
@@ -70,6 +62,28 @@ function highlight(comment) {
     highlighted = comment;
 }
 
+function enable_post_actions() {
+    $('.post').on('contextmenu', 'td', function() {
+        var t = $.trim(window.getSelection());
+        if (t != "") {
+            var $msgfield = $("textarea#msg");
+            $msgfield.val($msgfield.val() + "[quote]" + t + "[/quote]");
+            clear_selection();
+            return false;
+        }
+        return true;
+    });
+    
+    $('.page-jump').click(function() {
+        $('#posts').css('opacity', 0.2);
+        ajax_data.page = $(this).text();
+        refresh_page();
+        $('#posts').animate({opacity:1},400);
+        return false;
+    });
+    enable_image_magnifier();
+}
+
 var auto_refresh_enabled = false;
 function refresh_page() {
     $.getJSON($SCRIPT_ROOT + '/ajax/reload', ajax_data, function (data) {
@@ -77,7 +91,7 @@ function refresh_page() {
             $("div#posts").html(data.posts);
             var currentdate = new Date();
             $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
-            enable_image_magnifier();
+            enable_post_actions();
         }
     });
 }
@@ -97,6 +111,20 @@ function getPlayingVideosCount() {
         if(this.getPlayerState() == 1) d++;
     });
     return d;
+}
+
+function clear_selection() {
+    if (window.getSelection) {
+        if (window.getSelection().empty) {  // Chrome
+            window.getSelection().empty();
+        }
+        else if (window.getSelection().removeAllRanges) {  // Firefox
+            window.getSelection().removeAllRanges();
+        }
+    }
+    else if (document.selection) {  // IE?
+        document.selection.empty();
+    }
 }
 
 $(document).ready(function () {
@@ -145,8 +173,9 @@ $(document).ready(function () {
     }
 
     $('.ins_random').change(function() {
-        $(this).parents('td:first').children("#img_url").attr('disabled', $(this).val() != '0');
-        $(this).parents('td:first').children("#img").attr('disabled', $(this).val() != '0');
+        var $td = $(this).parents('td:first');
+        $td.children("#img_url").attr('disabled', $(this).val() != '0');
+        $td.parents('td:first').children("#img").attr('disabled', $(this).val() != '0');
     });
     
     var hash = window.location.hash;
@@ -165,6 +194,8 @@ $(document).ready(function () {
     }, function() {
         $('#nav_div').hide();
     });
+    
+    enable_post_actions();
     
     $('.require-js').show();
 });
