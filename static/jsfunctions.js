@@ -129,8 +129,8 @@ $(document).ready(function () {
         localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
     });
     var aspf = localStorage.getItem('always-show-postform') || 'false';
-    $("#always-show-postform").prop('checked', aspf).click(function(){
-        localStorage.setItem('always-show-postform', $(this).is(':checked'));
+    $("#always-show-postform").prop('checked', aspf === 'true').click(function(){
+        localStorage.setItem('always-show-postform', $(this).prop('checked'));
         location.reload();
     });
     if(aspf == 'false')
