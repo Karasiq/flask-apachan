@@ -12,3 +12,4 @@ static/gen/
 _gsdata_/
 *.log
 static/headerpic.png
+templates/welcome_message.html
