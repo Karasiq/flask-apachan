@@ -4,6 +4,22 @@ div.post-image {
     position:relative;
 }
 
+#welcome-message {
+    width:900px;
+    padding:10px;
+    border:2px ridge black;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#welcome-message-spoiler {
+    background-color:gray;
+    color:green;
+    text-align:center;
+    width:300px;
+    min-height:15px;
+}
+
 #main {
     min-width:50px;
     min-height:50px;

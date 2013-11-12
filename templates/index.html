@@ -2,6 +2,24 @@
 {% block content %}
 <title>{{ config.SITE_NAME }}</title>
 <center><img src="{{ url_for('static', filename='headerpic.png') }}">
+
+{% if config.WELCOME_TEXT %}
+<script type="text/javascript">$(function(){
+    $('#welcome-message').hide().mouseout(function(){
+        $('#welcome-message-spoiler').fadeTo(1, 1);
+        $(this).hide('slow');
+    });
+    $('#welcome-message-spoiler').mouseover(function(){
+        $('#welcome-message').show();
+        $(this).fadeTo('fast', 0.2);
+    });
+});</script>
+<div id="welcome-message-spoiler" class="require-js">Описание</div>
+<p id="welcome-message">
+    {{ config.WELCOME_TEXT }}
+</p>
+{% endif %}
+
 <h2>Разделы:</h2>
 <h3>
     {% for key, value in sections.iteritems() %}
