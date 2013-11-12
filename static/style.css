@@ -4,6 +4,14 @@ div.post-image {
     position:relative;
 }
 
+.spoiler {
+    background:darkgray;
+    color:darkgray;
+}
+.spoiler:hover {
+    color:white;
+}
+
 #welcome-message {
     width:900px;
     padding:10px;
