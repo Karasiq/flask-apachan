@@ -94,16 +94,13 @@ function enable_post_actions() {
         });
         return false;
     });
-    
-    $('.show-answer-to')
-        .click(function () {
-            highlight($(this).attr('answer-to'));
-        })
-        /*.each(function () {
-            var id = $(this).attr('answer-to');
-            $(this).attr('href', $('#tbl' + id) ? '#t' + id : flask_util.url_for('viewpost', {postid : id}));
-        })*/
-        .mouseenter(function () {
+    var $show_answer_to = $('.show-answer-to');
+    $show_answer_to.click(function () {
+        highlight($(this).attr('answer-to'));
+    });
+        
+    if(!isMobileDevice()) {
+        $show_answer_to.mouseenter(function () {
             var pos = $(this).position();
             var id = $(this).attr('answer-to');
             var $this = $(this);
@@ -139,6 +136,7 @@ function enable_post_actions() {
                 });
             }, 400);
         });
+    }
     
     if(typeof enable_image_magnifier !== 'undefined') enable_image_magnifier();
     if(typeof admin_actions_bind !== 'undefined') admin_actions_bind();
@@ -166,10 +164,14 @@ function set_theme(new_theme)
     $('#theme').prop('href', flask_util.url_for('static', {filename: 'themes/' + new_theme}));
 }
 
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 function getPlayingVideosCount() {
     var d = 0;
     $("embed.youtube-video").each(function(){
-        if(this.getPlayerState() == 1) d++;
+        if(typeof this.getPlayerState !== 'undefined' && this.getPlayerState() == 1) d++;
     });
     return d;
 }
@@ -208,7 +210,14 @@ $(document).ready(function () {
         $('#form1').submit();
         return false;
     });
-
+    
+    if(isMobileDevice()) {
+        $('#menu').click(function () {
+            var $nd = $('#nav_div');
+            if(!$nd.is(':hover')) $nd.toggle();
+        });
+    }
+    
     auto_refresh_enabled = localStorage.getItem('auto-refresh-enabled');
     $("#auto-reload").attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление")
     .attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}))
@@ -217,7 +226,7 @@ $(document).ready(function () {
         $(this).attr('title', auto_refresh_enabled === 'true' ? "Отключить автообновление" : "Включить автообновление").attr('src', flask_util.url_for('static', {filename: auto_refresh_enabled === 'true' ? "refresh-dis.png" : "refresh.png"}));
         localStorage.setItem('auto-refresh-enabled', auto_refresh_enabled);
     });
-    var aspf = localStorage.getItem('always-show-postform') || 'false';
+    var aspf = typeof localStorage['always-show-postform'] !== 'undefined' ? localStorage.getItem('always-show-postform') : (isMobileDevice() ? 'true' : 'false');
     $("#always-show-postform").prop('checked', aspf === 'true').click(function(){
         localStorage.setItem('always-show-postform', $(this).prop('checked'));
         location.reload();
