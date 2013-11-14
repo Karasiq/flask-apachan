@@ -12,6 +12,12 @@ div.post-image {
     color:white;
 }
 
+.zoomable {
+    cursor: -webkit-zoom-in;
+    cursor: -moz-zoom-in;
+    cursor: zoom-in;
+}
+
 #welcome-message {
     width:900px;
     padding:10px;

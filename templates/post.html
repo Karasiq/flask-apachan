@@ -13,7 +13,7 @@
     {% if p.image != '' %}
         <div class="post-image">
             {% if p.randid == 0 %}<a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}" class="show-full-image">{% endif %}
-            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" style='float:left;{% if p.randid == 0 %}cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in;{% endif %}' HSPACE='5'/>
+            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" style="float:left;" {% if p.randid == 0 %}class="zoomable"{% endif %} HSPACE="5"/>
             <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}" style="display: none;"/>
             {% if p.randid == 0 %}</a>{% endif %}
         </div>
@@ -40,25 +40,24 @@
 
     {% if p.parent == 0 and not mainpost %}
         <b>[<a class='anew' href='{{ url_for('view', postid=p.id) }}#{{ p.answers }}'>Ответов: {{ p.answers }}</a>]</b>
-        &nbsp;<img id="fav{{ p.id }}" title="В избранное"
+        &nbsp;<img post-id={{ p.id }} class="add-to-favorites" title="В избранное"
         {% if p.id not in session.favorites %}
         src="{{ url_for('static', filename='fav.png') }}"
         {% else %}
         src="{{ url_for('static', filename='unfav.png') }}"
-        {% endif %}
-        onclick="add_to_favorites({{ p.id }})">
-        <img src="{{ url_for('static', filename='hide.png') }}" onclick="hide_post({{ p.id }});" title="Скрыть">
+        {% endif %}>
+        <img post-id={{ p.id }} class="hide-thread" src="{{ url_for('static', filename='hide.png') }}" title="Скрыть">
     {% else %}
     <a href="{{ url_for('view', postid = p.id) }}">Ответить</a>&nbsp;
     {% endif %}
-    {% if not config.DISABLE_RATING %} Рейтинг: <span id="rt{{ p.id }}">{{ p.rating }}</span>
+    {% if not config.DISABLE_RATING %} Рейтинг: <span id="post-rating">{{ p.rating }}</span>
     {% if session.admin or (session.canvote and p.user_id != session.uid) %}
-        <span id="voting_{{ p.id }}"><a id="vt1_{{ p.id }}" href="javascript:submit_vote({{ p.id }}, 1);" style='text-decoration:none'>[+]</a> <a id="vt2_{{ p.id }}" href="javascript:submit_vote({{ p.id }},-1);" style='text-decoration:none'>[-]</a></span>
+        <span id="post-voting" post-id={{ p.id }} class="require-js"><a class="vote-post" vote=1 href="#" style='text-decoration:none'>[+]</a> <a class="vote-post" vote=-1 href="#" style='text-decoration:none'>[-]</a></span>
     {% endif %}
 	{% endif %}
 	
     {% if session.admin or (session.can_delete and p.id in session.can_delete) %}
-        &nbsp;<a href="{{ url_for('postdel', postid=p.id) }}">[Удалить]</a>
+        &nbsp;<a class="delete-post" href="{{ url_for('postdel', postid=p.id) }}" post-id={{ p.id }}>[Удалить]</a>
     {% endif %}
     {% if show_section %}
         &nbsp; {{ config.SECTIONS[p.section] }}

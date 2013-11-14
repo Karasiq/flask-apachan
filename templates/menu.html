@@ -26,7 +26,7 @@
     </select>
 <h4><input type="checkbox" id="always-show-postform"><label for="always-show-postform">Всегда показывать форму отправки</label></h4>
 {% if session.hidden %}
-<h4><a href="#" onclick="unhide_threads();">Показать скрытые треды ({{ session.hidden|length }})</a></h4>
+<h4><a href="#" id="show-hidden-threads">Показать скрытые треды ({{ session.hidden|length }})</a></h4>
 {% endif %}
 {% if session.admin %}
 <h4><a href="#" id="admin-clear-cache" class="require-js">[ADMIN] Очистить кэш сервера</a></h4>

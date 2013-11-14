@@ -444,10 +444,13 @@ def postdel():
         db_session.commit()
 
     del_post(post)
-    if post.parent == 0:
-        return redirect(url_for('section', SectionName=post.section))
+    if request.args.get('ajax'):
+        return jsonify(result=True)
     else:
-        return redirect(url_for('viewpost', postid=post.parent))
+        if post.parent == 0:
+            return redirect(url_for('section', SectionName=post.section))
+        else:
+            return redirect(url_for('viewpost', postid=post.parent))
 
 def thread_transfer(thid, new_section):
     post = get_posts('post', postid=thid)

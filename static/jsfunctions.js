@@ -1,24 +1,4 @@
 var highlighted = 0;
-function submit_vote(id, v) {
-    var $vt = $("#voting_" + id);
-    $vt.html('<img width="15" height="15" src="' + flask_util.url_for('static', {filename: 'wait.gif'}) + '">');
-    $.getJSON($SCRIPT_ROOT + '/_vote', {
-        postid: id,
-        vote: v
-    }, function (data) {
-        $("span#rt" + id).text(data.post_rating);
-        var $status_img = $('<img>');
-        $vt.html($status_img);
-        $status_img.attr('src', data.result ? flask_util.url_for('static', {filename: "success.png"}) : flask_util.url_for('static', {filename: "fail.png"}));
-    });
-}
-function unhide_threads() {
-    $.getJSON($SCRIPT_ROOT + '/unhide-threads', {}, function (data) {
-        if (data.result) {
-            refresh_page();
-        }
-    });
-}
 function set_fp() {
     var fingerprint = new Fingerprint({canvas: true}).get();
     // var fingerprint = new Fingerprint().get();
@@ -35,22 +15,6 @@ function get_ec() {
 }
 function set_ec(newid) {
     ec.set("uid", newid);
-}
-function add_to_favorites(id) {
-    $.getJSON($SCRIPT_ROOT + '/add-to-favorites', {
-        thid: id
-    }, function (data) {
-        $("img#fav" + id).attr("src", data.result);
-    });
-}
-function hide_post(id) {
-    $.getJSON($SCRIPT_ROOT + '/hide-thread', {
-        thid: id
-    }, function (data) {
-        if (data.result) {
-            $("table#tbl" + id).hide();
-        }
-    });
 }
 function highlight(comment) {
     var tbl = $("#tbl" + comment);
@@ -82,6 +46,55 @@ function enable_post_actions() {
         });
         return false;
     });
+    
+    $('.add-to-favorites').click(function () {
+        var $fav_img = $(this);
+        $.getJSON($SCRIPT_ROOT + '/add-to-favorites', {
+            thid: $fav_img.attr('post-id')
+        }, function (data) {
+            $fav_img.prop("src", data.result);
+        });
+        return false;
+    });
+    
+    $('.hide-thread').click(function () {
+        var id = $(this).attr('post-id');
+        $.getJSON($SCRIPT_ROOT + '/hide-thread', {
+            thid: id
+        }, function (data) {
+            if (data.result) {
+                $("table#tbl" + id).hide();
+            }
+        });
+        return false;
+    });
+    
+    $('.delete-post').click(function () {
+        if(confirm("Вы уверены?")) {
+            var id = $(this).attr('post-id');
+            $.get(flask_util.url_for('postdel', {postid : id, ajax : true}), {}, function (data) {
+                if(data.result) {
+                    refresh_page();
+                }
+            });
+        }
+        return false;
+    });
+    
+    $('.vote-post').click(function () {
+        var $vt = $(this).parent('#post-voting');
+        var $rt = $(this).parents('td:first').children('#post-rating');
+        $vt.html($('<img>').attr('height', 15).attr('width', 15).attr('src', flask_util.url_for('static', {filename: 'wait.gif'})));
+        $.getJSON($SCRIPT_ROOT + '/_vote', {
+            postid: $vt.attr('post-id'),
+            vote: $(this).attr('vote')
+        }, function (data) {
+            $rt.text(data.post_rating);
+            $vt.html($('<img>').attr('src', data.result ? flask_util.url_for('static', {filename: "success.png"}) : flask_util.url_for('static', {filename: "fail.png"})));
+        });
+        return false;
+    });
+    
     enable_image_magnifier();
     if(admin_actions_bind) admin_actions_bind();
 }
@@ -194,6 +207,17 @@ $(document).ready(function () {
         $('#nav_div').show();
     }, function() {
         $('#nav_div').hide();
+    });
+    
+    $('#show-hidden-threads').click(function () {
+        var $control = $(this); 
+        $.getJSON($SCRIPT_ROOT + '/unhide-threads', {}, function (data) {
+            if (data.result) {
+                refresh_page();
+                $control.hide();
+            }
+        });
+        return false;
     });
     
     enable_post_actions();
