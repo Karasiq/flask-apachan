@@ -83,18 +83,17 @@ function enable_post_actions() {
         return false;
     });
     enable_image_magnifier();
+    if(admin_actions_bind) admin_actions_bind();
 }
 
 var auto_refresh_enabled = false;
 function refresh_page(done_func) {
-    $.getJSON($SCRIPT_ROOT + '/ajax/reload', ajax_data, function (data) {
-        if (data.result) {
-            $("div#posts").html(data.posts);
-            var currentdate = new Date();
-            $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
-            enable_post_actions();
-            if(done_func) done_func();
-        }
+    $.get($SCRIPT_ROOT + '/ajax/reload', ajax_data, function (data) {
+        $("div#posts").html(data);
+        var currentdate = new Date();
+        $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
+        enable_post_actions();
+        if(done_func) done_func();
     });
 }
 

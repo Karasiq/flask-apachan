@@ -116,7 +116,7 @@ def render_ajax(data, session=session):
     mainpost = get_posts('post', postid=int(data['postid'])) if data.get('postid') else None
     posts = get_posts(data['endpoint'], page=int(data['page']) if data.get('page') else 1, postid=int(data['postid']) if data.get('postid') else None, section=data.get('section'))
     if posts:
-        return jsonify(result = True, posts = render_template("posts.html", mainpost = mainpost, posts = posts, baseurl = data['baseurl'], show_section = data.get('show_section'), show_answer_to = data.get('show_answer_to'), page_posts = id_list(posts.items)))
+        return render_template("posts.html", mainpost = mainpost, posts = posts, baseurl = data['baseurl'], show_section = data.get('show_section'), show_answer_to = data.get('show_answer_to'), page_posts = id_list(posts.items))
     else:
         from flask import abort
         abort(404)

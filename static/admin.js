@@ -60,6 +60,17 @@ function unpin(id) {
     });
 }
 
+function admin_actions_bind() {
+    $('.show-admin-panel').hover(function() {
+        $(this).fadeTo(1,1);
+    }, function() {
+        $(this).fadeTo(1,0);
+    }).click(function() {
+        $(this).next('span').show();
+        $(this).remove();
+        return false;
+    });
+}
 $(function() {
     var $clear_cache = $("#admin-clear-cache");
     $clear_cache.click(function() {
@@ -76,16 +87,5 @@ $(function() {
                 refresh_page();
             }
         });
-    });
-    var $show_admin_panel = $('.show-admin-panel');
-    $show_admin_panel.hover(function() {
-        $(this).fadeTo(1,1);
-    }, function() {
-        $(this).fadeTo(1,0);
-    });
-    $show_admin_panel.click(function() {
-        $(this).next('span').show();
-        $(this).remove();
-        return false;
     });
 });
