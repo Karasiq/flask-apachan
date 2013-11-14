@@ -18,6 +18,15 @@ div.post-image {
     cursor: zoom-in;
 }
 
+.post-preview {
+    position:absolute;
+    max-height:95%;
+    float:right;
+    overflow:auto;
+    width:auto;
+    z-index:1;
+}
+
 #welcome-message {
     width:900px;
     padding:10px;

@@ -86,29 +86,31 @@ function img_on_click(img, src)
     var im = document.createElement( 'img' );
     im.src = src;
 
-    $(im).load(function () {
-        $('div.video').css('visibility','hidden');
-        $overlay.hide();
-        if ( this.height > screenSize().height || this.width > screenSize().width ) {
-            showBig( this );
-        }
-        else {
-            showSmall( this, getOffsetSum( img ) );
-        }
-    });
-    im.onerror = function () {
-        $overlay.hide();
-        this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.png';
-        this.onerror = function () {
-            this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.gif';
+    $(im)
+        .css('z-index', 100)
+        .load(function () {
+            $('div.video').css('visibility','hidden');
+            $overlay.hide();
+            if ( this.height > screenSize().height || this.width > screenSize().width ) {
+                showBig( this );
+            }
+            else {
+                showSmall( this, getOffsetSum( img ) );
+            }
+        })
+        .error(function () {
+            $overlay.hide();
+            this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.png';
             this.onerror = function () {
-                this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.jpeg';
+                this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.gif';
                 this.onerror = function () {
-                    this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.bmp';
+                    this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.jpeg';
+                    this.onerror = function () {
+                        this.src = this.src.slice( 0, this.src.lastIndexOf( '.' ) ) + '.bmp';
+                    };
                 };
             };
-        };
-    };
+        });
 
     return false;
 }

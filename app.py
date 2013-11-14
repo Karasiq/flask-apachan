@@ -63,6 +63,11 @@ def refresh_user(user):
     flush_cached_user(user.id)
     return True
 
+@cache.memoize(timeout=app.config['CACHING_TIMEOUT'])
+@app.route('/ajax/getpost')
+def ajax_getpost():
+    return render_template('post.html', p = get_posts('post', postid=request.args['postid']), show_answer_to = True).strip()
+    
 @app.route('/ajax/reload')
 def ajax_reload():
     return render_ajax(request.args)

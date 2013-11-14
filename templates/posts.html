@@ -5,7 +5,7 @@
     {% endwith %}
 {% endif %}
 {% for p in posts.items if not session.hidden or p.id not in session.hidden %}
-    {% include 'post.html' %}
+    <br><br><a name="t{{ p.id }}"></a>{% include 'post.html' %}
 {% endfor %}
 <br>
 <br>

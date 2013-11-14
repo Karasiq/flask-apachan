@@ -21,9 +21,7 @@
     {% assets "css_main" %}
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
     {% endassets %}
-    <div id="theme">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='themes/default.css') }}">
-    </div>
+    <link id="theme" rel="stylesheet" type="text/css" href="{{ url_for('static', filename='themes/default.css') }}">
     {% endif %}
     <meta charset='utf-8'>
     <meta name="description" content="{{ config.SITE_NAME }}: анонимная имидж-борда на собственном движке со свистелками, перделками и социоблядством."/>

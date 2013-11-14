@@ -5,8 +5,7 @@
 {% else %}
     {% set post_class = 'post-common' %}
 {% endif %}
-
-<br><br><a name="t{{ p.id }}"></a><table id="tbl{{ p.id }}" align='center' id="p{{ p.id }}" class="post {{ post_class }}"><tr><td colspan='2'><div id="cd{{ p.id }}" style='overflow:hidden;'>
+<table id="tbl{{ p.id }}" align='center' id="p{{ p.id }}" class="post {{ post_class }}"><tr><td colspan='2'><div id="cd{{ p.id }}" style='overflow:hidden;'>
     {% if p.title %}
         <b>{{ p.title|escape }}</b><br>
     {% endif %}
@@ -31,11 +30,7 @@
     R{{ p.randid }}&nbsp;
     {% endif %}
     {% if show_answer_to or (p.answer_to != 0 and (mainpost and p.answer_to != mainpost.id)) %}
-    {% if (mainpost and p.answer_to == mainpost.id) or (page_posts and p.answer_to in page_posts) %}
-    <a href="#t{{ p.answer_to }}" onclick='highlight("{{ p.answer_to }}");'>на что?</a> &nbsp;
-    {% else %}
-    <a href="{{ url_for('viewpost', postid=p.answer_to) }}" onclick='highlight("{{ p.answer_to }}");'>на что?</a> &nbsp;
-    {% endif %}
+    <a href={% if (mainpost and p.answer_to == mainpost.id) or (page_posts and p.answer_to in page_posts) %}"#t{{ p.answer_to }}"{% else %}"{{ url_for('viewpost', postid=p.answer_to) }}"{% endif %} answer-to={{ p.answer_to }} class="show-answer-to">на что?</a> &nbsp;
     {% endif %}
 
     {% if p.parent == 0 and not mainpost %}

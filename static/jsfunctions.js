@@ -95,28 +95,75 @@ function enable_post_actions() {
         return false;
     });
     
+    $('.show-answer-to')
+        .click(function () {
+            highlight($(this).attr('answer-to'));
+        })
+        /*.each(function () {
+            var id = $(this).attr('answer-to');
+            $(this).attr('href', $('#tbl' + id) ? '#t' + id : flask_util.url_for('viewpost', {postid : id}));
+        })*/
+        .mouseenter(function () {
+            var pos = $(this).position();
+            var id = $(this).attr('answer-to');
+            var $this = $(this);
+            
+            var $post = $('#tbl' + id);
+            if(!$post.length) {
+                $.ajax({
+                    url: flask_util.url_for('ajax_getpost', {postid : id}),
+                    async: false,
+                    success: function (data) {
+                        $('body').append(data);
+                        $post = $('#tbl' + id).hide();
+                        enable_post_actions();
+                    }
+                });
+            }
+            $post
+                .clone(true)
+                .insertAfter($(this))
+                .addClass('post-preview')
+                .css('top', pos.top + 20)
+                .css('left', pos.left - 200)
+                .mouseleave(function () {
+                    $(this).remove();
+                })
+                .show();
+            return false;
+        })
+        .mouseleave(function () {
+            setTimeout(function () {
+                $('.post-preview').each(function () {
+                    if(!$(this).is(':hover')) $(this).remove();
+                });
+            }, 400);
+        });
+    
     enable_image_magnifier();
     if(admin_actions_bind) admin_actions_bind();
 }
 
 var auto_refresh_enabled = false;
 function refresh_page(done_func) {
-    $.get($SCRIPT_ROOT + '/ajax/reload', ajax_data, function (data) {
-        $("div#posts").html(data);
-        var currentdate = new Date();
-        $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
-        enable_post_actions();
-        if(done_func) done_func();
+    $.ajax({
+        type:'GET',
+        url: $SCRIPT_ROOT + '/ajax/reload',
+        cache: false,
+        data: ajax_data,
+        success: function (data) {
+            $("div#posts").html(data);
+            var currentdate = new Date();
+            $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
+            enable_post_actions();
+            if(done_func) done_func();
+        }
     });
 }
 
 function set_theme(new_theme)
 {
-    $('#theme').html('');
-    $('<link>')
-        .appendTo($('#theme'))
-        .attr({type : 'text/css', rel : 'stylesheet'})
-        .attr('href', flask_util.url_for('static', {filename: 'themes/' + new_theme}));
+    $('#theme').prop('href', flask_util.url_for('static', {filename: 'themes/' + new_theme}));
 }
 
 function getPlayingVideosCount() {
