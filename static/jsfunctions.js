@@ -250,12 +250,6 @@ $(document).ready(function () {
         $(this).fadeTo('fast', 0.2);
     });
     
-    $('#menu').hover(function() {
-        $('#nav_div').show();
-    }, function() {
-        $('#nav_div').hide();
-    });
-    
     $('#show-hidden-threads').click(function () {
         var $control = $(this); 
         $.getJSON($SCRIPT_ROOT + '/unhide-threads', {}, function (data) {
