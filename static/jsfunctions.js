@@ -140,8 +140,8 @@ function enable_post_actions() {
             }, 400);
         });
     
-    enable_image_magnifier();
-    if(admin_actions_bind) admin_actions_bind();
+    if(typeof enable_image_magnifier !== 'undefined') enable_image_magnifier();
+    if(typeof admin_actions_bind !== 'undefined') admin_actions_bind();
 }
 
 var auto_refresh_enabled = false;
