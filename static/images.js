@@ -30,53 +30,31 @@ function showBig( img ) {
         img.width = screenSize().width - 60;
     }
 
-    var popup = document.createElement( 'div' );
-    popup.style.position = 'fixed';
-    popup.style.height = '100%';
-    popup.style.width = '100%';
-    popup.style.left = '0px';
-    popup.style.top = '0px';
-    popup.style.zIndex = '999';
-    popup.style.overflow = 'auto';
-    popup.style.textAlign = 'center';
-    popup.style.backgroundColor = 'rgba(0,0,0,0.3)';
-    popup.style.cursor = 'pointer';
-    popup.style.opacity = '0';
     document.body.style.overflow = 'hidden';
-
-    popup.onmousedown = function () {
-        return false;
-    };
-    popup.onclick = function () {
-        document.body.style.overflow = 'auto';
-        this.parentNode.removeChild( this );
-        $('div.video').css('visibility','visible');
-    };
-
-    popup.appendChild( img );
-    
-    document.body.appendChild( popup );
-    $(popup).animate({opacity:1}, 600);
+    $(document.createElement( 'div' ))
+        .addClass('zoomed zoomed-big')
+        .click(function () {
+            document.body.style.overflow = 'auto';
+            $(this).remove();
+            $('div.video').css('visibility','visible');
+        })
+        .append(img)
+        .appendTo($('body'))
+        .animate({opacity:1}, 'fast');
 }
 
 
 function showSmall( img, offset ) {
-    var popup = document.createElement( 'div' );
-    popup.style.border = '1px solid black';
-    popup.style.position = 'absolute';
-    popup.style.top = offset.top + 'px';
-    popup.style.left = offset.left + 'px';
-    popup.style.cursor = 'pointer';
-    popup.style.opacity = '0';
-    //popup.style.boxShadow = '0px 0px 8px #000';
-
-    popup.appendChild( img );
-
-    document.body.appendChild( popup );
-    $(popup).animate({opacity:1}, 600).click('img', function() {
-        $(this).remove();
-        $('div.video').css('visibility','visible');
-    });
+    $(document.createElement( 'div' ))
+        .addClass('zoomed zoomed-small')
+        .css('top', offset.top)
+        .css('left', offset.left)
+        .append(img)
+        .appendTo($('body'))
+        .animate({opacity:1}, 'fast').click('img', function() {
+            $(this).remove();
+            $('div.video').css('visibility','visible');
+        });
 }
 
 function img_on_click(img, src)
@@ -87,7 +65,6 @@ function img_on_click(img, src)
     im.src = src;
 
     $(im)
-        .css('z-index', 100)
         .load(function () {
             $('div.video').css('visibility','hidden');
             $overlay.hide();

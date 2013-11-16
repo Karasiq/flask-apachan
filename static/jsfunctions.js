@@ -104,12 +104,14 @@ function enable_post_actions() {
                 .clone(true)
                 .insertAfter($(this))
                 .addClass('post-preview')
-                .css('top', pos.top + 20)
+                .css('top', !($('.post-preview').size() % 2) ? pos.top - 400 : pos.top + 20)
                 .css('left', pos.left - 200)
                 .mouseleave(function () {
                     $(this).remove();
                 })
                 .show();
+            console.log($post);
+            console.log($post.prop('class'));
             return false;
         })
         .mouseleave(function () {
