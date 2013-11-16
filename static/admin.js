@@ -61,7 +61,7 @@ function unpin(id) {
 }
 
 function admin_actions_bind() {
-    $('.show-admin-panel').hover(function() {
+    $('.show-admin-panel').unbind('hover').hover(function() {
         $(this).fadeTo(1,1);
     }, function() {
         $(this).fadeTo(1,0);

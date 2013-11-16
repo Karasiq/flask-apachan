@@ -10,7 +10,7 @@ function highlight(comment) {
 }
 
 function enable_post_actions() {
-    $('.post').on('contextmenu', 'td', function() {
+    $('.post').unbind('contextmenu').on('contextmenu', 'td', function() {
         var t = $.trim(window.getSelection());
         if (t != "") {
             var $msgfield = $("textarea#msg");
@@ -21,7 +21,7 @@ function enable_post_actions() {
         return true;
     });
     
-    $('.page-jump').click(function() {
+    $('.page-jump').unbind('click').click(function() {
         $('#posts').animate({opacity:0.2},400);
         ajax_data.page = $(this).text();
         refresh_page(function() {
@@ -30,7 +30,7 @@ function enable_post_actions() {
         return false;
     });
     
-    $('.add-to-favorites').click(function () {
+    $('.add-to-favorites').unbind('click').click(function () {
         var $fav_img = $(this);
         $.getJSON($SCRIPT_ROOT + '/add-to-favorites', {
             thid: $fav_img.attr('post-id')
@@ -40,7 +40,7 @@ function enable_post_actions() {
         return false;
     });
     
-    $('.hide-thread').click(function () {
+    $('.hide-thread').unbind('click').click(function () {
         var id = $(this).attr('post-id');
         $.getJSON($SCRIPT_ROOT + '/hide-thread', {
             thid: id
@@ -52,7 +52,7 @@ function enable_post_actions() {
         return false;
     });
     
-    $('.delete-post').click(function () {
+    $('.delete-post').unbind('click').click(function () {
         if(confirm("Вы уверены?")) {
             var id = $(this).attr('post-id');
             $.get(flask_util.url_for('postdel', {postid : id, ajax : true}), {}, function (data) {
@@ -64,7 +64,7 @@ function enable_post_actions() {
         return false;
     });
     
-    $('.vote-post').click(function () {
+    $('.vote-post').unbind('click').click(function () {
         var $vt = $(this).parent('#post-voting');
         var $rt = $(this).parents('td:first').children('#post-rating');
         $vt.html($('<img>').attr('height', 15).attr('width', 15).attr('src', flask_util.url_for('static', {filename: 'wait.gif'})));
@@ -78,38 +78,40 @@ function enable_post_actions() {
         return false;
     });
     var $show_answer_to = $('.show-answer-to');
-    $show_answer_to.click(function () {
+    $show_answer_to.unbind('click').click(function () {
         highlight($(this).attr('answer-to'));
     });
         
     if(!isMobileDevice()) {
-        $show_answer_to.mouseenter(function () {
+        $show_answer_to.unbind('mouseenter').mouseenter(function () {
             var pos = $(this).position();
             var id = $(this).attr('answer-to');
             var $this = $(this);
             
-            var $post = $('#tbl' + id);
+            var $post = $('#tbl' + id + ':first').clone(true);
             if(!$post.length) {
                 $.ajax({
                     url: flask_util.url_for('ajax_getpost', {postid : id}),
                     async: false,
                     success: function (data) {
                         $('body').append(data);
-                        $post = $('#tbl' + id).hide();
+                        $post = $('#tbl' + id + ':first').hide().clone(true);
                         enable_post_actions();
                     }
                 });
             }
             $post
-                .clone(true)
                 .insertAfter($(this))
                 .addClass('post-preview')
-                .css('top', pos.top + 20)
-                .css('left', pos.left - 200)
                 .mouseleave(function () {
                     $(this).remove();
                 })
-                .show();
+                .show()
+                .css('left', $(this).offset().left - $(window).scrollLeft() + $post.width() > $(window).width ? pos.left + 200 : pos.left - 200)
+                .css('top', $(this).offset().top - $(window).scrollTop() + $post.height() > $(window).height() ? pos.top - $post.height() - 20 : pos.top + 20);
+
+            console.log($(window).height());
+            console.log($this.offset());
             return false;
         })
         .mouseleave(function () {
@@ -117,7 +119,7 @@ function enable_post_actions() {
                 $('.post-preview').each(function () {
                     if(!$(this).is(':hover')) $(this).remove();
                 });
-            }, 400);
+            }, 600);
         });
     }
     
