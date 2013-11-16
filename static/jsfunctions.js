@@ -123,6 +123,7 @@ function enable_post_actions() {
     
     if(typeof enable_image_magnifier !== 'undefined') enable_image_magnifier();
     if(typeof admin_actions_bind !== 'undefined') admin_actions_bind();
+    if(typeof custom_actions_bind !== 'undefined') custom_actions_bind();
 }
 
 var auto_refresh_enabled = false;
@@ -137,7 +138,7 @@ function refresh_page(done_func) {
             var currentdate = new Date();
             $("#last-refresh").text("Последнее обновление страницы: " + currentdate.toLocaleTimeString());
             enable_post_actions();
-            if(done_func) done_func();
+            if(typeof done_func !== 'undefined') done_func();
         }
     });
 }

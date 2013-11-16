@@ -18,8 +18,6 @@ class PostForm(Form):
     answer_to = HiddenField('answer_to', default='0')
     section = HiddenField('section')
 
-    choices = list()
-    for r in RANDOM_SETS:
-        choices.append((str(RANDOM_SETS.index(r)), r.get('name')))
+    choices = [(str(RANDOM_SETS.index(r)), '%s (%d)' % (r.get('name'), RANDOM_SETS.index(r))) for r in RANDOM_SETS]
     ins_random = SelectField('ins_random', choices=choices, default=0)
     commit = SubmitField('commit')
