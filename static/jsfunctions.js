@@ -228,7 +228,7 @@ $(document).ready(function () {
     $('.ins_random').change(function() {
         var $td = $(this).parents('td:first');
         $td.children("#img_url").attr('disabled', $(this).val() != '0');
-        $td.parents('td:first').children("#img").attr('disabled', $(this).val() != '0');
+        $td.children("#img").attr('disabled', $(this).val() != '0');
     });
     
     var hash = window.location.hash;

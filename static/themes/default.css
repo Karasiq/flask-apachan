@@ -1,3 +1,20 @@
+body {
+    background-color: #F7F7F7;
+    color: #000000;
+}
+a:link {
+    color: #000000;
+}
+a:visited {
+    color: #000000;
+}
+a:active {
+    color: #000000;
+}
+a.anew:visited {
+    color:#939393;
+}
+
 .post {
     font-size:13px;
     border: 1px solid gray;

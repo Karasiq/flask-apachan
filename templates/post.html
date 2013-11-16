@@ -5,73 +5,86 @@
 {% else %}
     {% set post_class = 'post-common' %}
 {% endif %}
-<table id="tbl{{ p.id }}" align='center' id="p{{ p.id }}" class="post {{ post_class }}"><tr><td colspan='2'><div id="cd{{ p.id }}" style='overflow:hidden;'>
-    {% if p.title %}
-        <b>{{ p.title|escape }}</b><br>
-    {% endif %}
-    {% if p.image != '' %}
-        <div class="post-image">
-            {% if p.randid == 0 %}<a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}" class="show-full-image">{% endif %}
-            <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" style="float:left;" {% if p.randid == 0 %}class="zoomable"{% endif %} HSPACE="5"/>
-            <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}" style="display: none;"/>
-            {% if p.randid == 0 %}</a>{% endif %}
-        </div>
-    {% endif %}
-    {{ p.message|message|ext_urls|safe }}</div></td></tr><tr><td height='10px'></td></tr>
-    <tr><td class='post-actions post-actions-left'>[<a href="/view/{{ p.id }}"{% if session.admin %} title="{{ p.user_id }} {{ p.from_ip }}"{% endif %}>#{{ p.id }}</a>] {{ p.time.strftime('%d %B %Y %H:%M:%S').decode('cp1251') }}
-    {% if (form and form.parent.data != '0') or mainpost %}
-        {% if p.user_id == mainpost.user_id %}
-        <a href="{{ url_for('semeno_detector', postid=p.id) }}" rel='nofollow'><b>ОП</b></a>
-        {% else %}
-        <a href="{{ url_for('semeno_detector', postid=p.id) }}" rel='nofollow'><img src="{{ url_for('static', filename='det.gif') }}" border='0'></a>
-        {% endif %}
-    {% endif %}
-    {% if p.randid > 0 %}
-    R{{ p.randid }}&nbsp;
-    {% endif %}
-    {% if show_answer_to or (p.answer_to != 0 and (mainpost and p.answer_to != mainpost.id)) %}
-    <a href={% if (mainpost and p.answer_to == mainpost.id) or (page_posts and p.answer_to in page_posts) %}"#t{{ p.answer_to }}"{% else %}"{{ url_for('viewpost', postid=p.answer_to) }}"{% endif %} answer-to={{ p.answer_to }} class="show-answer-to">на что?</a> &nbsp;
-    {% endif %}
-
-    {% if p.parent == 0 and not mainpost %}
-        <b>[<a class='anew' href='{{ url_for('view', postid=p.id) }}#{{ p.answers }}'>Ответов: {{ p.answers }}</a>]</b>
-        &nbsp;<img post-id={{ p.id }} class="add-to-favorites" title="В избранное"
-        {% if p.id not in session.favorites %}
-        src="{{ url_for('static', filename='fav.png') }}"
-        {% else %}
-        src="{{ url_for('static', filename='unfav.png') }}"
-        {% endif %}>
-        <img post-id={{ p.id }} class="hide-thread" src="{{ url_for('static', filename='hide.png') }}" title="Скрыть">
-    {% else %}
-    <a href="{{ url_for('view', postid = p.id) }}">Ответить</a>&nbsp;
-    {% endif %}
-    {% if not config.DISABLE_RATING %} Рейтинг: <span id="post-rating">{{ p.rating }}</span>
-    {% if session.admin or (session.canvote and p.user_id != session.uid) %}
-        <span id="post-voting" post-id={{ p.id }} class="require-js"><a class="vote-post" vote=1 href="#" style='text-decoration:none'>[+]</a> <a class="vote-post" vote=-1 href="#" style='text-decoration:none'>[-]</a></span>
-    {% endif %}
-	{% endif %}
-	
-    {% if session.admin or (session.can_delete and p.id in session.can_delete) %}
-        &nbsp;<a class="delete-post" href="{{ url_for('postdel', postid=p.id) }}" post-id={{ p.id }}>[Удалить]</a>
-    {% endif %}
-    {% if show_section %}
-        &nbsp; {{ config.SECTIONS[p.section] }}
-    {% endif %}
-    {% if session.admin %}
-        <span class="show-admin-panel" style="opacity:0;">[...]</span>
-        <span id="admin-funcs" style="display: none;">
-            <a href="javascript:ban({{ p.user_id|tojson }});">[бан]</a>
-            <a href="javascript:delall({{ p.user_id|tojson }});">[удалить все посты]</a>
-            <a href='javascript:delall_ip({{ p.from_ip|tojson }});'>[удалить все посты (IP)]</a>
-            {% if p.parent == 0 %}
-            <a id="transfer_{{ p.id }}" href="javascript:transfer({{ p.id|tojson }});">[перенести]</a>
-            <a href="javascript:pin({{ p.id|tojson }});">[закрепить]</a>
-            <a href="javascript:unpin({{ p.id|tojson }});">[открепить]</a>
+<table id="tbl{{ p.id }}" align='center' id="p{{ p.id }}" class="post {{ post_class }}">
+    <tr>
+        <td colspan='2'><div id="cd{{ p.id }}" style='overflow:hidden;'>
+            {% if p.title %}
+                <b>{{ p.title|escape }}</b><br>
             {% endif %}
-        </span>
-    {% endif %}
-    </td><td align='right' class='post-actions post-actions-right'>
-    {# <span class="shaded require-js">
-    <a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a>
-    </span> #}
-    </td> </tr></table>
+            {% if p.image != '' %}
+                <div class="post-image">
+                    {% if p.randid == 0 %}<a href="{{ url_for('getimage', randid=p.randid, filename=p.image) }}" class="show-full-image">{% endif %}
+                    <img id="main" src="{{ url_for('getimage', randid=p.randid, filename=p.thumb) }}" {% if p.randid == 0 %}class="zoomable"{% endif %} HSPACE="5"/>
+                    <img id="overlay" src="{{ url_for('static', filename='wait.gif') }}"/>
+                    {% if p.randid == 0 %}</a>{% endif %}
+                </div>
+            {% endif %}
+            {{ p.message|message|ext_urls|safe }}
+        </div></td>
+    </tr>
+    <tr><td height='10px'></td></tr>
+    <tr>
+        <td class='post-actions post-actions-left'>
+            [<a href="/view/{{ p.id }}"{% if session.admin %} title="{{ p.user_id }} {{ p.from_ip }}"{% endif %}>#{{ p.id }}</a>] {{ p.time.strftime('%d %B %Y %H:%M:%S').decode('cp1251') }}
+            {% if (form and form.parent.data != '0') or mainpost %}
+                {% if p.user_id == mainpost.user_id %}
+                <a href="{{ url_for('semeno_detector', postid=p.id) }}" rel='nofollow'><b>ОП</b></a>
+                {% else %}
+                <a href="{{ url_for('semeno_detector', postid=p.id) }}" rel='nofollow'><img src="{{ url_for('static', filename='det.gif') }}" border='0'></a>
+                {% endif %}
+            {% endif %}
+            {% if p.randid > 0 %}
+            R{{ p.randid }}&nbsp;
+            {% endif %}
+            {% if show_answer_to or (p.answer_to != 0 and (mainpost and p.answer_to != mainpost.id)) %}
+            <a href={% if (mainpost and p.answer_to == mainpost.id) or (page_posts and p.answer_to in page_posts) %}"#t{{ p.answer_to }}"{% else %}"{{ url_for('viewpost', postid=p.answer_to) }}"{% endif %} answer-to={{ p.answer_to }} class="show-answer-to">на что?</a> &nbsp;
+            {% endif %}
+
+            {% if p.parent == 0 and not mainpost %}
+                <b>[<a class='anew' href='{{ url_for('view', postid=p.id) }}#{{ p.answers }}'>Ответов: {{ p.answers }}</a>]</b>
+                &nbsp;<img post-id={{ p.id }} class="add-to-favorites" title="В избранное"
+                {% if p.id not in session.favorites %}
+                src="{{ url_for('static', filename='fav.png') }}"
+                {% else %}
+                src="{{ url_for('static', filename='unfav.png') }}"
+                {% endif %}>
+                <img post-id={{ p.id }} class="hide-thread" src="{{ url_for('static', filename='hide.png') }}" title="Скрыть">
+            {% else %}
+            <a href="{{ url_for('view', postid = p.id) }}">Ответить</a>&nbsp;
+            {% endif %}
+            {% if not config.DISABLE_RATING %} Рейтинг: <span id="post-rating">{{ p.rating }}</span>
+            {% if session.admin or (session.canvote and p.user_id != session.uid) %}
+                <span id="post-voting" post-id={{ p.id }} class="require-js">
+                    <a class="vote-post" vote=1 href="#">[+]</a>
+                    <a class="vote-post" vote=-1 href="#">[-]</a>
+                </span>
+            {% endif %}
+            {% endif %}
+            
+            {% if session.admin or (session.can_delete and p.id in session.can_delete) %}
+                &nbsp;<a class="delete-post" href="{{ url_for('postdel', postid=p.id) }}" post-id={{ p.id }}>[Удалить]</a>
+            {% endif %}
+            {% if show_section %}
+                &nbsp; {{ config.SECTIONS[p.section] }}
+            {% endif %}
+            {% if session.admin %}
+                <span class="show-admin-panel" style="opacity:0;">[...]</span>
+                <span id="admin-funcs" style="display: none;">
+                    <a href="javascript:ban({{ p.user_id|tojson }});">[бан]</a>
+                    <a href="javascript:delall({{ p.user_id|tojson }});">[удалить все посты]</a>
+                    <a href='javascript:delall_ip({{ p.from_ip|tojson }});'>[удалить все посты (IP)]</a>
+                    {% if p.parent == 0 %}
+                    <a id="transfer_{{ p.id }}" href="javascript:transfer({{ p.id|tojson }});">[перенести]</a>
+                    <a href="javascript:pin({{ p.id|tojson }});">[закрепить]</a>
+                    <a href="javascript:unpin({{ p.id|tojson }});">[открепить]</a>
+                    {% endif %}
+                </span>
+            {% endif %}
+        </td>
+        <td align='right' class='post-actions post-actions-right'>
+            {# <span class="shaded">
+            <a href="{{ url_for('report', post_id=p.id) }}" target='_blank' rel='nofollow'>[Abuse]</a>
+            </span> #}
+        </td>
+    </tr>
+</table>

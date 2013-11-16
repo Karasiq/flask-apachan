@@ -1,7 +1,15 @@
-a.anew:visited {color:#939393;}
+body {
+    font-family:Verdana;
+    font-size:12px;
+}
 
 div.post-image {
     position:relative;
+}
+
+.post-form {
+    font-family:Tahoma;
+    font-size:12px;
 }
 
 .spoiler {
@@ -31,6 +39,14 @@ div.post-image {
     font-size:11px;
 }
 
+.vote-post {
+    text-decoration:none;
+}
+
+.center {
+    text-align:center;
+}
+
 #welcome-message {
     width:900px;
     padding:10px;
@@ -52,6 +68,7 @@ div.post-image {
     min-height:50px;
     max-height:200px;
     max-width:200px;
+    float:left;
 }
 
 #overlay {

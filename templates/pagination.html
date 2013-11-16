@@ -1,5 +1,5 @@
 {% if posts.has_next or posts.has_prev %}
-    <strong>Страницы: </strong>
+    <span style="font-weight:bold;">Страницы: </span>
     {% for page in posts.iter_pages(left_edge = 15, right_edge = 15) %}
         {% if page %}
             {% if page != posts.page %}
@@ -8,7 +8,7 @@
                 <span style="font-weight:bold; color:red;">{{ page }}</span>
             {% endif %}
         {% else %}
-            <span class=ellipsis>…</span>
+            <span>…</span>
         {% endif %}
     {% endfor %}
 {% endif %}

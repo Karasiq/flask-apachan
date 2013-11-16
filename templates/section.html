@@ -20,8 +20,8 @@
 {% endblock %}
 
 {% block content %}
-<center><img src="{{ url_for('static', filename='refresh.png') }}" height=40 width=40 id="auto-reload" class="require-js"> <h2>{{ title }}</h2></center>
-<div style="text-align: center" id="last-refresh"></div>
+<div class="center"><img src="{{ url_for('static', filename='refresh.png') }}" height=40 width=40 id="auto-reload" class="require-js"> <h2>{{ title }}</h2></div>
+<div class="center" id="last-refresh"></div>
 
 {% block navigation %}
 <center><h3>{% if (form and form.parent.data != '0') or mainpost %}
@@ -36,10 +36,10 @@
 {% endblock %}
     {% block postform %}
         {% if not session.fingerprint or not session.uid %}
-            <center><h3>Включите javascript для возможности отправлять сообщения</h3></center>
+            <h3 class="center">Включите javascript для возможности отправлять сообщения</h3>
         {% elif session.crawler %}
-            {% if config.SITE_NAME %}<center><h1>{{ config.SITE_NAME }}</h1></center>{% endif %}
-            {% if config.KEYWORDS %}<center><h2>{{ config.KEYWORDS }}</h2></center>{% endif %}
+            {% if config.SITE_NAME %}<h1 class="center">{{ config.SITE_NAME }}</h1>{% endif %}
+            {% if config.KEYWORDS %}<h2 class="center">{{ config.KEYWORDS }}</h2>{% endif %}
         {% elif form %}
             <hr width="90%" size=1>
             {% include 'postform.html' %}
