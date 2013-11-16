@@ -19,6 +19,7 @@ a.anew:visited {
     font-size:13px;
     border: 1px solid gray;
     width: 900px;
+    max-width: 900px;
 }
 
 .post-main {
