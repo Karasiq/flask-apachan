@@ -33,14 +33,3 @@ a.anew:link {
     color: #1A1A1A;
     background-color: #EADC62;
 }
-
-.quote {
-	background: #636363;
-	border:1px solid darkgray;
-	font-family:Verdana;
-	font-size:10px;
-	text-align:left;
-	padding: 5px 10px 5px 10px;
-	margin-bottom:0px;
-	margin-left:10px;
-}

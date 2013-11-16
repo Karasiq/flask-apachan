@@ -112,3 +112,15 @@ div.post-image {
     max-height: 500px;
     overflow: auto;
 }
+
+.quote {
+    float: left;
+    background: #FFFFFF;
+    border:1px solid darkgray;
+    font-family:Verdana;
+    font-size:10px;
+    text-align:left;
+    padding: 5px 10px 5px 10px;
+    margin-bottom:0px;
+    margin-left:10px;
+}
