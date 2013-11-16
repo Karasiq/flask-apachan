@@ -705,7 +705,7 @@ def post():
                         img = frames[0]
                     else:
                         img = Image.open(aimgfilename)
-                    img.thumbnail(thumbsize)
+                    img.thumbnail(thumbsize, Image.ANTIALIAS)
                     img.save(os.path.join(imgdir, thumbfilename), "JPEG")
                 entry.thumb = thumbfilename
                 entry.image = imgfilename
