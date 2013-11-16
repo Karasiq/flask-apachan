@@ -27,6 +27,10 @@ div.post-image {
     z-index:1;
 }
 
+.post-actions {
+    font-size:11px;
+}
+
 #welcome-message {
     width:900px;
     padding:10px;

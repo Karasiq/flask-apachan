@@ -13,3 +13,4 @@ _gsdata_/
 *.log
 static/headerpic.png
 templates/welcome_message.html
+static/custom.js
