@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block content %}
+
 {% if mainpost and mainpost.title %}
     {% set title = mainpost.title %}
 {% elif mainpost %}
@@ -13,10 +13,15 @@
 {% else %}
     {% set title = config.SITE_NAME %}
 {% endif %}
-    <center><img src="{{ url_for('static', filename='refresh.png') }}" height=40 width=40 id="auto-reload" class="require-js"> <h2>{{ title }}</h2></center>
-    <div style="text-align: center" id="last-refresh"></div>
-    <title>{{ title }}</title>
-    <meta name="title" content="{{ title }}"/>
+
+{% block head %}
+<title>{{ title }}</title>
+<meta name="title" content="{{ title }}"/>
+{% endblock %}
+
+{% block content %}
+<center><img src="{{ url_for('static', filename='refresh.png') }}" height=40 width=40 id="auto-reload" class="require-js"> <h2>{{ title }}</h2></center>
+<div style="text-align: center" id="last-refresh"></div>
 
 {% block navigation %}
 <center><h3>{% if (form and form.parent.data != '0') or mainpost %}

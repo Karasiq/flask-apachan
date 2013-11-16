@@ -1,6 +1,9 @@
 {% extends 'layout.html' %}
+{% block head %}
+<title>Галерея - {{ config.SITE_NAME }}</title>
+{% endblock %}
+
 {% block content %}
-    <title>Галерея - {{ config.SITE_NAME }}</title>
     {% block pagination %}<div align="center"><h2>{% include 'pagination.html' %}</h2></div>{% endblock %}
 <table align='center'>
     <tr><td>

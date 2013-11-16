@@ -385,12 +385,13 @@ this.evercookie_lso = function(name, value)
 	if (typeof value != 'undefined')
 		flashvars.everdata = name + '=' + value;
 
-	var params           = {};
+	/* var params           = {};
 	params.swliveconnect = "true";
 	var attributes       = {};
 	attributes.id        = "myswf";
 	attributes.name      = "myswf";
-	swfobject.embedSWF(flask_util.url_for('static', {filename:"javascript/evercookie/evercookie.swf"}), "swfcontainer", "1", "1", "9.0.0", false, flashvars, params, attributes);
+	swfobject.embedSWF(flask_util.url_for('static', {filename:"javascript/evercookie/evercookie.swf"}), "swfcontainer", "1", "1", "9.0.0", false, flashvars, params, attributes); */
+    
 };
 
 this.evercookie_png = function(name, value)

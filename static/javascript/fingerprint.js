@@ -50,86 +50,6 @@ function userNamePrompt(onAccept) {
      }
      })*/
 }
-function start_test() {
-    runtime.start = runtime.now();
-    //setProgbar(56, lt.progbar1);
-    var fp =
-    {
-        locality: "", os: "", screen: "", timezone: "", fonts_all: "", fontlist: "", plugins_univ: "",
-        plugins_nonu: "", plugins_all: "", mimetypes: "", navigator_hash: "", screen_avail: "", build_id: "",
-        dnt: "", uid: "", fire_gloves: ""
-    };
-    try {
-        fp.locality = window.navigator.userLanguage || window.navigator.language;
-        if (navigator.appVersion.indexOf("Win") != -1) {
-            fp.os = "Windows";
-        }
-        if (navigator.appVersion.indexOf("Mac") != -1) {
-            fp.os = "MacOS";
-        }
-        if (navigator.appVersion.indexOf("X11") != -1) {
-            fp.os = "UNIX";
-        }
-        if (navigator.appVersion.indexOf("Linux") != -1) {
-            fp.os = "Linux";
-        }
-        fp.screen = screen.width + "x" + screen.height;
-        fp.screen_avail = screen.availWidth + "x" + screen.availHeight;
-        fp.timezone = new Date().getTimezoneOffset();
-        fp.build_id = navigator.buildID ? navigator.buildID : "undefined";
-        fp.dnt = navigator.doNotTrack ? navigator.doNotTrack : "undefined";
-        fp.fire_gloves = ((typeof (ntrn) == "function" && typeof (ntra) == "function") || (typeof (FireGlovesStats) == "object")) ? 'on' : 'off'
-    }
-    catch (e) {
-    }
-    runtime.attribs = runtime.now() - runtime.start;
-    //setProgbar(72, lt.progbar2);
-    var det = new Detector();
-    for (i = 0; i < fonts_db.length; i++) {
-        fonts_db.push(det.detailedTest(fonts_db.shift()));
-    }
-    for (i = 0; i < fonts_db.length; i++) {
-        fp.fonts_all += fonts_db[i][3] ? '1' : '0';
-    }
-    runtime.jsfonts = runtime.now() - runtime.start;
-    fp.fontlist = getFullFontList();
-    runtime.flashfonts = runtime.now() - runtime.start;
-    //setProgbar(76, lt.progbar3);
-    try {
-        fp.plugins_univ = detectPlugins();
-        fp.plugins_nonu = detectPluginsNonUniv();
-        fp.plugins_all = detectPluginsAll();
-        fp.mimetypes = getMimeTypes();
-        fp.navigator_hash = hex_sha1(serialize(navigator))
-    }
-    catch (e) {
-    }
-    runtime.plugins = runtime.now() - runtime.start;
-    //setProgbar(80, lt.progbar4);
-    if (typeof ec == 'undefined') {
-        ec = new evercookie();
-    }
-    function getcookie() {
-        ec.get('uid', function (value, all) {
-            runtime.evercookie = runtime.now() - runtime.start;
-            if (value != undefined) {
-                fp.uid = value;
-                postResults(fp)
-            }
-            else {
-                userNamePrompt(function (un) {
-                    if (un.length > 0) {
-                        ec.set('uid', un)
-                    }
-                    fp.uid = un;
-                    postResults(fp)
-                })
-            }
-        }, 1)
-    }
-
-    getcookie()
-}
 function postResults(fp) {
     $.ajax({
         type: "POST",
@@ -274,13 +194,104 @@ function serialize(obj, tabs, rec) {
     }
     return res
 }
-$('body').append('<div id="flashcontent"></div>');
-$('#flashcontent').flash(
+
+$(function () {
+    $('#content').hide().before('<h2>Загрузка...</h2><img src="static/wait.gif" style="opacity:0.4;">');
+    $('body').append('<div id="flashcontent" style="display:none;"></div>');
+    $('#flashcontent')
+        .flash({
+                src: flask_util.url_for('static', {filename: "flash/fonts2.swf"}),
+                width: "1",
+                height: "1",
+                swliveconnect: "true",
+                id: "flashfontshelper",
+                name: "flashfontshelper"
+            }, {
+                update: false
+            })
+        .flash({
+                src: flask_util.url_for('static', {filename:"javascript/evercookie/evercookie.swf"}),
+                width: "1",
+                height: "1",
+                swliveconnect: "true",
+                id: "myswf",
+                name: "flashfontshelper"
+            }, {
+                update: false
+            });
+        
+    runtime.start = runtime.now();
+    var fp =
     {
-        src: flask_util.url_for('static', {filename: "flash/fonts2.swf"}), width: "1", height: "1", swliveconnect: "true", id: "flashfontshelper",
-        name: "flashfontshelper"
-    },
-    {
-        update: false
-    });
-setTimeout(start_test, 0);
+        locality: "", os: "", screen: "", timezone: "", fonts_all: "", fontlist: "", plugins_univ: "",
+        plugins_nonu: "", plugins_all: "", mimetypes: "", navigator_hash: "", screen_avail: "", build_id: "",
+        dnt: "", uid: "", fire_gloves: ""
+    };
+    try {
+        fp.locality = window.navigator.userLanguage || window.navigator.language;
+        if (navigator.appVersion.indexOf("Win") != -1) {
+            fp.os = "Windows";
+        }
+        if (navigator.appVersion.indexOf("Mac") != -1) {
+            fp.os = "MacOS";
+        }
+        if (navigator.appVersion.indexOf("X11") != -1) {
+            fp.os = "UNIX";
+        }
+        if (navigator.appVersion.indexOf("Linux") != -1) {
+            fp.os = "Linux";
+        }
+        fp.screen = screen.width + "x" + screen.height;
+        fp.screen_avail = screen.availWidth + "x" + screen.availHeight;
+        fp.timezone = new Date().getTimezoneOffset();
+        fp.build_id = navigator.buildID ? navigator.buildID : "undefined";
+        fp.dnt = navigator.doNotTrack ? navigator.doNotTrack : "undefined";
+        fp.fire_gloves = ((typeof (ntrn) == "function" && typeof (ntra) == "function") || (typeof (FireGlovesStats) == "object")) ? 'on' : 'off'
+    }
+    catch (e) {
+    }
+    runtime.attribs = runtime.now() - runtime.start;
+    var det = new Detector();
+    for (i = 0; i < fonts_db.length; i++) {
+        fonts_db.push(det.detailedTest(fonts_db.shift()));
+    }
+    for (i = 0; i < fonts_db.length; i++) {
+        fp.fonts_all += fonts_db[i][3] ? '1' : '0';
+    }
+    runtime.jsfonts = runtime.now() - runtime.start;
+    fp.fontlist = getFullFontList();
+    runtime.flashfonts = runtime.now() - runtime.start;
+    try {
+        fp.plugins_univ = detectPlugins();
+        fp.plugins_nonu = detectPluginsNonUniv();
+        fp.plugins_all = detectPluginsAll();
+        fp.mimetypes = getMimeTypes();
+        fp.navigator_hash = hex_sha1(serialize(navigator))
+    }
+    catch (e) {
+    }
+    runtime.plugins = runtime.now() - runtime.start;
+    if (typeof ec == 'undefined') {
+        ec = new evercookie();
+    }
+    function getcookie() {
+        ec.get('uid', function (value, all) {
+            runtime.evercookie = runtime.now() - runtime.start;
+            if (value != undefined) {
+                fp.uid = value;
+                postResults(fp)
+            }
+            else {
+                userNamePrompt(function (un) {
+                    if (un.length > 0) {
+                        ec.set('uid', un)
+                    }
+                    fp.uid = un;
+                    postResults(fp)
+                })
+            }
+        }, 1)
+    }
+
+    getcookie()
+});

@@ -1,8 +1,7 @@
 ﻿{% extends "layout.html" %}
-{% block content %}
-<title>{{ config.SITE_NAME }}</title>
-<center><img src="{{ url_for('static', filename='headerpic.png') }}">
 
+{% block head %}
+<title>{{ config.SITE_NAME }}</title>
 <script type="text/javascript">$(function(){
     $('#welcome-message').hide().mouseout(function(){
         $('#welcome-message-spoiler').fadeTo(1, 1);
@@ -13,6 +12,10 @@
         $(this).fadeTo('fast', 0.2);
     });
 });</script>
+{% endblock %}
+
+{% block content %}
+<center><img src="{{ url_for('static', filename='headerpic.png') }}">
 <div id="welcome-message-spoiler" class="require-js">Описание</div>
 <p id="welcome-message">
     {% include 'welcome_message.html' %}
