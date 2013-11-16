@@ -1,21 +1,4 @@
 var highlighted = 0;
-function set_fp() {
-    var fingerprint = new Fingerprint({canvas: true}).get();
-    // var fingerprint = new Fingerprint().get();
-    $.getJSON($SCRIPT_ROOT + '/set-fp', {
-        fp: fingerprint
-    });
-}
-function get_ec() {
-    ec.get("uid", function (value) {
-        $.getJSON($SCRIPT_ROOT + '/set_id', {
-            uid: value
-        });
-    });
-}
-function set_ec(newid) {
-    ec.set("uid", newid);
-}
 function highlight(comment) {
     var tbl = $("#tbl" + comment);
     tbl.addClass('post-highlighted');

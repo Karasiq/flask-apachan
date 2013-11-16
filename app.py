@@ -780,7 +780,7 @@ app.config['IP_BLOCKLIST'] = ipcheck.IpList()
 if os.path.exists(app.config['IP_BLOCKLIST_FILE']):
     app.config['IP_BLOCKLIST'].Load(app.config['IP_BLOCKLIST_FILE'])
 
-js = Bundle('jquery-2.0.3.min.js', 'jsfunctions.js', 'images.js', 'custom.js',
+js = Bundle('jsfunctions.js', 'images.js', 'custom.js',
             filters=(None if app.config['DEBUG_ENABLED'] else 'yui_js'), output='gen/main.js')
 css = Bundle('style.css', filters=(None if app.config['DEBUG_ENABLED'] else 'yui_css'), output='gen/main.css')
 assets.register('js_main', js)

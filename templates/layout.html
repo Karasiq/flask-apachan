@@ -7,13 +7,18 @@
 	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"/>
     {% if not session.crawler %}
     {{ fujs.js }}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     {% assets "js_main" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% if not session.fingerprint %}
-        {% assets "js_fingerprint" %}
-            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-        {% endassets %}
+        <script type="text/javascript">
+            $(function(){
+                {% assets "js_fingerprint" %}
+                    $.getScript('{{ ASSET_URL }}');
+                {% endassets %}
+            });
+        </script>
     {% endif %}
     {% if session.admin %}
         <script type="text/javascript" src="{{ url_for('static', filename='admin.js') }}"></script>
