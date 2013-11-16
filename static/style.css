@@ -105,3 +105,10 @@ div.post-image {
 .require-js {
     display: none;
 }
+
+.post-message {
+    word-wrap: break-word;
+    max-width: 900px;
+    max-height: 500px;
+    overflow: auto;
+}

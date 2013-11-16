@@ -19,7 +19,9 @@
                     {% if p.randid == 0 %}</a>{% endif %}
                 </div>
             {% endif %}
+            <div class="post-message">
             {{ p.message|message|ext_urls|safe }}
+            </div>
         </div></td>
     </tr>
     <tr><td height='10px'></td></tr>
