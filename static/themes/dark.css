@@ -15,6 +15,7 @@ a.anew:link {
     font-size:13px;
     border: 1px solid gray;
     width: 900px;
+    height: auto;
 }
 
 .post-main {
