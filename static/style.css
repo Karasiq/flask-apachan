@@ -27,6 +27,7 @@ div.post-image {
 .zoomed {
     cursor: zoom-out;
     opacity: 0;
+    z-index: 2;
 }
 
 .zoomed-big {
@@ -38,7 +39,6 @@ div.post-image {
     overflow: auto;
     text-align: center;
     background-color: rgba(0,0,0,0.3);
-
 }
 
 .zoomed-small {
