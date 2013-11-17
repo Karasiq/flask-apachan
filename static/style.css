@@ -110,7 +110,7 @@ div.post-image {
     width:auto;
     overflow:hidden;
     max-width: 900px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .quote {
