@@ -107,14 +107,16 @@ div.post-image {
 }
 
 .post-message {
-    word-wrap: break-word;
+    width:auto;
+    overflow:hidden;
     max-width: 900px;
-    max-height: 500px;
-    overflow: auto;
+    word-wrap: break-word;
 }
 
 .quote {
-    float: left;
+    max-width: 650px;
+    overflow: auto;
+    word-wrap: break-word;
     background: #FFFFFF;
     border:1px solid darkgray;
     font-family:Verdana;
@@ -123,4 +125,5 @@ div.post-image {
     padding: 5px 10px 5px 10px;
     margin-bottom:0px;
     margin-left:10px;
+    float:left;
 }

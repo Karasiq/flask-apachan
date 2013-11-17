@@ -122,6 +122,12 @@ function enable_post_actions() {
             }, 600);
         });
     }
+
+    $('.post-message').css('max-height', 400).unbind('hover').hover(function () {
+        $(this).css('max-height', 'none');
+    }, function () {
+        $(this).css('max-height', 400);
+    });
     
     if(typeof enable_image_magnifier !== 'undefined') enable_image_magnifier();
     if(typeof admin_actions_bind !== 'undefined') admin_actions_bind();
